@@ -11,6 +11,20 @@
 |
 */
 
+
 Route::get('/', function () {
-    return view('welcome');
+    return Redirect::to('login');;
 });
+
+Route::get('test', 'EmployeeDetailController@test');
+
+Auth::routes();
+
+Route::group(['middleware' => ['web']], function () {
+    Route::get('home','DashboardController@index');
+});
+
+// hack for logout
+
+Route::get('logout', 'Auth\LoginController@logout');
+

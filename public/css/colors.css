@@ -1,0 +1,42 @@
+.grey{
+	color: #A9A9A9;
+}
+.white{
+	color: #FFF;
+}
+.violet{
+	color: #6145B6;
+}
+.green{
+	color: #36A405;
+}
+
+
+/*
+/
+/ documents
+/
+CREATE TABLE `mopro-dokman`.`documents` ( `document_ID` INT NOT NULL AUTO_INCREMENT , `creator_emp_ID` INT NOT NULL , `filename` VARCHAR(100) NOT NULL , 
+`status` INT NOT NULL DEFAULT '0' , `date_created` DATE NOT NULL , `date_approved` DATE NOT NULL , PRIMARY KEY (`document_ID`)) ENGINE = InnoDB;
+
+
+/ --------------------------------------------------
+attachments
+
+CREATE TABLE `mopro-dokman`.`attachments` ( `attachment_ID` INT NOT NULL AUTO_INCREMENT , `filename` VARCHAR(100) NOT NULL , `document_ID` INT NOT NULL , 
+`status` INT NOT NULL DEFAULT '1' , `date_uploaded` DATE NOT NULL , `date_updated` DATE NOT NULL , PRIMARY KEY (`attachment_ID`)) ENGINE = InnoDB;
+
+/---------------------------------------------------
+approvers
+
+CREATE TABLE `mopro-dokman`.`approvers` ( `emp_ID` INT NOT NULL AUTO_INCREMENT , `document_ID` INT NOT NULL , `status` INT NOT NULL DEFAULT '0' , 
+`date_added` DATE NOT NULL , `date_updated` DATE NOT NULL , PRIMARY KEY (`emp_ID`)) ENGINE = InnoDB;
+
+----------------------------------------------------
+
+comments
+
+CREATE TABLE `mopro-dokman`.`comments` ( `emp_ID` INT NOT NULL AUTO_INCREMENT , `document_ID` INT NOT NULL , `message` TEXT NOT NULL , 
+`date_created` DATE NOT NULL , `date_updated` DATE NOT NULL , PRIMARY KEY (`emp_ID`)) ENGINE = InnoDB;
+
+*/

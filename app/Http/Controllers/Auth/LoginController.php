@@ -2,8 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Redirect;
+use Illuminate\Support\Facades\Auth;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Input;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -25,7 +32,7 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/dashboard';
 
     /**
      * Create a new controller instance.
@@ -35,5 +42,44 @@ class LoginController extends Controller
     public function __construct()
     {
         $this->middleware('guest')->except('logout');
+    }
+
+    public function show(LoginController $login)
+    {
+        dd("test");
+
+         return view('auth.login');
+    }
+
+    public function login(Request $request){
+
+    // // Creating Rules for Email and Password
+    $rules = array(
+        'email' => 'required|email', // make sure the email is an actual email
+        'password' => 'required|alphaNum');
+
+        $validator = Validator::make($request->all() , $rules);
+
+        if($validator->fails()){
+            return Redirect::to('login')->withErrors($validator)->withInput($request->except('password'));
+        }else{  
+
+            $user = ['emp_email' => $request->get('email'), 'password' => $request->get('password')];
+
+            if (Auth::attempt($user)){
+
+                Auth::login(Auth::user());
+
+                return redirect()->intended('dashboard');
+            }else{
+               return Redirect::to('/login')->withErrors(['email', 'The Message']);;
+            }
+        }
+
+    }
+
+    public function logout(LoginController $login, Request $request){
+        Auth::logout();
+        return Redirect::to('/');
     }
 }

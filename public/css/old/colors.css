@@ -1,0 +1,49 @@
+ .circle-present{
+    background: #59c50a;
+ }
+ .circle-idle{
+    background: #FFC600;
+ }
+ .circle-absent{
+   background: #FD1717;
+ }
+
+ .team-design{
+ 	background: #532589;
+ }
+ .team-builders{
+ 	background: #A81BAA;
+ }
+ .team-cx{
+ 	background: #00B4FF;
+ }
+ .team-social-media{
+ 	background: #FF63F6;
+ }
+.team-video-editors{
+	background: #292929;
+}
+.team-das{
+	background: #48C4AE;
+}
+.team-dc{
+	background: #A8A8A8;
+}
+.team-seo{
+	background: #1F3E9B;
+}
+.team-qc{
+	background: #FFCC00;
+ }
+.team-creative{
+	background: #FF9000;
+}
+.team-das2{
+	background: #FF9000;
+}
+.team-dasb{
+	background: #9D4B27;
+}
+.team-dr{
+	background: #FF3600;
+}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Document;
+use App\EmployeeDetails;
 
 class DashboardController extends Controller
 {
@@ -24,6 +25,7 @@ class DashboardController extends Controller
      */
     public function index()
     {   
+        // dd(EmployeeDetails::approvers());
         return view('dashboard')->with('documents', Document::all());
     }
 }

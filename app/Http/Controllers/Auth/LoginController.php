@@ -70,7 +70,7 @@ class LoginController extends Controller
 
                 Auth::login(Auth::user());
 
-                return redirect()->intended('dashboard');
+                return redirect()->intended('home');
             }else{
                return Redirect::to('/login')->withErrors(['email', 'The Message']);;
             }

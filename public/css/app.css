@@ -465,3 +465,33 @@ textarea{
 a span{
     cursor: pointer;
 }
+.mopro-time #time{
+    float: left;
+}
+.mopro-time span{
+    float: left;
+    margin-right: -10px;
+    margin-top: -1px;
+}
+#current_user{
+    margin: 0px 20px;
+}
+.btn-user{
+    background-color: transparent;
+}
+.btn-user:hover, .btn-user:focus{
+    color: white;
+}
+.text-wrap, .text-core{
+    height: auto !important;
+}
+.text-tags.text-tags-on-top{
+    width: 600px !important;
+}
+.text-core .text-wrap .text-tags{
+    width: 600px !important;
+}
+
+.text-core .text-wrap textarea, .text-core .text-wrap input {
+    padding: 3px 100px 4px 5px !important;
+}

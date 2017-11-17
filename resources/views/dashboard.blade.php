@@ -2,6 +2,18 @@
 @section('title')
 Dashboard: Document Controller
 @endsection
+
+
+@section('css')
+    <link href="{{ asset('css/textext/textext.core.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/textext/textext.plugin.arrow.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/textext/textext.plugin.autocomplete.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/textext/textext.plugin.clear.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/textext/textext.plugin.focus.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/textext/textext.plugin.prompt.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/textext/textext.plugin.tags.css') }}" rel="stylesheet">
+@endsection
+
 @section('content')
 <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
@@ -16,13 +28,21 @@ Dashboard: Document Controller
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right white">
-              <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><span>12:30:00 AM</span></h4></li>
+              <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
               <li><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCOiiq0h3n-kkjrkv-KIEjDOqYMm7TmWjhKYOrd5Q-cYe2zYgZ" height="50" class="img-circle"></li> 
-              <li><h4 class="user-fullname">
-              @if(Auth::check())
-                  {{ Auth::user()->emp_firstname . " " . Auth::user()->emp_lastname  }}
-              @endif
-            </h4></li>
+              <li>
+                <div class="dropdown" id="current_user">
+                  <button class="btn dropdown-toggle btn-user" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                     @if(Auth::check())
+                            {{ Auth::user()->emp_firstname . " " . Auth::user()->emp_lastname  }}
+                        @endif
+                    <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                    <li><a href="logout">Logout</a></li>
+                  </ul>
+                </div>
+              </li>
            </ul>
         </div><!--/.navbar-collapse -->
       </div>
@@ -32,11 +52,13 @@ Dashboard: Document Controller
           <div class="col-md-12">
               <div class="card">
                   <div class="card-header card-gradient">
-                       <h4 class="title"><span class="glyphicon glyphicon-time "></span></span>&nbsp;&nbsp;Recent</h4>
+                       <h4 class="title"><span class="glyphicon glyphicon-time"></span></span>&nbsp;&nbsp;Recent
+                        <a class="btn btn-success pull-right" data-toggle="modal" data-target="#createDocumentModal"><span class="glyphicon glyphicon-plus"></span></a>
+                       </h4>
+                        
                   </div>
                     <div class="card-content">
                         <div class="container-fluid table-container">
-                           @json($documents) 
                             <table class="table" id="document-table">
                                 <thead>
                                     <tr>
@@ -50,15 +72,30 @@ Dashboard: Document Controller
                                     </tr>
                                 </thead>
                                 <tbody>
+
                                   @foreach($documents as $document)
                                     <tr>
                                         <td>{{ $document->date_created }}</td>
                                         <td><span class="circle @if($document->status == 1 )  {{'status-approved'}} @else {{ 'status-pending' }} @endif">•</span><span class="status-label">@if($document->status == 1 )  {{'Approved'}} @else {{ 'Pending' }} @endif</span></td>
                                         <td>{{ $document->filename }}</td>
-                                        <td><center><a href="#" data-toggle="tooltip" title="Hooray!">Hover over me</a></center></td>
+                                        <td>
+                                          <?php
+                                          $tooltip_approvers = "";
+
+                                            foreach($document->approvers as $approver){
+                                              $tooltip_approvers .= ''. $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname .'</br>' ;
+                                            }
+                                          ?>
+                                          <center>
+                                            <a href="#" data-toggle="tooltip" title='{{ $tooltip_approvers }}'>
+                                               {{ $document->approvers->count() }}
+                                              <br/>
+                                            </a>
+                                          </center>
+                                        </td>
                                         <td><center>1</center></td>
-                                        <td><center>{{ $document->creator_emp_ID }}</center></td>
-                                        <td><a data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-eye-open grey">&nbsp</span></a><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></td>
+                                        <td><center>{{ $document->creator->emp_firstname . ' ' . $document->creator->emp_lastname }}</center></td>
+                                        <td><a data-toggle="modal" data-target="#viewDocumentModal"><span class="glyphicon glyphicon-eye-open grey">&nbsp</span></a><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -70,8 +107,8 @@ Dashboard: Document Controller
       </div>
   @endsection
   @section('modals')
-    <!-- Modal -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+    <!-- View Document Modal -->
+    <div class="modal fade" id="viewDocumentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -118,9 +155,78 @@ Dashboard: Document Controller
           </div>
         </div>
       </div>
-      <script>
-        $(document).ready(function(){
-            $('[data-toggle="tooltip"]').tooltip(); 
-        });
-      </script>
+    </div>
+
+      <!-- Create Document Modal -->
+    <div class="modal fade" id="createDocumentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('img/fav-white.png')}}"></span>Create Attachment</h4>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+                <div class="col-md-12">
+                  <label>FileName</label>
+                  <input type="text" name="document_name" placeholder="Document Name" class="form-control">
+                </div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <div class="col-lg-12 col-md-12">
+                  <label>Attachment</label>
+                  <input type="file" name="" placeholder="File">
+                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
+                  <!-- <textarea class="form-control" rows="25" ></textarea> --> 
+                  <br>
+                  <label>Add Reviewer</label>
+                  <textarea id="textarea"  rows="1" class="form-control"></textarea>
+                  <!-- <input type="text" data-provide="typeahead" class="typehead" autocomplete="off"> -->
+                </div>
+                
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="container-fluid">
+              <div class="col-md-12">
+                <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Save</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  @endsection
+
+  @section('scripts')
+  <script src="{{ asset('js/textext.core.js') }}"></script>
+  <script src="{{ asset('js/textext.plugin.ajax.js') }}"></script>
+  <script src="{{ asset('js/textext.plugin.autocomplete.js') }}"></script>
+  <script src="{{ asset('js/textext.plugin.tags.js') }}"></script>
+  <script src="{{ asset('js/bootstrap3-typeahead.js') }}"></script>
+  <script type="text/javascript">
+
+
+     $('#textarea')
+        .textext({
+            plugins : 'tags autocomplete'
+        })
+        .bind('getSuggestions', function(e, data)
+        {
+            var list = [
+                    "Ted","Davinci","Retchel","Franz","Geoffrey","Arturo","Mars","Jozette","Jude","Marjhann Kein","Sarah","Cenon","Nine","Edzel","Garry","Akash","Prince Ace","James Michael Brandon","Ramon","Rowena","Roberto","Jitendra","Rupert","Jerome","Aimee","Cherry","Carlo","Scott","Karen","Samuel David","Mia Carmel","Jake","Jan","Honey Mae","Cherry Mae","Brewster","Aiko May","Julieto","Levin Venus","Carmela","Ryan","Raul","Ian","Jomar","Gil","Janice","Norlan","Darryll","Ariel","Jonathan","Vanz","Bernardine","Art","Edsel","Fritzie","Tyron","Jhenise","Jan","Marvin","Alice","Jays"
+                ],
+                textext = $(e.target).textext()[0],
+                query = (data ? data.query : '') || ''
+                ;
+
+            $(this).trigger(
+                'setSuggestions',
+                { result : textext.itemManager().filter(list, query) }
+            );
+        })
+        ;
+  </script>
   @endsection

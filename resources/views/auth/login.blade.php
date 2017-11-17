@@ -3,6 +3,7 @@
 Login: Document Controller
 @endsection
 @section('content')
+
     <div class="content-fluid" style="background: #191919">
         <div class="spacer-top">
         </div>
@@ -17,7 +18,7 @@ Login: Document Controller
               <div class="login-form-cont">
                     @if ($errors->has('email'))
                     <span class="help-block">
-                        <strong style="color: white">{{ $errors->first('email') }}</strong>
+                        <strong style="color: red">{{ $errors->first() }}</strong>
                     </span>
                     @endif
                 <form action="login" class="" method="post" accept-charset="utf-8">

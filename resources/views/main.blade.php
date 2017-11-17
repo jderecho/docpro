@@ -13,6 +13,8 @@
     <link href="{{ asset('css/colors.css') }}" rel="stylesheet">
     <link href="{{ asset('css/jquery.dataTables.css') }}" rel="stylesheet">
 
+    @yield('css')
+    
   </head>
   <body>
 
@@ -28,7 +30,7 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/jquery.dataTables.js') }}"></script>
+    @yield('scripts')
     <script src="{{ asset('js/app.js') }}"></script>
-   
   </body>
 </html>

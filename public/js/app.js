@@ -5,6 +5,7 @@ $(document).ready(function(){
     $('[data-toggle="tooltip"]').tooltip({
         html: true
     }); 
+
 	function checkTime(i) {
 	  if (i < 10) {
 	    i = "0" + i;

@@ -23,9 +23,12 @@ class DashboardController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index()
     {   
-        // dd(EmployeeDetails::approvers());
-        return view('dashboard')->with('documents', Document::all());
+        // echo Document::with('approvers.employee_details', 'creator')->get();
+        // return;
+       
+        return view('dashboard')->with('documents', Document::with('approvers.employee_details', 'creator')->get())->with('approvers', EmployeeDetails::all());
     }
 }

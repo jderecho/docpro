@@ -13,6 +13,6 @@ class Document extends Model
     }
 
     public function approvers(){
-    	return $this->hasMany('App\Approver');
+    	return $this->hasMany('App\Approver','document_ID');
     }
 }

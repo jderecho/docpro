@@ -59,7 +59,6 @@ class LoginController extends Controller
         'password' => 'required|alphaNum');
 
         $validator = Validator::make($request->all() , $rules);
-
         if($validator->fails()){
             return Redirect::to('login')->withErrors($validator)->withInput($request->except('password'));
         }else{  

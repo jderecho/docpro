@@ -3,17 +3,19 @@
 Dashboard: Document Controller
 @endsection
 
-
 @section('css')
-    <link href="{{ asset('css/textext/textext.core.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/textext/textext.plugin.arrow.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/textext/textext.plugin.autocomplete.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/textext/textext.plugin.clear.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/textext/textext.plugin.focus.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/textext/textext.plugin.prompt.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/textext/textext.plugin.tags.css') }}" rel="stylesheet">
-@endsection
+    <link href="{{ asset('css/chosen.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/dropzone.css') }}" rel="stylesheet">
 
+    <style type="text/css">
+      h4.title{
+        margin-bottom: 0px !important;
+      }
+      a.btn.btn-success.pull-right {
+        margin-top: -6px !important;
+      }
+    </style>
+@endsection
 @section('content')
 <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
@@ -47,7 +49,6 @@ Dashboard: Document Controller
         </div><!--/.navbar-collapse -->
       </div>
     </nav>
-
     <div class="container document-list-container" style="margin-top: 120px;">
           <div class="col-md-12">
               <div class="card">
@@ -138,7 +139,7 @@ Dashboard: Document Controller
                   <br>
                   <label>Approved by</label>
                   <div id="approver-list-container">
-                     <h5>John Doe <span class="glyphicon glyphicon-ok-circle pull-right green">&nbsp;</span></h5>
+                     <h5>John Doe <span class="status-ok pull-right green"><img src="{{ asset('img/status/check.png') }}"></span></h5>
                      <h5>John Doe</h5>
                      <h5>John Doe</h5>
                   </div>
@@ -147,6 +148,17 @@ Dashboard: Document Controller
           </div>
           <div class="modal-footer">
             <div class="container-fluid">
+
+               <div class="col-md-12">
+               <span class="label label-success">2 Comments</span>
+                <p class="">
+                  <span>
+                    <b>John Manuel Derecho</b>
+                    <span>&nbsp;</span>
+                    <span>alryty !</span>
+                  </span>
+                </p>
+               </div>
               <div class="col-md-12">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Add Comment</button>
@@ -177,13 +189,26 @@ Dashboard: Document Controller
                 <br>
                 <div class="col-lg-12 col-md-12">
                   <label>Attachment</label>
-                  <input type="file" name="" placeholder="File">
+                  <!-- <input type="file" name="" placeholder="File"> -->
+
+                   <form action="/file-upload" id="myAwesomeDropzone"
+                    class="dropzone">
+                      {{ csrf_field() }}
+                      <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
+                  </form>
                   <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
                   <!-- <textarea class="form-control" rows="25" ></textarea> --> 
                   <br>
                   <label>Add Reviewer</label>
-                  <textarea id="textarea"  rows="1" class="form-control"></textarea>
+                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
                   <!-- <input type="text" data-provide="typeahead" class="typehead" autocomplete="off"> -->
+                  <select data-placeholder="Add Reviewer" class="chosen-select form-control" multiple="" tabindex="-1">
+                      <option value=""></option>
+                      @foreach($approvers as $employee)
+                      <option value="{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
+                      @endforeach
+              
+                    </select>
                 </div>
                 
             </div>
@@ -201,32 +226,35 @@ Dashboard: Document Controller
   @endsection
 
   @section('scripts')
-  <script src="{{ asset('js/textext.core.js') }}"></script>
-  <script src="{{ asset('js/textext.plugin.ajax.js') }}"></script>
-  <script src="{{ asset('js/textext.plugin.autocomplete.js') }}"></script>
-  <script src="{{ asset('js/textext.plugin.tags.js') }}"></script>
-  <script src="{{ asset('js/bootstrap3-typeahead.js') }}"></script>
+  <script src="{{ asset('js/chosen.jquery.min.js') }}"></script>
+  <script src="{{ asset('js/dropzone.js') }}"></script>
+
   <script type="text/javascript">
 
+    $(".chosen-select ").chosen({
+        disable_search_threshold: 10,
+        no_results_text: "No Result(s) Found!",
+        width: "100%"
+    });
 
-     $('#textarea')
-        .textext({
-            plugins : 'tags autocomplete'
-        })
-        .bind('getSuggestions', function(e, data)
-        {
-            var list = [
-                    "Ted","Davinci","Retchel","Franz","Geoffrey","Arturo","Mars","Jozette","Jude","Marjhann Kein","Sarah","Cenon","Nine","Edzel","Garry","Akash","Prince Ace","James Michael Brandon","Ramon","Rowena","Roberto","Jitendra","Rupert","Jerome","Aimee","Cherry","Carlo","Scott","Karen","Samuel David","Mia Carmel","Jake","Jan","Honey Mae","Cherry Mae","Brewster","Aiko May","Julieto","Levin Venus","Carmela","Ryan","Raul","Ian","Jomar","Gil","Janice","Norlan","Darryll","Ariel","Jonathan","Vanz","Bernardine","Art","Edsel","Fritzie","Tyron","Jhenise","Jan","Marvin","Alice","Jays"
-                ],
-                textext = $(e.target).textext()[0],
-                query = (data ? data.query : '') || ''
-                ;
+    Dropzone.options.myAwesomeDropzone = {
+      paramName: "file", // The name that will be used to transfer the file
+      maxFilesize: 2, // MB
+      accept: function(file, done) {
+        console.log("add");
+        if (file.name == "justinbieber.jpg") {
+          done("Naha, you don't.");
+        }
+        else { done(); }
+      },
+      addRemoveLinks: true,
+      removedfile: function(file) {
+          console.log("delete");
+          
+          var _ref;
+          return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+        }
+    };
 
-            $(this).trigger(
-                'setSuggestions',
-                { result : textext.itemManager().filter(list, query) }
-            );
-        })
-        ;
   </script>
   @endsection

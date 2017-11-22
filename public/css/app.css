@@ -495,3 +495,7 @@ a span{
 .text-core .text-wrap textarea, .text-core .text-wrap input {
     padding: 3px 100px 4px 5px !important;
 }
+
+.dropzone{
+    border: 1px dashed grey !important;
+}

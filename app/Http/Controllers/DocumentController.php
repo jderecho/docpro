@@ -85,24 +85,31 @@ class DocumentController extends Controller
         //
     }
 
+
      public function upload(Request $request)
     {
 
-        
-        // $_FILES
-        return json_encode([$request->all(), $_FILES]);
-        // Storage::putFile('photos', new File($_FILES['file']['tmp_name']));
-        // if (Request::hasFile('test')) {
-        //         return "true";
-        //     }
 
-        // $info = pathinfo($_FILES['file']['name']);
-        // $ext = $info['extension']; // get the extension of the file
-        // $newname = "newname.".$ext; 
+        $directory = 'docs/';
 
-        // $target = 'docs/user/document-name/'.$newname;
-        // move_uploaded_file( $_FILES['file']['tmp_name'], $target);
-        
-        return "true";
+        // if( is_dir($directory) === false )
+        // {
+        //     mkdir($directory);
+        // }
+
+
+        $target = $directory . '/' . $_FILES['file']['name'];
+        $save = move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+        if($save){
+            return "true";
+        }else{
+            return "false";
+        }
+    }
+    public function save(Request $request){
+
+        return json_encode([$request->all()]);
+
+        // Document::save();
     }
 }

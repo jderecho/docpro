@@ -14,14 +14,10 @@ $(document).ready(function(){
 	}
 
 	function startTime() {
-	  var today = new Date();
-	  var h = today.getHours();
-	  var m = today.getMinutes();
-	  var s = today.getSeconds();
-	  // add a zero in front of numbers<10
-	  m = checkTime(m);
-	  s = checkTime(s);
-	  document.getElementById('time').innerHTML = h + ":" + m + ":" + s;
+	  var time = new Date();
+
+	  time = time.toLocaleString('en-US', { hour: 'numeric',minute:'numeric', second: 'numeric' , hour12: true });
+	  document.getElementById('time').innerHTML = time;
 	  t = setTimeout(function() {
 	    startTime()
 	  }, 500);

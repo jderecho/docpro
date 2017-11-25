@@ -14,6 +14,31 @@ Dashboard: Document Controller
       a.btn.btn-success.pull-right {
         margin-top: -6px !important;
       }
+      .project-title{
+        left: 206px;
+        font-weight: 600;
+        margin-left: 10px;
+        margin-bottom: 2px;
+        top: 7px;
+      }
+      .project-subtitle{
+        left: 208px;
+        top: 38px;
+        margin-left: 10px;
+        font-size: 12px;
+      }
+      .navbar-brand img{
+        margin-top: -14px;
+        margin-left: 20px;
+      }
+      ul.chosen-choices {
+          border-radius: 5px;
+          padding: 15px;
+      }
+      nav.navbar.navbar-inverse.navbar-fixed-top {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+    }
     </style>
 @endsection
 @section('content')
@@ -26,9 +51,22 @@ Dashboard: Document Controller
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">DokMan</a>
+           
         </div>
         <div id="navbar" class="navbar-collapse collapse">
+           <ul class="nav navbar-nav navbar-left white">
+            <li> <a class="navbar-brand" ><img class="img-responsive pull-left" src="{{ asset('img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
+            <li>  
+              <h4 class="project-title">
+                DocPro
+              </h4>
+              <p class="project-subtitle">
+                Operational Excellence
+              </p>
+            </li>
+           </ul>
+          
+        
           <ul class="nav navbar-nav navbar-right white">
               <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
               <li><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCOiiq0h3n-kkjrkv-KIEjDOqYMm7TmWjhKYOrd5Q-cYe2zYgZ" height="50" class="img-circle"></li> 
@@ -119,7 +157,7 @@ Dashboard: Document Controller
           <div class="modal-body">
             <div class="container-fluid">
                 <div class="col-md-12">
-                  <label>FileName</label>
+                  <label>File Name</label>
                   <input type="text" name="document_name" placeholder="Document Name" class="form-control">
                 </div>
                 <br>
@@ -186,8 +224,29 @@ Dashboard: Document Controller
                 <br>
                 <br>
                 <br>
+                <br> <div class="col-md-12">
+                  <label>Revision Number</label>
+                  <input type="text" name="revision_number" placeholder="Revision Number" class="form-control">
+                </div>
+                <br>
+                <br>
+                <br>
                 <br>
                 <div class="col-lg-12 col-md-12">
+                  <label>Add Reviewer</label>
+                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
+                  <!-- <input type="text" data-provide="typeahead" class="typehead" autocomplete="off"> -->
+                  <select data-placeholder="Add Reviewer" class="chosen-select form-control" multiple="" tabindex="-1">
+                      <option value=""></option>
+                      @foreach($approvers as $employee)
+                      <option value="{{ $employee->emp_ID }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
+                      @endforeach
+              
+                    </select>
+
+                  
+                  <br>
+                  <br>
                   <label>Attachment</label>
                   <!-- <input type="file" name="" placeholder="File"> -->
 
@@ -198,17 +257,9 @@ Dashboard: Document Controller
                   </form>
                   <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
                   <!-- <textarea class="form-control" rows="25" ></textarea> --> 
-                  <br>
-                  <label>Add Reviewer</label>
-                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-                  <!-- <input type="text" data-provide="typeahead" class="typehead" autocomplete="off"> -->
-                  <select data-placeholder="Add Reviewer" class="chosen-select form-control" multiple="" tabindex="-1">
-                      <option value=""></option>
-                      @foreach($approvers as $employee)
-                      <option value="{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
-                      @endforeach
-              
-                    </select>
+                  <div id="file_uploads_container" class="hidden">
+                    
+                  </div>
                 </div>
                 
             </div>
@@ -216,7 +267,7 @@ Dashboard: Document Controller
           <div class="modal-footer">
             <div class="container-fluid">
               <div class="col-md-12">
-                <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Save</button>
+                <button type="button"  id="btn_save" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Save</button>
               </div>
             </div>
           </div>
@@ -229,6 +280,7 @@ Dashboard: Document Controller
   <script src="{{ asset('js/chosen.jquery.min.js') }}"></script>
   <script src="{{ asset('js/dropzone.js') }}"></script>
 
+
   <script type="text/javascript">
 
     $(".chosen-select ").chosen({
@@ -237,24 +289,63 @@ Dashboard: Document Controller
         width: "100%"
     });
 
+
     Dropzone.options.myAwesomeDropzone = {
+      url: "document/upload",
       paramName: "file", // The name that will be used to transfer the file
-      maxFilesize: 2, // MB
+      maxFilesize: 10, // MB
       accept: function(file, done) {
+        console.log(file[0]);
         console.log("add");
-        if (file.name == "justinbieber.jpg") {
-          done("Naha, you don't.");
+        $('#file_uploads_container').append('<input class="upload-input" type="hidden" name="file_uploads[]" value="' + file.name +'">');
+        if (file.name == "aw.jpg") {
+          done("Nah, no you dont");
         }
         else { done(); }
       },
       addRemoveLinks: true,
       removedfile: function(file) {
-          console.log("delete");
-          
+          console.log([file, "delete"]);
+           var filenames = [];
+           var found = false;
+
+           $("#file_uploads_container input.upload-input").each(function(){
+              if(file.name == $(this).val() && (!found) ){
+                $(this).remove();
+                found = true;
+              }
+          });
+
           var _ref;
           return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
         }
     };
+
+    $(document).ready(function(){
+      
+    });
+
+    $("#btn_save").click(function(){
+
+      var filenames = [];
+       $("input.upload-input").each(function(){
+          filenames.push({filename : $(this).val()});
+      });
+
+      $.ajax({url: "document/save", 
+        method: 'POST', 
+        data: { 
+          "_token" : $("input[name=_token]").val(),
+          "document_name" : $("#createDocumentModal input[name=document_name]").val(),
+          "file_uploads" : filenames,
+          "reviewers" :  $("#createDocumentModal .chosen-select").val(),
+          "creator" : $("input[name=emp_ID]").val()       
+        }, 
+        success: function(result){
+          console.log(result);
+        }});
+    });
+
 
   </script>
   @endsection

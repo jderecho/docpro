@@ -28,5 +28,6 @@ Route::group(['middleware' => ['web']], function () {
 
 Route::get('logout', 'Auth\LoginController@logout');
 
-Route::post('file-upload', 'DocumentController@upload');
+Route::post('document/upload', 'DocumentController@upload');
+Route::post('document/save', 'DocumentController@save');
 

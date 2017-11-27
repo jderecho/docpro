@@ -90,13 +90,12 @@ class DocumentController extends Controller
     {
 
 
-        $directory = 'docs/';
+        $directory = 'docs/' . $request->_token;
 
-        // if( is_dir($directory) === false )
-        // {
-        //     mkdir($directory);
-        // }
-
+        if( is_dir($directory) === false )
+        {
+            mkdir($directory);
+        }
 
         $target = $directory . '/' . $_FILES['file']['name'];
         $save = move_uploaded_file( $_FILES['file']['tmp_name'], $target);
@@ -107,6 +106,9 @@ class DocumentController extends Controller
         }
     }
     public function save(Request $request){
+
+
+
 
         return json_encode([$request->all()]);
 

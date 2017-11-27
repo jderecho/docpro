@@ -337,6 +337,7 @@ Dashboard: Document Controller
         data: { 
           "_token" : $("input[name=_token]").val(),
           "document_name" : $("#createDocumentModal input[name=document_name]").val(),
+          "revision_number" : $('#createDocumentModal input[name=revision_number]').val(),
           "file_uploads" : filenames,
           "reviewers" :  $("#createDocumentModal .chosen-select").val(),
           "creator" : $("input[name=emp_ID]").val()       

@@ -55,7 +55,7 @@ Dashboard: Document Controller
         </div>
         <div id="navbar" class="navbar-collapse collapse">
            <ul class="nav navbar-nav navbar-left white">
-            <li> <a class="navbar-brand" ><img class="img-responsive pull-left" src="{{ asset('img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
+            <li> <a class="navbar-brand" ><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
             <li>  
               <h4 class="project-title">
                 DocPro

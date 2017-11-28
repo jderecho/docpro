@@ -9,7 +9,7 @@ Login: Document Controller
         </div>
         <div class="cw">
             <div class="text-center">
-           <h1 class="white" style="font-size: 70px;padding: 10px;">DokMan</h1>
+           <h1 class="white" style="font-size: 70px;padding: 10px;">DocPro</h1>
             </div>
         </div>
         <div class="container">

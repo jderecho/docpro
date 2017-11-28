@@ -32,5 +32,7 @@
     <script src="{{ asset('public/js/jquery.dataTables.js') }}"></script>
     @yield('scripts')
     <script src="{{ asset('public/js/app.js') }}"></script>
+
+    <input type="hidden" name="root_url" value="{{asset('/')}}">
   </body>
 </html>

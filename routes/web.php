@@ -16,7 +16,7 @@ Route::get('/', function () {
     return Redirect::to('login');;
 });
 
-Route::get('test', 'EmployeeDetailController@test');
+Route::get('test', 'DocumentController@test');
 
 Auth::routes();
 
@@ -30,4 +30,5 @@ Route::get('logout', 'Auth\LoginController@logout');
 
 Route::post('document/upload', 'DocumentController@upload');
 Route::post('document/save', 'DocumentController@save');
+Route::get('document/{id}', 'DocumentController@show');
 

@@ -1,4 +1,8 @@
+var root_URL = "";
 $(document).ready(function(){
+
+	root_URL = $('input[name=root_url]').val();
+	
     $('#document-table').DataTable();
 
 
@@ -25,3 +29,7 @@ $(document).ready(function(){
 	startTime();
 
 });
+
+function getExtension(filename){
+	return filename.split('.').pop();
+}

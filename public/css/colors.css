@@ -12,6 +12,27 @@
 }
 
 
+.status-draft{
+    color: #A9A9A9 !important;
+}
+.status-for-approval{
+    color: #DB2A2A;
+}
+.status-pre-approved{
+	color: #FFBF00;
+}
+.status-approved{
+	color: #36A405;
+}
+
+.status-pending{
+	color: #DB2A2A;
+}
+.status-approved{
+	color: #0AA957;
+}
+
+
 /*
 /
 / documents

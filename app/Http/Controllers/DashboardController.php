@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Document;
 use App\EmployeeDetails;
@@ -28,7 +29,12 @@ class DashboardController extends Controller
     {   
         // echo Document::with('approvers.employee_details', 'creator')->get();
         // return;
-       
-        return view('dashboard')->with('documents', Document::with('approvers.employee_details', 'creator')->get())->with('approvers', EmployeeDetails::all());
+       if(Auth::user()->isSuperAdmin()){
+
+        return view('dashboard')->with('documents', Document::with('approvers.employee_details', 'creator', 'attachments')->get())->with('approvers', EmployeeDetails::all());
+       }else{
+
+        return view('dashboard')->with('documents', Document::contributor(Auth::user()->id)->with('approvers.employee_details', 'creator', 'attachments')->orWhere('documents.employee_details_id', '=', Auth::user()->id )->get())->with('approvers', EmployeeDetails::all());
+       }
     }
 }

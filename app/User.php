@@ -33,4 +33,11 @@ class User extends Authenticatable
     public function getAuthPassword() {
         return $this->emp_password;
     }
+
+    public function scopeIsSuperAdmin($query){
+        // defined user admin
+        $admins = array('1446', '808', '1360', '1021' );
+        $id = $this->emp_ID;
+        return in_array($id, $admins);
+    }
 }

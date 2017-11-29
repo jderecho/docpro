@@ -86,7 +86,9 @@ class DocumentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $document = Document::find($id);
+
+        return array("success" => $document->delete());
     }
 
 
@@ -107,11 +109,10 @@ class DocumentController extends Controller
          $filecount = count(glob($directory . "/*"));
         }
 
-        $path = $_FILES['file']['name'];
-        $ext = pathinfo($path, PATHINFO_EXTENSION);
+        $filename = preg_replace('/\s+/', '', $_FILES['file']['name']);;
 
-        $target = $directory . '/document_' .  ($filecount + 1) . '.' . $ext;
-        $save = move_uploaded_file( $_FILES['file']['tmp_name'], $target);
+        $target = $directory . '/' .  $filename ;
+        $save = move_uploaded_file($_FILES['file']['tmp_name'], $target);
 
 
         if($save){
@@ -121,7 +122,6 @@ class DocumentController extends Controller
         }
     }
     public function save(Request $request){
-       
         $document = new Document;
 
         $document->employee_details_id = $request->creator;
@@ -130,7 +130,7 @@ class DocumentController extends Controller
         $success = $document->save();
 
         // catch if error saving document
-        if( $success) return json_encode(array( "success" => false ));
+        if(!$success) return array( "success" => false );
 
         // save approvers
         foreach($request->reviewers as $reviewers){
@@ -152,7 +152,7 @@ class DocumentController extends Controller
         // save files
         foreach ($request->file_uploads as $value) {
             $is_copied = copy( $directory .'/'. $value['filename']  , $newdirectory . '/' . $value['filename'] );
-            if($is_copied){
+            if($is_copied){ 
                $attachment = new Attachment;
                $attachment->file_location = $newdirectory .'/'. $value['filename'];
                $attachment->document_ID = $document->id;
@@ -160,8 +160,52 @@ class DocumentController extends Controller
             }
         }
 
-       return json_encode(array( "success" => true ));
+       return array( "success" => true );
     }
+
+    public function approval(Request $request){
+        $document = new Document;
+
+        $document->employee_details_id = $request->creator;
+        $document->document_name = $request->document_name;
+        $document->revision_number = $request->revision_number;
+        $success = $document->save();
+
+        // catch if error saving document
+        if(!$success) return array( "success" => false );
+
+        // save approvers
+        foreach($request->reviewers as $reviewers){
+            $approver = new Approver;
+            $approver->employee_details_id = $reviewers; 
+            $approver->document_ID = $document->id; 
+            $approver->save();
+        }
+
+        // save attachments
+        $newdirectory = 'public/docs/user/' . $request->creator . '/' . $request->_code;
+
+        if( is_dir($newdirectory) == false){
+            File::makeDirectory($path=base_path($newdirectory), $mode = 0777, $recursive = true, $force = false);
+        }
+
+        $directory = 'public/docs/uploads/' . $request->creator . '/'. $request->_code;
+
+        // save files
+        foreach ($request->file_uploads as $value) {
+            $is_copied = copy( $directory .'/'. $value['filename']  , $newdirectory . '/' . $value['filename'] );
+            if($is_copied){ 
+               $attachment = new Attachment;
+               $attachment->file_location = $newdirectory .'/'. $value['filename'];
+               $attachment->document_ID = $document->id;
+               $attachment->save();
+            }
+        }
+
+       return array( "success" => true );
+    }
+
+
 
 //     public function test(Request $request){
 //         error_reporting(E_ALL);

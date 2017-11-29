@@ -30,5 +30,7 @@ Route::get('logout', 'Auth\LoginController@logout');
 
 Route::post('document/upload', 'DocumentController@upload');
 Route::post('document/save', 'DocumentController@save');
+Route::post('document/forapproval', 'DocumentController@approval');
 Route::get('document/{id}', 'DocumentController@show');
+Route::delete('document/{id}', 'DocumentController@destroy');
 

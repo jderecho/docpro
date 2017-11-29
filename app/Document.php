@@ -20,4 +20,68 @@ class Document extends Model
     public function attachments(){
     	return $this->hasMany('App\Attachment','document_ID');
     }
+
+    public function scopeApproved($query){
+        return $query->with('approvers')->where('approvers.status', '=', '0');
+    }
+
+    public  function scopeStatusString($query){
+        $str = "";
+        switch ($this->status) {
+            case 0:
+                $str = "Draft";
+                break;
+            case 1:
+                $str = "Pending";
+                break;
+            case 2:
+                $str = "Pre-Approved";
+                break;
+            case 3:
+                $str = "Approved";
+                break;
+            default:
+                # code...
+                break;
+        }
+        return $str;
+    }
+    public  function scopeStatusClass($query){
+        $str = "";
+        switch ($this->status) {
+            case 0:
+                $str = "status-draft";
+                break;
+            case 1:
+                $str = "status-pending";
+                break;
+            case 2:
+                $str = "status-pre-approved";
+                break;
+            case 3:
+                $str = "status-approved";
+                break;
+            default:
+                # code...
+                break;
+        }
+        return $str;
+    }
+
+    public function scopeFormattedDateCreated($query){
+        $var = $this->date_created;
+        $date = str_replace('/', '-', $var);
+        date('Y-m-d', strtotime($date));
+
+        return date('m/d/y', strtotime($date));;
+    }
+
+    // Or, better, make public, and inject instance to controller.
+    public static function contributor($value)
+    {
+      return static::join(
+        'approvers',
+        'approvers.employee_details_id', '=', 'documents.employee_details_id'
+      )->where('approvers.employee_details_id', '=', $value);
+    }
 }

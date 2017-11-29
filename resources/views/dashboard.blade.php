@@ -42,7 +42,6 @@ Dashboard: Document Controller
     </style>
 @endsection
 @section('content')
-<?php echo json_encode($documents); return; ?>
 <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -118,8 +117,8 @@ Dashboard: Document Controller
                                   @foreach($documents as $document)
                                     <tr>
                                       <td><input type="checkbox" name="checked" ></td>
-                                        <td>{{ $document->date_created }}</td>
-                                        <td><span class="circle @if($document->status == 1 )  {{'status-approved'}} @else {{ 'status-pending' }} @endif">•</span><span class="status-label">@if($document->status == 1 )  {{'Approved'}} @else {{ 'Pending' }} @endif</span></td>
+                                        <td>{{ $document->formattedDateCreated() }}</td>
+                                        <td><span class="circle {{ $document->statusClass() }}">•</span><span class="status-label">{{ $document->statusString() }}</span></td>
                                         <td>{{ $document->document_name }}</td>
                                         <td>
                                           <?php
@@ -136,12 +135,14 @@ Dashboard: Document Controller
                                             </a>
                                           </center>
                                         </td>
-                                        <td><center>1</center></td>
+                                        <td><center>{{ $document->approvers->where('status','=', '1')->count() }}</center></td>
                                         <td><center>{{ $document->creator->emp_firstname . ' ' . $document->creator->emp_lastname }}</center></td>
                                         <td>
                                           <a data-toggle="modal" data-target="#viewDocumentModal" class="btn_view_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-eye-open grey">&nbsp</span></a>
-                                          <a><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></a>
+                                          <a data-toggle="modal" data-target="#EditDocumentModal" class="btn_edit_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></a>
+                                         @if(Auth::user()->isSuperAdmin())
                                           <a data-toggle="modal" data-target="#deleteDocumentModal" class="btn_delete_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-trash grey">&nbsp;</span></a>
+                                          @endif
                                         </td>
                                     </tr>
                                     @endforeach
@@ -228,6 +229,78 @@ Dashboard: Document Controller
       </div>
     </div>
 
+      <!-- Edit Document Modal -->
+    <div class="modal fade" id="EditDocumentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('public/img/fav-white.png')}}"></span>Update Document</h4>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+                <div class="col-md-12">
+                  <label>FileName</label>
+                  <input type="text" name="document_name" placeholder="Document Name" class="form-control">
+                </div>
+                <br>
+                <br>
+                <br>
+                <br> <div class="col-md-12">
+                  <label>Revision Number</label>
+                  <input type="text" name="revision_number" placeholder="Revision Number" class="form-control">
+                </div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <div class="col-lg-12 col-md-12">
+                  <label>Add Reviewer</label>
+                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
+                  <!-- <input type="text" data-provide="typeahead" class="typehead" autocomplete="off"> -->
+                  <select data-placeholder="Add Reviewer" class="chosen-select form-control" multiple="" tabindex="-1">
+                      <option value=""></option>
+                      @foreach($approvers as $employee)
+                      <option value="{{ $employee->id }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
+                      @endforeach
+              
+                    </select>
+
+                  
+                  <br>
+                  <br>
+                  <label>Attachment</label>
+                  <!-- <input type="file" name="" placeholder="File"> -->
+
+                   <form action="/file-upload" id="myAwesomeDropzone"
+                    class="dropzone">
+                      {{ csrf_field() }}
+
+                      <input type="hidden" name="_code" value="{{ md5(time())}}">
+                      <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
+                      <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
+                  </form>
+                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
+                  <!-- <textarea class="form-control" rows="25" ></textarea> --> 
+                  <div id="file_uploads_container" class="hidden">
+                    
+                  </div>
+                </div>
+                
+            </div>
+          </div>
+          <div class="modal-footer">
+            <div class="container-fluid">
+              <div class="col-md-12">
+                <button type="button"  id="btn_save" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Update</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   <!-- View Document Modal -->
     <div class="modal fade" id="viewDocumentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
       <div class="modal-dialog modal-lg" role="document">
@@ -296,7 +369,7 @@ Dashboard: Document Controller
           <div class="modal-footer">
             <div class="container-fluid">
               <div class="col-md-12">
-                <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Add Comment</button>
+                <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-comment">&nbsp;</span>Add Comment</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               </div>
             </div>
@@ -316,9 +389,41 @@ Dashboard: Document Controller
         </div>
         <div class="modal-body">
           <p>Are you sure you want to delete <span> Document</span>.</p>
+          <form id="" action="/file-upload" method="POST">
+              {{ csrf_field() }}
+
+              <input type="hidden" name="_method" value="DELETE">
+              <input type="hidden" name="_code" value="{{ md5(time())}}">
+              <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
+              <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
+              <input type="hidden" name="document_id" value="">
+          </form>
+
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-danger" data-dismiss="modal">Delete</button>
+          <button type="button" id="btn_delete_document" class="btn btn-danger" data-dismiss="modal">Delete</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Message Modal -->
+  <div class="modal fade" id="messageDocumentModal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Delete Document</h4>
+        </div>
+        <div class="modal-body">
+          <p id="messagebody"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btn_delete_document" class="btn btn-danger" data-dismiss="modal">Delete</button>
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
@@ -350,9 +455,10 @@ Dashboard: Document Controller
         console.log(file[0]);
         console.log("add");
 
-        var file_name = "document_" + (++imagecounter) + "." + getExtension(file.name);
-        console.log(file_name);
-        $('#file_uploads_container').append('<input class="upload-input" type="hidden" name="file_uploads[]" value="' + file_name +'">');
+        var file_name = file.name;
+        // console.log(file_name);
+
+        $('#file_uploads_container').append('<input class="upload-input" type="hidden" name="file_uploads[]" value="' + file_name.replace(/\s/g,'') +'">');
 
         done(); 
       },
@@ -361,9 +467,10 @@ Dashboard: Document Controller
           console.log([file, "delete"]);
            var filenames = [];
            var found = false;
+            var file_name = file.name;
 
            $("#file_uploads_container input.upload-input").each(function(){
-              if(file.name == $(this).val() && (!found) ){
+              if(file_name.replace(/\s/g,'') == $(this).val() && (!found) ){
                 $(this).remove();
                 found = true;
               }
@@ -371,27 +478,29 @@ Dashboard: Document Controller
 
           var _ref;
           return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
-      },
-      renameFilename: function (filename) {
-          return "document_" + (imagecounter) + "." + getExtension(filename);
       }
+      // ,
+      // renameFilename: function (filename) {
+      //     return "document_" + (imagecounter) + "." + getExtension(filename);
+      // }
     };
 
     $(document).ready(function(){
       
     });
 
-    $("#btn_save").click(function(){
+    $("#btn_for_approve").click(function(){
 
       var filenames = [];
        $("input.upload-input").each(function(){
           filenames.push({filename : $(this).val()});
       });
 
-      $.ajax({url: "document/save", 
+      $.ajax({url: "document/forapproval", 
         method: 'POST', 
         data: { 
           "_token" : $("input[name=_token]").val(),
+          "_code" : $("input[name=_code]").val(),
           "document_name" : $("#createDocumentModal input[name=document_name]").val(),
           "revision_number" : $('#createDocumentModal input[name=revision_number]').val(),
           "file_uploads" : filenames,
@@ -407,16 +516,56 @@ Dashboard: Document Controller
           }
 
           // location.reload();
-        }});
+        },
+        error :function(){
+            showMessage('error', 'Error');
+        }
+      });
+    });
+
+    $("#btn_save").click(function(){
+
+      var filenames = [];
+       $("input.upload-input").each(function(){
+          filenames.push({filename : $(this).val()});
+      });
+
+      $.ajax({url: "document/save", 
+        method: 'POST', 
+        data: { 
+          "_token" : $("input[name=_token]").val(),
+          "_code" : $("input[name=_code]").val(),
+          "document_name" : $("#createDocumentModal input[name=document_name]").val(),
+          "revision_number" : $('#createDocumentModal input[name=revision_number]').val(),
+          "file_uploads" : filenames,
+          "reviewers" :  $("#createDocumentModal .chosen-select").val(),
+          "creator" : $("input[name=employee_details_id]").val()       
+        }, 
+        success: function(result){
+          console.log(result);
+          if(result.success){
+            location.reload();
+          }else{
+            showMessage('Error');
+          }
+
+          // location.reload();
+        },
+        error: function($result){
+          showMessage('error','Error');
+        }
+      });
     });
 
     $(".btn_view_document").click(function(){
+
+        $('.file_holder').html('');
+        $('#approver-list-container').html('');
 
       // GET Document
        $.ajax({url:  "document/" + $(this).attr('data-value'), 
         method: 'GET', 
         success: function(result){
-          $('#approver-list-container').html('');
           $("#viewDocumentModal input[name=document_name]").val(result.document_name);
           $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
           var checked = "";
@@ -431,33 +580,53 @@ Dashboard: Document Controller
                 $('#approver-list-container').append('<h5> ' + approver.employee_details.emp_firstname + ' ' + approver.employee_details.emp_lastname + checked + '</h5>')
             });
           }
+
+           if(result.attachments != null){
+              console.log('nisud');
+            result.attachments.forEach(function(file, index){
+              console.log('nisud');
+              var attachment_view = '<a target="_blank" href=" {{asset('/')}}' +  file.file_location+'">';
+                  attachment_view += '<div style="float: left; margin-left: 10px;">';
+                  attachment_view += '<div class="card" style="width:100px">';
+                  attachment_view += '<img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">';
+                  attachment_view += '<div class="card-body">';
+                  attachment_view += '<center>';
+                  attachment_view += '<span class="card-text">'+ getFileName(file.file_location) +'</span>';
+                  attachment_view += '</center>';
+                  attachment_view += '</div>';
+                  attachment_view += '</div>';
+                  attachment_view += '</div>';
+                  attachment_view += '</a>';
+
+              $('.file_holder').append(attachment_view);
+            });
+          }
+
           console.log(result);
         }});
+    });
 
-       // GET Document attachment
-       $.ajax({url:  "document/" + $(this).attr('data-value') + "/attachment", 
-        method: 'GET', 
+    $(".btn_delete_document").click(function(){
+        var id = $(this).attr('data-value');
+
+        $("#deleteDocumentModal input[name=document_id]").val(id);
+    });
+    $('#btn_delete_document').click(function(){
+       $.ajax({url:  "document/" + $("#deleteDocumentModal input[name=document_id]").val(), 
+        method: 'DELETE', 
+        data: { 
+          "_token" : $("#deleteDocumentModal input[name=_token]").val()     
+        }, 
         success: function(result){
-          $('#approver-list-container').html('');
-          $("#viewDocumentModal input[name=document_name]").val(result.document_name);
-          $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
-          var checked = "";
-
-          if(result.approvers != null){
-            result.approvers.forEach(function(approver, index) {
-                if( approver.status == 1){
-                  checked = '<span class="status-ok pull-right green"><img src="' + root_URL + 'public/img/status/check.png"></span>';
-                }else{
-                  checked = "";
-                }
-                $('#approver-list-container').append('<h5> ' + approver.employee_details.emp_firstname + ' ' + approver.employee_details.emp_lastname + checked + '</h5>')
-            });
-          }
+          if(result.success){
+            location.reload();
+          }else{
           console.log(result);
+          }
         }});
-
 
     });
+
 
 
   </script>

@@ -397,12 +397,7 @@ button.btn.btn-lg.btn-warning{
  .status-label{
  	vertical-align: middle;
  }
- .status-pending{
- 	color: #DB2A2A;
- }
- .status-approved{
- 	color: #0AA957;
- }
+ 
 .dataTables_wrapper .dataTables_filter input {
     margin-left: 0.5em;
     margin-bottom: 50px;
@@ -498,4 +493,16 @@ a span{
 
 .dropzone{
     border: 1px dashed grey !important;
+}
+
+.modal-success{
+    background: #472B8D;
+    background: -webkit-linear-gradient(left, #472B8D , #2B3997);
+    background: -o-linear-gradient(right, #472B8D , #2B3997);
+    background: -moz-linear-gradient(right, #472B8D , #2B3997);
+    background: linear-gradient(to right, #472B8D , #2B3997);
+}
+
+.modal-error{
+
 }

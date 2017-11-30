@@ -82,42 +82,6 @@ $(".btn_edit_document").click(function(){
           console.log(list_approvers);
           $("#EditDocumentModal select").val(list_approvers).trigger('chosen:updated');;
 
-          // $("#viewDocumentModal input[name=document_name]").val(result.document_name);
-          // $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
-          // var checked = "";
-
-          // if(result.approvers != null){
-          //   result.approvers.forEach(function(approver, index) {
-          //       if( approver.status == 1){
-          //         checked = '<span class="status-ok pull-right green"><img src="' + root_URL + 'public/img/status/check.png"></span>';
-          //       }else{
-          //         checked = "";
-          //       }
-          //       $('#approver-list-container').append('<h5> ' + approver.employee_details.emp_firstname + ' ' + approver.employee_details.emp_lastname + checked + '</h5>')
-          //   });
-          // }
-
-          //  if(result.attachments != null){
-          //     console.log('nisud');
-          //   // result.attachments.forEach(function(file, index){
-          //   //   console.log('nisud');
-          //   //   var attachment_view = '<a target="_blank" href=" {{asset('/')}}' +  file.file_location+'">';
-          //   //       attachment_view += '<div style="float: left; margin-left: 10px;">';
-          //   //       attachment_view += '<div class="card" style="width:100px">';
-          //   //       attachment_view += '<img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">';
-          //   //       attachment_view += '<div class="card-body">';
-          //   //       attachment_view += '<center>';
-          //   //       attachment_view += '<span class="card-text">'+ getFileName(file.file_location) +'</span>';
-          //   //       attachment_view += '</center>';
-          //   //       attachment_view += '</div>';
-          //   //       attachment_view += '</div>';
-          //   //       attachment_view += '</div>';
-          //   //       attachment_view += '</a>';
-
-          //   //   $('.file_holder').append(attachment_view);
-          //   // });
-          // }
-
         }});
     });
 

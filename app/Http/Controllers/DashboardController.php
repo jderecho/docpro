@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Document;
 use App\EmployeeDetails;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -27,14 +28,10 @@ class DashboardController extends Controller
 
     public function index()
     {   
-        // echo Document::with('approvers.employee_details', 'creator')->get();
-        // return;
        if(Auth::user()->isSuperAdmin()){
-
         return view('dashboard')->with('documents', Document::with('approvers.employee_details', 'creator', 'attachments')->get())->with('approvers', EmployeeDetails::all());
        }else{
-
-        return view('dashboard')->with('documents', Document::contributor(Auth::user()->id)->with('approvers.employee_details', 'creator', 'attachments')->orWhere('documents.employee_details_id', '=', Auth::user()->id )->get())->with('approvers', EmployeeDetails::all());
+         return view('dashboard')->with('documents', Document::contributor(Auth::user()->id))->with('approvers', EmployeeDetails::all());
        }
     }
 }

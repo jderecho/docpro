@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Document extends Model
 {
@@ -24,7 +25,31 @@ class Document extends Model
     public function scopeApproved($query){
         return $query->with('approvers')->where('approvers.status', '=', '0');
     }
+    public function scopeIsContributor($query, $id){
+        if($this->employee_details_id == $id){
+            return false;
+        }
 
+        foreach($this->approvers as $approver){
+            if($approver->employee_details_id == $id){
+                return true;
+            }
+        }
+        return false;
+    }
+     public function scopeIsContributorStatus($query, $id){
+
+        if($this->employee_details_id == $id){
+            // return true;
+        }
+
+        foreach($this->approvers as $approver){
+            if($approver->employee_details_id == $id){
+                return $approver->status;
+            }
+        }
+        return false;
+    }
     public  function scopeStatusString($query){
         $str = "";
         switch ($this->status) {
@@ -32,7 +57,7 @@ class Document extends Model
                 $str = "Draft";
                 break;
             case 1:
-                $str = "Pending";
+                $str = "For Approval";
                 break;
             case 2:
                 $str = "Pre-Approved";
@@ -53,7 +78,7 @@ class Document extends Model
                 $str = "status-draft";
                 break;
             case 1:
-                $str = "status-pending";
+                $str = "status-for-approval";
                 break;
             case 2:
                 $str = "status-pre-approved";
@@ -79,9 +104,9 @@ class Document extends Model
     // Or, better, make public, and inject instance to controller.
     public static function contributor($value)
     {
-      return static::join(
+      return static::select("documents.*")->with('creator','approvers', 'attachments')->leftJoin(
         'approvers',
-        'approvers.employee_details_id', '=', 'documents.employee_details_id'
-      )->where('approvers.employee_details_id', '=', $value);
+        'documents.id', '=', 'approvers.document_ID'
+      )->where("documents.employee_details_id", "=",  $value)->orWhere("approvers.employee_details_id", "=", $value)->groupBy('documents.id')->get();
     }
 }

@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Auth;
 
 use App\Document;
 use App\Approver;
@@ -52,7 +53,10 @@ class DocumentController extends Controller
      */
     public function show($id)
     {
-        return Document::with('creator')->with('approvers.employee_details')->with('attachments')->find($id);
+        $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->find($id);
+        $document->isContributor = $document->isContributor(Auth::user()->id);
+        $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
+        return $document;
     }
 
     /**
@@ -92,8 +96,7 @@ class DocumentController extends Controller
     }
 
 
-     public function upload(Request $request)
-    {
+     public function upload(Request $request){
 
 
         $directory = 'public/docs/uploads/' . $request->employee_details_id . '/'. $request->_code;
@@ -121,6 +124,7 @@ class DocumentController extends Controller
             return  "false";
         }
     }
+
     public function save(Request $request){
         $document = new Document;
 
@@ -168,6 +172,7 @@ class DocumentController extends Controller
 
         $document->employee_details_id = $request->creator;
         $document->document_name = $request->document_name;
+        $document->status = $request->status;
         $document->revision_number = $request->revision_number;
         $success = $document->save();
 
@@ -204,37 +209,53 @@ class DocumentController extends Controller
 
        return array( "success" => true );
     }
+    // Approve Document
+     public function changeStatus(Request $request){
+        // return $request->all();
 
+        $success = 0;
+        $message = "";
+        $changetostatus = 0;
+        $document = Document::find($request->document_id);
+        
+        if($document->employee_details_id == $request->document_id){
+            // pending - can a document creator approve the document created ?
+        }
+        
+        if($request->status == "for-approval"){
 
+            if($request->old_status == "draft"){
+                $document->status = 1;
+                $success = $document->save();
+                if($success){
+                    $message = "Document successfully sent for approval";
+                }else{
+                    $message = "error while sending document for approval";
+                }
+            }
 
-//     public function test(Request $request){
-//         error_reporting(E_ALL);
-//         ini_set('error_reporting', E_ALL);
-//         $newdirectory = 'public/docs/user/808/test';
+        }else if($request->status == "approve"){
+            if($request->old_status == "for-approval"){
+                $approved_counter = 0;
+                 foreach($document->approvers as $approver){
+                    if($approver->employee_details_id == $request->employee_details_id){
+                        $approver->status = 1;
+                        $success = $approver->save();
+                    }
+                    if($approver->status == 1){
+                        $approved_counter++;
+                    }
+                }
 
-//         if( is_dir($newdirectory) == false){
-//             File::makeDirectory($path=base_path($newdirectory), $mode = 0777, $recursive = true, $force = false);
-//         }
-//          $directory = 'public/docs/uploads/808/de4yfbdfMtg9twEKsbg4uyQ8CA7AvPfEMn5A9tOC';
-//         // save files
-//          // if(! @move_uploaded_file ( $directory . '/document_1.docx'  , $newdirectory )){
-//          // file_put_contents(  "a", "ERROR[ ".date('Y-m-d H:i:s')." ] Could not move[ $source ] to[ $dest ]\n", FILE_APPEND);
-//          // exit();
-// // }
-//         // return json_encode(move_uploaded_file ( $directory . '/document_1.docx'  , $newdirectory ));
+                if(count($document->approvers) == $approved_counter){
 
-//         $file = $directory . '/document_1.docx';
-//         return json_encode(copy($file, $newdirectory . '/document_1.docx'));
-//         // if (file_exists($file)) {
-//         //     header('Content-Description: File Transfer');
-//         //     header('Content-Type: application/octet-stream');
-//         //     header('Content-Disposition: attachment; filename="'.basename($file).'"');
-//         //     header('Expires: 0');
-//         //     header('Cache-Control: must-revalidate');
-//         //     header('Pragma: public');
-//         //     header('Content-Length: ' . filesize($file));
-//         //     readfile($file);
-//         //     exit;
-//         // }
-//     }
+                    $message = "Document is partially approved.";
+                    $document->status = 2;
+                    $success = $document->save();
+                }
+            }
+        }
+       
+        return array("success" => $success, "message" => $message);
+     }
 }

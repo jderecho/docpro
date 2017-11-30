@@ -137,11 +137,14 @@ Dashboard: Document Controller
                                         </td>
                                         <td><center>{{ $document->approvers->where('status','=', '1')->count() }}</center></td>
                                         <td><center>{{ $document->creator->emp_firstname . ' ' . $document->creator->emp_lastname }}</center></td>
-                                        <td>
-                                          <a data-toggle="modal" data-target="#viewDocumentModal" class="btn_view_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-eye-open grey">&nbsp</span></a>
-                                          <a data-toggle="modal" data-target="#EditDocumentModal" class="btn_edit_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></a>
+                                        <td class="pull-right">
+                                          <a title="View" data-toggle="modal" data-target="#viewDocumentModal" class="btn_view_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-eye-open grey">&nbsp</span></a>
+                                          @if($document->employee_details_id == Auth::user()->id || Auth::user()->isSuperAdmin())
+                                          <a title="Edit" data-toggle="modal" data-target="#EditDocumentModal" class="btn_edit_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></a>
+                                          @endif
+
                                          @if(Auth::user()->isSuperAdmin())
-                                          <a data-toggle="modal" data-target="#deleteDocumentModal" class="btn_delete_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-trash grey">&nbsp;</span></a>
+                                          <a title="Delete" data-toggle="modal" data-target="#deleteDocumentModal" class="btn_delete_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-trash grey">&nbsp;</span></a>
                                           @endif
                                         </td>
                                     </tr>
@@ -312,8 +315,10 @@ Dashboard: Document Controller
           <div class="modal-body">
             <div class="container-fluid">
                 <div class="col-md-12">
-                  <label>File Name</label>
+                  <label>File Name </label>
                   <input type="text" name="document_name" placeholder="Document Name" class="form-control">
+
+                      {{ csrf_field() }}
                 </div>
                 <br>
                 <br>
@@ -368,7 +373,7 @@ Dashboard: Document Controller
           </div>
           <div class="modal-footer">
             <div class="container-fluid">
-              <div class="col-md-12">
+              <div class="col-md-12 button-container">
                 <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-comment">&nbsp;</span>Add Comment</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               </div>
@@ -479,10 +484,6 @@ Dashboard: Document Controller
           var _ref;
           return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
       }
-      // ,
-      // renameFilename: function (filename) {
-      //     return "document_" + (imagecounter) + "." + getExtension(filename);
-      // }
     };
 
     $(document).ready(function(){
@@ -492,20 +493,21 @@ Dashboard: Document Controller
     $("#btn_for_approve").click(function(){
 
       var filenames = [];
-       $("input.upload-input").each(function(){
+       $("#createDocumentModal input.upload-input").each(function(){
           filenames.push({filename : $(this).val()});
       });
 
       $.ajax({url: "document/forapproval", 
         method: 'POST', 
         data: { 
-          "_token" : $("input[name=_token]").val(),
-          "_code" : $("input[name=_code]").val(),
+          "_token" : $("#createDocumentModal input[name=_token]").val(),
+          "_code" : $("#createDocumentModal input[name=_code]").val(),
+          "status" : 1,
           "document_name" : $("#createDocumentModal input[name=document_name]").val(),
           "revision_number" : $('#createDocumentModal input[name=revision_number]').val(),
           "file_uploads" : filenames,
           "reviewers" :  $("#createDocumentModal .chosen-select").val(),
-          "creator" : $("input[name=employee_details_id]").val()       
+          "creator" : $("#createDocumentModal input[name=employee_details_id]").val()       
         }, 
         success: function(result){
           console.log(result);
@@ -514,8 +516,6 @@ Dashboard: Document Controller
           }else{
             alert("error");
           }
-
-          // location.reload();
         },
         error :function(){
             showMessage('error', 'Error');
@@ -558,7 +558,8 @@ Dashboard: Document Controller
     });
 
     $(".btn_view_document").click(function(){
-
+       $("#viewDocumentModal .button-container").find("#btn_approve").remove();
+       $("#viewDocumentModal .button-container").find("#btn_send_for_approval").remove();
         $('.file_holder').html('');
         $('#approver-list-container').html('');
 
@@ -602,6 +603,36 @@ Dashboard: Document Controller
             });
           }
 
+          // Document State
+
+          // if document status is equal to 
+          // 0 it means it is draft
+          // it needs wait for the creator to change the status for approval
+          
+          if(result.status == 0){
+            if(result.creator.id == {!! Auth::user()->id !!}){
+               if(result.contributorStatus != 1){
+                $("#viewDocumentModal .button-container").prepend('<button id="btn_send_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-send">&nbsp;</span>Send for Approval</button>');
+              }
+            }
+          } // 1 means for approval
+          else if(result.status == 1){
+
+            if(result.isContributor){
+              // Display Approve button
+
+              if(result.contributorStatus != 1){
+                $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
+              }
+            }
+          } // 2 means 
+          else if(result.status == 2){  
+
+          } // 3 means 
+          else if(result.status == 3){
+
+          }
+
           console.log(result);
         }});
     });
@@ -626,6 +657,50 @@ Dashboard: Document Controller
         }});
 
     });
+
+    $(document).on("click", "#btn_approve", function(){
+       var id = $(this).attr('data-value');
+
+         $.ajax({url:  "document/status" , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("#viewDocumentModal input[name=_token]").val(),     
+            "status" : "approve",     
+            "old_status" : "for-approval",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              // location.reload();
+              console.log(result);
+            }else{
+            console.log(result);
+            }
+        }});
+    });
+
+    $(document).on("click", "#btn_send_for_approval", function(){
+       var id = $(this).attr('data-value');
+
+         $.ajax({url:  "document/status" , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("#viewDocumentModal input[name=_token]").val(),     
+            "status" : "for-approval",     
+            "old_status" : "draft",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              location.reload();
+            }else{
+              console.log(result);
+            }
+        }});
+    });
+    
 
 
 

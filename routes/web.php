@@ -25,12 +25,13 @@ Route::group(['middleware' => ['web']], function () {
 });
 
 // hack for logout
-
 Route::get('logout', 'Auth\LoginController@logout');
 
-Route::post('document/upload', 'DocumentController@upload');
-Route::post('document/save', 'DocumentController@save');
-Route::post('document/forapproval', 'DocumentController@approval');
+// document routes
 Route::get('document/{id}', 'DocumentController@show');
+Route::post('document/upload', 'DocumentController@upload');
+Route::post('document/save', 'DocumentController@save'); 
+Route::post('document/forapproval', 'DocumentController@approval');
+Route::post('document/status', 'DocumentController@changeStatus');
 Route::delete('document/{id}', 'DocumentController@destroy');
 

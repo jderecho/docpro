@@ -20,16 +20,17 @@ Route::get('test', 'DocumentController@test');
 
 Auth::routes();
 
-Route::group(['middleware' => ['web']], function () {
-    Route::get('home','DashboardController@index');
-});
+Route::get('home','DashboardController@index');
 
 // hack for logout
 Route::get('logout', 'Auth\LoginController@logout');
 
 // document routes
 Route::get('document/{id}', 'DocumentController@show');
+
 Route::post('document/upload', 'DocumentController@upload');
+Route::post('document/comment', 'DocumentController@comment');
+
 Route::post('document/save', 'DocumentController@save'); 
 Route::post('document/forapproval', 'DocumentController@approval');
 Route::post('document/status', 'DocumentController@changeStatus');

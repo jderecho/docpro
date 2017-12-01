@@ -21,6 +21,9 @@ class Document extends Model
     public function attachments(){
     	return $this->hasMany('App\Attachment','document_ID');
     }
+      public function comments(){
+        return $this->hasMany('App\Comment','document_ID');
+    }
 
     public function scopeApproved($query){
         return $query->with('approvers')->where('approvers.status', '=', '0');

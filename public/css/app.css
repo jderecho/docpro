@@ -521,3 +521,12 @@ a span{
 .comment_text_holder{
     margin-left: 40px;
 }
+
+#comment_area{
+    width: 100%;
+    vertical-align: middle;
+}
+
+.comment_profile{
+    margin: auto !important;
+}

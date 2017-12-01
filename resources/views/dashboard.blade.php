@@ -3,11 +3,6 @@
 Dashboard: Document Controller
 @endsection
 @section('css')
-
-<!-- github.io delivers wrong content-type - but you may want to include FontAwesome in 'wysiwyg-editor.css' -->
-<script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script>
-  <script>tinymce.init({ selector:'textarea' });</script>
-
 <link href="{{ asset('public/css/chosen.min.css') }}" rel="stylesheet">
 <link href="{{ asset('public/css/dropzone.css') }}" rel="stylesheet">
 
@@ -74,7 +69,7 @@ Dashboard: Document Controller
         
           <ul class="nav navbar-nav navbar-right white">
               <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
-              <li><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCOiiq0h3n-kkjrkv-KIEjDOqYMm7TmWjhKYOrd5Q-cYe2zYgZ" height="50" class="img-circle"></li> 
+              <li><img src="{{ asset('public/img/mopro_profile_1.png') }}" height="50" class="img-circle"></li> 
               <li>
                 <div class="dropdown" id="current_user">
                   <button class="btn dropdown-toggle btn-user" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -368,17 +363,26 @@ Dashboard: Document Controller
                 
                </div>
                <div class="col-md-12" id="commentbox_container">
-                <!-- TODO ::  -->
-                <span><img height="30" src="http://localhost/docpro/public/img/mopro_profile.png">
-                <textarea id="comment_area"></textarea></span>
-                 
+                
+               
+                 <table style="width: 100%">
+                   <tr>
+                    <td style='width: 10%; padding-left: 15px;'> <span><img class="comment_profile" height="30" src="http://localhost/docpro/public/img/mopro_profile.png">
+                </span></td>
+                    <td style='width: 80%'>
+                      <input type="hidden" name="document_id">
+                      <textarea id="comment_area"></textarea>
+                    </td>
+                    <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px">Send</button></td>
+                  </tr>
+                 </table>
                </div>
             </div>
           </div>
           <div class="modal-footer">
             <div class="container-fluid">
               <div class="col-md-12 button-container">
-                <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-comment">&nbsp;</span>Add Comment</button>
+                <button type="button" class="btn btn-success" id="btn_toggle_commentbox"><span class="glyphicon glyphicon-comment">&nbsp;</span>Add Comment</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               </div>
             </div>
@@ -444,11 +448,6 @@ Dashboard: Document Controller
   @section('scripts')
   <script src="{{ asset('public/js/chosen.jquery.min.js') }}"></script>
   <script src="{{ asset('public/js/dropzone.js') }}"></script>
-
-  <script type="text/javascript" src="{{asset('public/js/richtext/wysiwyg.js') }}"> </script>
-  <script type="text/javascript" src="{{asset('public/js/richtext/wysiwyg-editor.js') }}"> </script>
-  <!-- <span class="status-ok pull-right green"><img src="{{ asset('public/img/status/check.png') }}"></span>
- -->
   <script type="text/javascript">
     var imagecounter = 0;
 
@@ -563,7 +562,7 @@ Dashboard: Document Controller
         }
       });
     });
-
+    // VIEW MODAL
     $(".btn_view_document").click(function(){
        $("#viewDocumentModal .button-container").find("#btn_approve").remove();
        $("#viewDocumentModal .button-container").find("#btn_send_for_approval").remove();
@@ -576,6 +575,9 @@ Dashboard: Document Controller
         success: function(result){
           $("#viewDocumentModal input[name=document_name]").val(result.document_name);
           $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
+
+          $("#viewDocumentModal input[name=document_id]").val(result.id);
+
           var checked = "";
           var comment = "";
           if(result.approvers != null){
@@ -583,23 +585,6 @@ Dashboard: Document Controller
                 if( approver.status == 1){
 
                   checked = '<span class="status-ok pull-right green"><img src="' + root_URL + 'public/img/status/check.png"></span>';
-
-
-                //    <p class="comment_holder">
-                //   <span>
-                //     <br>
-                //     <img height="30" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>John Manuel Derecho</b>
-                //     <span>&nbsp;</span>
-                //     <span>approved the document</span>
-                //     <span>-</span>
-                //     <span> 08/Nov/17 4:02 PM </span>
-                //     <br>
-                //     <br>
-                //       <span class="comment_text_holder">
-                //           <img src="{{asset('/public/img/status/check.png')}}">&nbsp; Document Approved 
-                //       </span>
-                //   </span>
-                // </p>
 
                 comment = '<p class="comment_holder">';
                 comment += '<span>';
@@ -681,6 +666,32 @@ Dashboard: Document Controller
 
           }
 
+          // Comment 
+          if(result.comments != null){
+            result.comments.forEach(function(obj, index){
+                comment = '<p class="comment_holder">';
+                comment += '<span>';
+                comment += '<br>';
+                comment += '<img height="30" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>'+ obj.commentor.emp_firstname + ' ' + obj.commentor.emp_lastname +'</b>';
+                comment += '<span>&nbsp;</span>';
+                comment += '<span>approved the document</span>';
+                comment += '<span>-</span>';
+                comment += '<span> 08/Nov/17 4:02 PM </span>';
+                comment += '<br>';
+                comment += '<br>';
+                comment += '<span class="comment_text_holder">';
+                comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
+                comment +=  obj.message;
+                comment += '</span>';
+                comment += '</span>';
+                comment += ' </p>';
+
+                $('#comment_container').append(comment);
+            });
+          }
+
+
+
           console.log(result);
         }});
     });
@@ -749,8 +760,53 @@ Dashboard: Document Controller
         }});
     });
     
+    $('#btn_toggle_commentbox').click(function(){
+          $('#commentbox_container').fadeToggle(500);
+    });
 
+    $('#btn_send_comment').click(function(){
+      var message = $('#comment_area').val();
+      var document_id = $('#viewDocumentModal input[name=document_id]').val();
 
+      $.ajax({url:  "document/comment" , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("#viewDocumentModal input[name=_token]").val(),     
+            "document_id" : document_id,     
+            "message" : message,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              // location.reload();
+              // console.log(result);
+                var comment = "";
+                comment = '<p class="comment_holder">';
+                comment += '<span>';
+                comment += '<br>';
+                comment += '<img height="30" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>'+ "{{ Auth::user()->emp_firstname}}" + ' ' + "{{ Auth::user()->emp_lastname }}" +'</b>';
+                comment += '<span>&nbsp;</span>';
+                comment += '<span>approved the document</span>';
+                comment += '<span>-</span>';
+                comment += '<span> 08/Nov/17 4:02 PM </span>';
+                comment += '<br>';
+                comment += '<br>';
+                comment += '<span class="comment_text_holder">';
+                comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
+                comment +=  message;
+                comment += '</span>';
+                comment += '</span>';
+                comment += ' </p>';
 
+                $('#comment_container').append(comment);
+
+                $('#comment_area').val("");
+
+            }else{
+              console.log(result);
+            }
+        }});
+
+    });
   </script>
   @endsection

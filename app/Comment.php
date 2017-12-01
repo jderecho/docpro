@@ -16,4 +16,7 @@ class Comment extends Model
     public function document(){
     	return $this->belongsTo('App\Document', 'document_ID');
     }
+    public function commentor(){
+    	return $this->belongsTo('App\EmployeeDetails', 'employee_details_id');
+    }
 }

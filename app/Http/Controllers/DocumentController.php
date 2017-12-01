@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Document;
 use App\Approver;
 use App\Attachment;
+use App\Comment;
 
 class DocumentController extends Controller
 {
@@ -53,9 +54,10 @@ class DocumentController extends Controller
      */
     public function show($id)
     {
-        $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->find($id);
+        $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments')->find($id);
         $document->isContributor = $document->isContributor(Auth::user()->id);
         $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
+        $document->comments->load('commentor');
         return $document;
     }
 
@@ -257,5 +259,20 @@ class DocumentController extends Controller
         }
        
         return array("success" => $success, "message" => $message);
+     }
+
+     public function comment(Request $request){
+        // return $request->all();
+
+        $comment = new Comment;
+        $comment->employee_details_id = $request->employee_details_id;
+        $comment->document_ID = $request->document_id;
+        $comment->message = $request->message;
+
+        if($comment->save()){
+            return array("success" => true);
+        }else{
+            return array("success" => false);
+        }
      }
 }

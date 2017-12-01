@@ -255,6 +255,15 @@ class DocumentController extends Controller
                     $document->status = 2;
                     $success = $document->save();
                 }
+            }else if($request->old_status == "pre-approved"){
+
+                $document->status = 3;
+                
+                if($document->save()){
+                    return array("success" => true);
+                }else{
+                    return array("success" => false);
+                }
             }
         }
        

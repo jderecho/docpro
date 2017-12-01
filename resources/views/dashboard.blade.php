@@ -566,6 +566,7 @@ Dashboard: Document Controller
     $(".btn_view_document").click(function(){
        $("#viewDocumentModal .button-container").find("#btn_approve").remove();
        $("#viewDocumentModal .button-container").find("#btn_send_for_approval").remove();
+       $("#viewDocumentModal .button-container").find("#btn_final_approve").remove();
         $('.file_holder').html('');
         $('#approver-list-container').html('');
 
@@ -764,6 +765,8 @@ Dashboard: Document Controller
           $('#commentbox_container').fadeToggle(500);
     });
 
+
+
     $('#btn_send_comment').click(function(){
       var message = $('#comment_area').val();
       var document_id = $('#viewDocumentModal input[name=document_id]').val();
@@ -807,6 +810,28 @@ Dashboard: Document Controller
             }
         }});
 
+    });
+
+
+    $(document).on('click','#btn_final_approve', function(){
+      var id = $(this).attr('data-value');
+
+         $.ajax({url:  "document/status" , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("#viewDocumentModal input[name=_token]").val(),     
+            "status" : "approve",     
+            "old_status" : "pre-approved",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              location.reload();
+            }else{
+              console.log(result);
+            }
+        }});
     });
   </script>
   @endsection

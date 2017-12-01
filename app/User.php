@@ -40,4 +40,6 @@ class User extends Authenticatable
         $id = $this->emp_ID;
         return in_array($id, $admins);
     }
+    
+    
 }

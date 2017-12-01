@@ -506,3 +506,18 @@ a span{
 .modal-error{
 
 }
+
+.comment_holder{
+    margin-top: 5px;
+    border-top: 1px solid #ededed;
+    padding-top: 5px;
+    padding-bottom: 20px;
+    padding-left: 10px;
+    padding-right: 5px;
+}
+.comment_holder:hover{
+    background-color: #eaeaea;
+}
+.comment_text_holder{
+    margin-left: 40px;
+}

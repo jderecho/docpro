@@ -2,10 +2,14 @@
 @section('title')
 Dashboard: Document Controller
 @endsection
-
 @section('css')
-    <link href="{{ asset('public/css/chosen.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('public/css/dropzone.css') }}" rel="stylesheet">
+
+<!-- github.io delivers wrong content-type - but you may want to include FontAwesome in 'wysiwyg-editor.css' -->
+<script src="https://cloud.tinymce.com/stable/tinymce.min.js"></script>
+  <script>tinymce.init({ selector:'textarea' });</script>
+
+<link href="{{ asset('public/css/chosen.min.css') }}" rel="stylesheet">
+<link href="{{ asset('public/css/dropzone.css') }}" rel="stylesheet">
 
     <style type="text/css">
       h4.title{
@@ -358,17 +362,17 @@ Dashboard: Document Controller
                      <h5>John Doe</h5> -->
                   </div>
                 </div>
-               <!-- <div class="col-md-12">
-                <hr>
+               <div class="col-md-12" id="comment_container">
+                <hr style="height: 2px; border-color: #dadada;">
                <span class="label label-success">2 Comments</span>
-                <p class="">
-                  <span>
-                    <b>John Manuel Derecho</b>
-                    <span>&nbsp;</span>
-                    <span>alryty !</span>
-                  </span>
-                </p>
-               </div> -->
+                
+               </div>
+               <div class="col-md-12" id="commentbox_container">
+                <!-- TODO ::  -->
+                <span><img height="30" src="http://localhost/docpro/public/img/mopro_profile.png">
+                <textarea id="comment_area"></textarea></span>
+                 
+               </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -440,6 +444,9 @@ Dashboard: Document Controller
   @section('scripts')
   <script src="{{ asset('public/js/chosen.jquery.min.js') }}"></script>
   <script src="{{ asset('public/js/dropzone.js') }}"></script>
+
+  <script type="text/javascript" src="{{asset('public/js/richtext/wysiwyg.js') }}"> </script>
+  <script type="text/javascript" src="{{asset('public/js/richtext/wysiwyg-editor.js') }}"> </script>
   <!-- <span class="status-ok pull-right green"><img src="{{ asset('public/img/status/check.png') }}"></span>
  -->
   <script type="text/javascript">
@@ -570,15 +577,54 @@ Dashboard: Document Controller
           $("#viewDocumentModal input[name=document_name]").val(result.document_name);
           $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
           var checked = "";
-
+          var comment = "";
           if(result.approvers != null){
             result.approvers.forEach(function(approver, index) {
                 if( approver.status == 1){
+
                   checked = '<span class="status-ok pull-right green"><img src="' + root_URL + 'public/img/status/check.png"></span>';
+
+
+                //    <p class="comment_holder">
+                //   <span>
+                //     <br>
+                //     <img height="30" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>John Manuel Derecho</b>
+                //     <span>&nbsp;</span>
+                //     <span>approved the document</span>
+                //     <span>-</span>
+                //     <span> 08/Nov/17 4:02 PM </span>
+                //     <br>
+                //     <br>
+                //       <span class="comment_text_holder">
+                //           <img src="{{asset('/public/img/status/check.png')}}">&nbsp; Document Approved 
+                //       </span>
+                //   </span>
+                // </p>
+
+                comment = '<p class="comment_holder">';
+                comment += '<span>';
+                comment += '<br>';
+                comment += '<img height="30" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>'+ approver.employee_details.emp_firstname + ' ' + approver.employee_details.emp_lastname +'</b>';
+                comment += '<span>&nbsp;</span>';
+                comment += '<span>approved the document</span>';
+                comment += '<span>-</span>';
+                comment += '<span> 08/Nov/17 4:02 PM </span>';
+                comment += '<br>';
+                comment += '<br>';
+                comment += '<span class="comment_text_holder">';
+                comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp; Document Approved';
+                comment += '</span>';
+                comment += '</span>';
+                comment += ' </p>';
+
+                $('#comment_container').append(comment);
                 }else{
                   checked = "";
                 }
+
                 $('#approver-list-container').append('<h5> ' + approver.employee_details.emp_firstname + ' ' + approver.employee_details.emp_lastname + checked + '</h5>')
+
+
             });
           }
 
@@ -627,7 +673,9 @@ Dashboard: Document Controller
             }
           } // 2 means 
           else if(result.status == 2){  
-
+            if({!! Auth::user()->isSuperAdmin() !!}){
+                  $("#viewDocumentModal .button-container").prepend('<button id="btn_final_approve" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
+            }
           } // 3 means 
           else if(result.status == 3){
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 01, 2017 at 07:26 PM
+-- Generation Time: Dec 01, 2017 at 11:57 PM
 -- Server version: 10.1.28-MariaDB
 -- PHP Version: 7.0.24
 
@@ -78,13 +78,32 @@ INSERT INTO `attachments` (`id`, `file_location`, `document_ID`, `status`, `date
 --
 
 CREATE TABLE `comments` (
-  `emp_ID` int(11) NOT NULL,
+  `id` int(11) NOT NULL,
+  `employee_details_id` int(11) NOT NULL,
   `document_ID` int(11) NOT NULL,
   `attachment_id` int(11) NOT NULL,
   `message` text NOT NULL,
-  `date_created` date NOT NULL,
-  `date_updated` date NOT NULL
+  `created_at` date NOT NULL,
+  `updated_at` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `comments`
+--
+
+INSERT INTO `comments` (`id`, `employee_details_id`, `document_ID`, `attachment_id`, `message`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 1, 'Comment Sample Text', '2017-12-01', '0000-00-00'),
+(2, 1, 1, 0, 'adawd', '2017-12-01', '2017-12-01'),
+(3, 62, 1, 0, 'Tesawdawd', '2017-12-01', '2017-12-01'),
+(4, 62, 1, 0, 'teawd', '2017-12-01', '2017-12-01'),
+(5, 62, 1, 0, 'teadawd', '2017-12-01', '2017-12-01'),
+(6, 62, 1, 0, 'teadawde', '2017-12-01', '2017-12-01'),
+(7, 62, 1, 0, 'tead', '2017-12-01', '2017-12-01'),
+(8, 62, 1, 0, 'eadw', '2017-12-01', '2017-12-01'),
+(9, 62, 1, 0, 'eer', '2017-12-01', '2017-12-01'),
+(10, 62, 1, 0, 'ereerrere', '2017-12-01', '2017-12-01'),
+(11, 62, 1, 0, 'rerer', '2017-12-01', '2017-12-01'),
+(12, 62, 1, 0, 'eadwawd', '2017-12-01', '2017-12-01');
 
 -- --------------------------------------------------------
 
@@ -107,7 +126,7 @@ CREATE TABLE `documents` (
 --
 
 INSERT INTO `documents` (`id`, `employee_details_id`, `document_name`, `revision_number`, `status`, `date_created`, `date_approved`) VALUES
-(1, 62, 'Document Process Approval', 'Version 1.0.0', 2, '2017-12-01 07:12:45', NULL);
+(1, 62, 'Document Process Approval', 'Version 1.0.0', 3, '2017-12-01 07:12:45', NULL);
 
 -- --------------------------------------------------------
 
@@ -171,7 +190,7 @@ CREATE TABLE `employee_details` (
 --
 
 INSERT INTO `employee_details` (`id`, `emp_ID`, `emp_firstname`, `emp_middlename`, `emp_lastname`, `emp_email`, `emp_password`, `emp_status`, `emp_birthdate`, `emp_dept_ID`, `emp_position_ID`, `emp_date_hired`, `emp_gender`, `emp_wave_no`, `remember_token`) VALUES
-(1, 808, 'Ted', 'Bejoc', 'Saavedra', 'ted.saavedra@mopro.com', '$2y$10$v8hvnK/Yc3glz.Yq0n2m1OR3FqHlpR7vJyanREDdWIACxi4nIyHG6', 1, '1994-05-11', 14, 17, '2017-01-09 00:00:00', 1, 1, 'Gp5O26C4zw15LWRUfAqbL5NeRtNaYlndQblUiR7i2EEcpFlN93S5Wavz8k9T'),
+(1, 808, 'Ted', 'Bejoc', 'Saavedra', 'ted.saavedra@mopro.com', '$2y$10$v8hvnK/Yc3glz.Yq0n2m1OR3FqHlpR7vJyanREDdWIACxi4nIyHG6', 1, '1994-05-11', 14, 17, '2017-01-09 00:00:00', 1, 1, 'pFpyE53JxgK0fyi7Ewdip7dO8D9Gl2fPPyXvhNnACbfd6NGyApklSM8M9Iky'),
 (2, 872, 'Davinci', NULL, 'Solidarios', 'davinci.solidarios@mopro.com', '$2y$10$v8hvnK/Yc3glz.Yq0n2m1OR3FqHlpR7vJyanREDdWIACxi4nIyHG6', 1, '1990-01-01', 16, 9, '2017-01-09 00:00:00', 1, 1, 'cKlr4WKK3yVDvTiIcc4vEA4Z4Mo1fZwZB3VO3EScokAoiU30mWdYHTRCkCdl'),
 (3, 997, 'Retchel', NULL, 'Tapayan', 'retchel.tapayan@mopro.com', '$2y$10$v8hvnK/Yc3glz.Yq0n2m1OR3FqHlpR7vJyanREDdWIACxi4nIyHG6', 1, '1988-05-11', 1, 1, '2017-01-09 00:00:00', 2, 2, 'fP1fftcLBxDIIf7XxJ67occzMC457ESLZufAe5HbXe8jXhljmMcahnRsgwzU'),
 (4, 1038, 'Franz', NULL, 'Canares', 'franz.canares@mopro.com', '$2y$10$v8hvnK/Yc3glz.Yq0n2m1OR3FqHlpR7vJyanREDdWIACxi4nIyHG6', 1, '2017-09-14', 16, 4, '2017-02-27 00:00:00', 2, 2, ''),
@@ -232,7 +251,7 @@ INSERT INTO `employee_details` (`id`, `emp_ID`, `emp_firstname`, `emp_middlename
 (59, 868, 'Marvin', NULL, 'Tabacon', 'marvin.tabacon@mopro.com', '1234', 1, NULL, 1, 1, '0000-00-00 00:00:00', 0, 0, ''),
 (60, 1401, 'Alice', NULL, 'Carrillo', 'alice.carrillo@mopro.com', '1234', 1, NULL, 1, 1, '0000-00-00 00:00:00', 0, 0, ''),
 (61, 1505, 'Jays', NULL, 'Arthur', 'jay.arthur@mopro.com', '1234', 1, NULL, 6, 18, '0000-00-00 00:00:00', 0, 0, ''),
-(62, 1360, 'John Manuel', 'Sebusa', 'Derecho', 'john.derecho@mopro.com', '$2y$10$v8hvnK/Yc3glz.Yq0n2m1OR3FqHlpR7vJyanREDdWIACxi4nIyHG6', 1, '1995-12-06', 14, 17, '2017-04-17 00:00:00', 1, 5, 'kvhEc34sSSpixh0jFDuKcCNSgXOgluI0bA4WYVfW8MOKr3H60bwAzEx7nW4A');
+(62, 1360, 'John Manuel', 'Sebusa', 'Derecho', 'john.derecho@mopro.com', '$2y$10$v8hvnK/Yc3glz.Yq0n2m1OR3FqHlpR7vJyanREDdWIACxi4nIyHG6', 1, '1995-12-06', 14, 17, '2017-04-17 00:00:00', 1, 5, 'aeEi1gJWYMXp855iTJlEy7scvq0nMEGtFApgw3huKQ8lYihIe813aEbaqsUD');
 
 -- --------------------------------------------------------
 
@@ -327,8 +346,9 @@ ALTER TABLE `attachments`
 -- Indexes for table `comments`
 --
 ALTER TABLE `comments`
-  ADD PRIMARY KEY (`emp_ID`),
-  ADD KEY `attachment_id` (`attachment_id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `attachment_id` (`attachment_id`),
+  ADD KEY `employee_details_id` (`employee_details_id`);
 
 --
 -- Indexes for table `documents`
@@ -388,7 +408,7 @@ ALTER TABLE `attachments`
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `emp_ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `documents`

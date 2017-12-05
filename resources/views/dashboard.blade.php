@@ -137,7 +137,7 @@ Dashboard: Document Controller
                                               echo '<span class="badge">' .$document->departments[0]->employee_dept->dept_description . '..</span>';
                                               echo '</a>';
                                             }else{
-                                               echo "N/A";
+                                               echo '<span class="badge">N/A</span>';
                                             }
                                                ?>
                                               <br/>
@@ -201,20 +201,16 @@ Dashboard: Document Controller
                 <br>
                 <div class="col-lg-12 col-md-12">
                   <label>Reviewer</label>
-                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-                  <!-- <input type="text" data-provide="typeahead" class="typehead" autocomplete="off"> -->
                   <select data-placeholder="Add Reviewer" class="chosen-select form-control" id="select_approvers" multiple="" tabindex="-1">
                       <option value=""></option>
                       @foreach($approvers as $employee)
                       <option value="{{ $employee->id }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
                       @endforeach
-              
-                    </select>
-                    <br>
-                    <br>
-                     <label>Department</label>
-                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-                  <!-- <input type="text" data-provide="typeahead" class="typehead" autocomplete="off"> -->
+                  </select>
+                  <br>
+                  <br>
+
+                  <label>Department</label>
                   <select data-placeholder="Select Department" class="chosen-select form-control" id="select_departments" multiple="" tabindex="-1">
                       <option value=""></option>
                       @foreach($departments as $department)
@@ -223,13 +219,12 @@ Dashboard: Document Controller
               
                     </select>
 
-                  
                   <br>
                   <br>
                   <label>Attachment</label>
                   <!-- <input type="file" name="" placeholder="File"> -->
 
-                   <form action="/file-upload" id="myAwesomeDropzone"
+                   <form action="/file-upload" id="create_document_dropzone"
                     class="dropzone">
                       {{ csrf_field() }}
 
@@ -258,6 +253,7 @@ Dashboard: Document Controller
       </div>
     </div>
 
+
       <!-- Edit Document Modal -->
     <div class="modal fade" id="EditDocumentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
       <div class="modal-dialog modal-lg" role="document">
@@ -284,21 +280,20 @@ Dashboard: Document Controller
                 <br>
                 <br>
                 <div class="col-lg-12 col-md-12">
+  
                   <label>Add Reviewer</label>
-                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-                  <!-- <input type="text" data-provide="typeahead" class="typehead" autocomplete="off"> -->
-                  <select data-placeholder="Add Reviewer" class="chosen-select form-control" multiple="" tabindex="-1">
+                  <select data-placeholder="Add Reviewer" class="chosen-select form-control" id="select_reviewers" multiple="" tabindex="-1">
                       <option value=""></option>
                       @foreach($approvers as $employee)
                       <option value="{{ $employee->id }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
                       @endforeach
               
                     </select>
+  
                     <br>
                     <br>
-                     <label>Department</label>
-                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-                  <!-- <input type="text" data-provide="typeahead" class="typehead" autocomplete="off"> -->
+  
+                  <label>Department</label>
                   <select data-placeholder="Select Department" class="chosen-select form-control" id="select_departments" multiple="" tabindex="-1">
                       <option value=""></option>
                       @foreach($departments as $department)
@@ -307,12 +302,11 @@ Dashboard: Document Controller
               
                     </select>
                   
-                  <br>
-                  <br>
+                    <br>
+                    <br>
+      
                   <label>Attachment</label>
-                  <!-- <input type="file" name="" placeholder="File"> -->
-
-                   <form action="/file-upload" id="myAwesomeDropzone"
+                   <form action="/file-upload" id="edit_document_dropzone"
                     class="dropzone">
                       {{ csrf_field() }}
 
@@ -320,13 +314,11 @@ Dashboard: Document Controller
                       <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
                       <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
                   </form>
-                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-                  <!-- <textarea class="form-control" rows="25" ></textarea> --> 
+      
                   <div id="file_uploads_container" class="hidden">
                     
                   </div>
                 </div>
-                
             </div>
           </div>
           <div class="modal-footer">
@@ -398,7 +390,7 @@ Dashboard: Document Controller
                 </div>
                <div class="col-md-12" id="comment_container">
                 <hr style="height: 2px; border-color: #dadada;">
-               <span class="label label-success">2 Comments</span>
+               <!-- <span class="label label-success">2 Comments</span> -->
                 
                </div>
                <div class="col-md-12" id="commentbox_container">
@@ -407,11 +399,11 @@ Dashboard: Document Controller
                  <table style="width: 100%">
                    <tr>
                     <td></td>
-                    <td><br>
+                    <td id="attachment_holder"><br>
                   <label>Attachment</label>
                   <!-- <input type="file" name="" placeholder="File"> -->
 
-                   <form action="/file-upload" id="myAwesomeDropzone1"
+                   <form action="/file-upload" id="view_document_dropzone_comment"
                     class="dropzone">
                       {{ csrf_field() }}
 
@@ -433,7 +425,8 @@ Dashboard: Document Controller
                 </span></td>
                     <td style='width: 80%'>
                       <input type="hidden" name="document_id">
-                      <textarea id="comment_area"></textarea>
+                      <textarea id="comment_area" style="width: 97%"></textarea>
+                      <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
                     </td>
                     <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px">Send</button></td>
                   </tr>
@@ -520,8 +513,7 @@ Dashboard: Document Controller
         width: "100%"
     });
 
-
-    Dropzone.options.myAwesomeDropzone = {
+    Dropzone.options.create_document_dropzone = {
       url: "document/upload",
       paramName: "file", // The name that will be used to transfer the file
       maxFilesize: 10, // MB
@@ -555,7 +547,7 @@ Dashboard: Document Controller
       }
     };
 
-     Dropzone.options.myAwesomeDropzone1 = {
+     Dropzone.options.view_document_dropzone_comment  = {
       url: "document/upload",
       paramName: "file", // The name that will be used to transfer the file
       maxFilesize: 10, // MB
@@ -855,7 +847,6 @@ Dashboard: Document Controller
     });
 
 
-
     $('#btn_send_comment').click(function(){
       var message = $('#comment_area').val();
       var document_id = $('#viewDocumentModal input[name=document_id]').val();
@@ -922,5 +913,13 @@ Dashboard: Document Controller
             }
         }});
     });
+
+  $("#btn_attachment").click(function(){
+    $("#viewDocumentModal #attachment_holder").fadeToggle(500);
+  });
+
+  
+     $('#commentbox_container').fadeToggle(500);
+    $("#viewDocumentModal #attachment_holder").fadeToggle(500);
   </script>
   @endsection

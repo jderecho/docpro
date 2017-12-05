@@ -525,8 +525,22 @@ a span{
 #comment_area{
     width: 100%;
     vertical-align: middle;
+    border-color: #f0f0f0;
 }
 
 .comment_profile{
     margin: auto !important;
+}
+
+.dropzone .dz-preview .dz-image img {
+    height: 100%;
+    width: 100%;
+    display: block;
+}
+form#view_document_dropzone_comment {
+    margin-bottom: 20px;
+}
+
+#commentbox_container{
+    margin-top: 20px;
 }

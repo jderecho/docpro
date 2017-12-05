@@ -18,6 +18,10 @@ class Document extends Model
     	return $this->hasMany('App\Approver','document_ID');
     }
 
+    public function departments(){
+        return $this->hasMany('App\DocumentDepartment','document_id');
+    }
+
     public function attachments(){
     	return $this->hasMany('App\Attachment','document_ID');
     }
@@ -29,9 +33,9 @@ class Document extends Model
         return $query->with('approvers')->where('approvers.status', '=', '0');
     }
     public function scopeIsContributor($query, $id){
-        if($this->employee_details_id == $id){
-            return false;
-        }
+        // if($this->employee_details_id == $id){
+        //     return false;
+        // }
 
         foreach($this->approvers as $approver){
             if($approver->employee_details_id == $id){

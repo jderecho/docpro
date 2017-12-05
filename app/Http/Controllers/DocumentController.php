@@ -12,6 +12,7 @@ use App\Document;
 use App\Approver;
 use App\Attachment;
 use App\Comment;
+use App\DocumentDepartment;
 
 class DocumentController extends Controller
 {
@@ -54,10 +55,11 @@ class DocumentController extends Controller
      */
     public function show($id)
     {
-        $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments')->find($id);
+        $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments')->with('departments')->find($id);
         $document->isContributor = $document->isContributor(Auth::user()->id);
         $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
         $document->comments->load('commentor');
+        $document->departments->load('employee_dept');
         return $document;
     }
 
@@ -139,13 +141,23 @@ class DocumentController extends Controller
         if(!$success) return array( "success" => false );
 
         // save approvers
-        foreach($request->reviewers as $reviewers){
-            $approver = new Approver;
-            $approver->employee_details_id = $reviewers; 
-            $approver->document_ID = $document->id; 
-            $approver->save();
+        if($request->reviewers != null){
+            foreach($request->reviewers as $reviewers){
+                $approver = new Approver;
+                $approver->employee_details_id = $reviewers; 
+                $approver->document_ID = $document->id; 
+                $approver->save();
+            }
         }
-
+         // save department
+        if($request->department_id != null){
+            foreach($request->department_id as $department){
+                $d = new DocumentDepartment;
+                $d->dept_id = $department; 
+                $d->document_id = $document->id; 
+                $d->save();
+            }
+        }
         // save attachments
         $newdirectory = 'public/docs/user/' . $request->creator . '/' . $request->_code;
 
@@ -156,13 +168,15 @@ class DocumentController extends Controller
         $directory = 'public/docs/uploads/' . $request->creator . '/'. $request->_code;
 
         // save files
-        foreach ($request->file_uploads as $value) {
-            $is_copied = copy( $directory .'/'. $value['filename']  , $newdirectory . '/' . $value['filename'] );
-            if($is_copied){ 
-               $attachment = new Attachment;
-               $attachment->file_location = $newdirectory .'/'. $value['filename'];
-               $attachment->document_ID = $document->id;
-               $attachment->save();
+        if($request->file_uploads != null){
+            foreach ($request->file_uploads as $value) {
+                $is_copied = copy( $directory .'/'. $value['filename']  , $newdirectory . '/' . $value['filename'] );
+                if($is_copied){ 
+                   $attachment = new Attachment;
+                   $attachment->file_location = $newdirectory .'/'. $value['filename'];
+                   $attachment->document_ID = $document->id;
+                   $attachment->save();
+                }
             }
         }
 
@@ -181,12 +195,23 @@ class DocumentController extends Controller
         // catch if error saving document
         if(!$success) return array( "success" => false );
 
-        // save approvers
-        foreach($request->reviewers as $reviewers){
-            $approver = new Approver;
-            $approver->employee_details_id = $reviewers; 
-            $approver->document_ID = $document->id; 
-            $approver->save();
+         // save approvers
+        if($request->reviewers != null){
+            foreach($request->reviewers as $reviewers){
+                $approver = new Approver;
+                $approver->employee_details_id = $reviewers; 
+                $approver->document_ID = $document->id; 
+                $approver->save();
+            }
+        }
+         // save department
+        if($request->department_id != null){
+            foreach($request->department_id as $department){
+                $d = new DocumentDepartment;
+                $d->dept_id = $department; 
+                $d->document_id = $document->id; 
+                $d->save();
+            }
         }
 
         // save attachments
@@ -199,13 +224,15 @@ class DocumentController extends Controller
         $directory = 'public/docs/uploads/' . $request->creator . '/'. $request->_code;
 
         // save files
-        foreach ($request->file_uploads as $value) {
-            $is_copied = copy( $directory .'/'. $value['filename']  , $newdirectory . '/' . $value['filename'] );
-            if($is_copied){ 
-               $attachment = new Attachment;
-               $attachment->file_location = $newdirectory .'/'. $value['filename'];
-               $attachment->document_ID = $document->id;
-               $attachment->save();
+        if($request->file_uploads != null){
+            foreach ($request->file_uploads as $value) {
+                $is_copied = copy( $directory .'/'. $value['filename']  , $newdirectory . '/' . $value['filename'] );
+                if($is_copied){ 
+                   $attachment = new Attachment;
+                   $attachment->file_location = $newdirectory .'/'. $value['filename'];
+                   $attachment->document_ID = $document->id;
+                   $attachment->save();
+                }
             }
         }
 
@@ -231,6 +258,13 @@ class DocumentController extends Controller
                 $success = $document->save();
                 if($success){
                     $message = "Document successfully sent for approval";
+
+                    $comment = new Comment;
+                    $comment->employee_details_id = $request->employee_details_id;
+                    $comment->document_ID = $request->document_id;
+                    $comment->message = "Sent the document for approval";
+                    $comment->save();
+
                 }else{
                     $message = "error while sending document for approval";
                 }
@@ -243,6 +277,12 @@ class DocumentController extends Controller
                     if($approver->employee_details_id == $request->employee_details_id){
                         $approver->status = 1;
                         $success = $approver->save();
+
+                        $comment = new Comment;
+                        $comment->employee_details_id = $request->employee_details_id;
+                        $comment->document_ID = $request->document_id;
+                        $comment->message = "approved the document.";
+                        $comment->save();
                     }
                     if($approver->status == 1){
                         $approved_counter++;
@@ -254,12 +294,25 @@ class DocumentController extends Controller
                     $message = "Document is partially approved.";
                     $document->status = 2;
                     $success = $document->save();
+
+                    $comment = new Comment;
+                    $comment->employee_details_id = $request->employee_details_id;
+                    $comment->document_ID = $request->document_id;
+                    $comment->message = "All Approvers approved the documents";
+                    $comment->save();
                 }
             }else if($request->old_status == "pre-approved"){
 
                 $document->status = 3;
                 
                 if($document->save()){
+
+                    $comment = new Comment;
+                    $comment->employee_details_id = $request->employee_details_id;
+                    $comment->document_ID = $request->document_id;
+                    $comment->message = "Document is ready!";
+                    $comment->save();
+
                     return array("success" => true);
                 }else{
                     return array("success" => false);
@@ -271,12 +324,23 @@ class DocumentController extends Controller
      }
 
      public function comment(Request $request){
-        // return $request->all();
 
         $comment = new Comment;
         $comment->employee_details_id = $request->employee_details_id;
         $comment->document_ID = $request->document_id;
         $comment->message = $request->message;
+
+        if($comment->save()){
+            return array("success" => true);
+        }else{
+            return array("success" => false);
+        }
+     }
+     public function makeComment($employee_details_id, $document_id, $message){
+     $comment = new Comment;
+        $comment->employee_details_id = $employee_details_id;
+        $comment->document_ID = $document_id;
+        $comment->message = $message;
 
         if($comment->save()){
             return array("success" => true);

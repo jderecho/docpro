@@ -296,7 +296,7 @@ class DocumentController extends Controller
                     $success = $document->save();
 
                     $comment = new Comment;
-                    $comment->employee_details_id = $request->employee_details_id;
+                    $comment->employee_details_id = 0; // DocPro Admin
                     $comment->document_ID = $request->document_id;
                     $comment->message = "All Approvers approved the documents";
                     $comment->save();
@@ -316,6 +316,49 @@ class DocumentController extends Controller
                     return array("success" => true);
                 }else{
                     return array("success" => false);
+                }
+            }
+        }else if($request->status == "disapprove"){
+            if($request->old_status == "for-approval"){
+                $disapproved = 0;
+                 foreach($document->approvers as $approver){
+                    if($approver->employee_details_id == $request->employee_details_id){
+                        $approver->status = 2;
+                        $success = $approver->save();
+
+                        $comment = new Comment;
+                        $comment->employee_details_id = $request->employee_details_id;
+                        $comment->document_ID = $request->document_id;
+                        $comment->message = "disapproved the document.";
+                        if($comment->save()){
+                            $message = "Document successfully disapproved!";
+                        }
+                    }
+                    if($approver->status == 2){
+                        $disapproved++;
+                    }
+                }
+            }
+        }else if($request->status == "resend-for-approval"){
+            // "status" : "resend-for-approval",     
+            // "old_status" : "for-approval",
+            if($request->old_status == "for-approval"){
+                $document->load('approvers');
+
+                if($document->approvers != null){
+                    foreach($document->approvers as $approver){
+                        if($approver->status == 2){
+                            $approver->status = 0;
+                            $approver->save();
+                        }
+                    }
+                    $comment = new Comment;
+                    $comment->employee_details_id = $request->employee_details_id;
+                    $comment->document_ID = $request->document_id;
+                    $comment->message = "resent the document for approval.";
+                    if($comment->save()){
+                        $message = "Document successfully resent for approval!";
+                    } 
                 }
             }
         }

@@ -658,7 +658,9 @@ Dashboard: Document Controller
     $(".btn_view_document").click(function(){
 
        $("#viewDocumentModal .button-container").find("#btn_approve").remove();
+       $("#viewDocumentModal .button-container").find("#btn_disapprove").remove();
        $("#viewDocumentModal .button-container").find("#btn_send_for_approval").remove();
+       $("#viewDocumentModal .button-container").find("#btn_resend_for_approval").remove();
        $("#viewDocumentModal .button-container").find("#btn_final_approve").remove();
        $("#viewDocumentModal #department-list-container").html('');
 
@@ -681,6 +683,8 @@ Dashboard: Document Controller
             result.approvers.forEach(function(approver, index) {
                 if( approver.status == 1){
                   checked = '<span class="status-ok pull-right green"><img src="' + root_URL + 'public/img/status/check.png"></span>';
+                }else if(approver.status == 2){
+                  checked = '<span class="status-ok pull-right green"><img src="' + root_URL + 'public/img/status/uncheck.png"></span>';
                 }else{
                   checked = "";
                 }
@@ -731,11 +735,24 @@ Dashboard: Document Controller
             }
           } // 1 means for approval
           else if(result.status == 1){
+            if(result.creator.id == {!! Auth::user()->id !!}){
 
-            if(result.isContributor){
+               result.approvers.forEach(function(approver, index){
+                // check if any approver disapprove the doc
+                console.log('aw');
+                if(approver.status == 2){
+                   $("#viewDocumentModal .button-container").prepend('<button id="btn_resend_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-send">&nbsp;</span>Resend for Approval</button>');
+                   return;
+                }
+              });
+            }
+            else if(result.isContributor){
               // Display Approve button
 
-              if(result.contributorStatus != 1){
+              if(result.contributorStatus == 0){
+
+                $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Disapprove</button>');
+
                 $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
               }
             }
@@ -820,6 +837,26 @@ Dashboard: Document Controller
             }
         }});
     });
+    $(document).on("click", "#btn_disapprove", function(){
+       var id = $(this).attr('data-value');
+
+         $.ajax({url:  "document/status" , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("#viewDocumentModal input[name=_token]").val(),     
+            "status" : "disapprove",     
+            "old_status" : "for-approval",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              location.reload();
+            }else{
+            console.log(result);
+            }
+        }});
+    });
 
     $(document).on("click", "#btn_send_for_approval", function(){
        var id = $(this).attr('data-value');
@@ -830,6 +867,27 @@ Dashboard: Document Controller
             "_token" : $("#viewDocumentModal input[name=_token]").val(),     
             "status" : "for-approval",     
             "old_status" : "draft",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              location.reload();
+            }else{
+              console.log(result);
+            }
+        }});
+    });
+
+    $(document).on("click", "#btn_resend_for_approval", function(){
+       var id = $(this).attr('data-value');
+
+         $.ajax({url:  "document/status" , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("#viewDocumentModal input[name=_token]").val(),     
+            "status" : "resend-for-approval",     
+            "old_status" : "for-approval",     
             "document_id" : id,     
             "employee_details_id" : {!! Auth::user()->id !!} ,     
           }, 

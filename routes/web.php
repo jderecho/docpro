@@ -1,5 +1,7 @@
 <?php
+use App\Mail\SendNotification;
 
+use Illuminate\Support\Facades\Mail;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,7 +15,21 @@
 
 
 Route::get('/', function () {
-    return Redirect::to('login');;
+	$test = "Test";
+	$data = array('email' => '','name'=>"Sam Jose", "body" => "Test mail");
+
+	Mail::to($data)
+    // ->cc($moreUsers)
+    // ->bcc($evenMoreUsers)
+    ->send(new SendNotification($test));
+
+// 	Mail::send('mail.notification', $data, function($message) {
+//     $message->to('john.derecho@mopro.com', 'John Manuel Derecho')
+//             ->subject('test');
+//     // $message->from('jmanuel.derecho@','Sajid Sayyad');
+// });
+	return;
+    return Redirect::to('login');
 });
 
 Route::get('test', 'DocumentController@test');

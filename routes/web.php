@@ -1,6 +1,7 @@
 <?php
 use App\Mail\SendNotification;
-
+use App\EmployeeDetails;
+use App\Document;
 use Illuminate\Support\Facades\Mail;
 /*
 |--------------------------------------------------------------------------
@@ -15,34 +16,29 @@ use Illuminate\Support\Facades\Mail;
 
 
 Route::get('/', function () {
-	$test = "Test";
-	$data = array('email' => '','name'=>"Sam Jose", "body" => "Test mail");
+	if(Auth::check()){
 
-	Mail::to($data)
-    // ->cc($moreUsers)
-    // ->bcc($evenMoreUsers)
-    ->send(new SendNotification($test));
+		return Redirect::route('home');
+	}
 
-// 	Mail::send('mail.notification', $data, function($message) {
-//     $message->to('john.derecho@mopro.com', 'John Manuel Derecho')
-//             ->subject('test');
-//     // $message->from('jmanuel.derecho@','Sajid Sayyad');
-// });
-	return;
-    return Redirect::to('login');
+	return view('view')->with('documents', Document::all());
 });
-
+Route::get('home','DashboardController@index');
 Route::get('test', 'DocumentController@test');
 
 Auth::routes();
 
-Route::get('home','DashboardController@index');
 
 // hack for logout
 Route::get('logout', 'Auth\LoginController@logout');
 
 // document routes
+
 Route::get('document/{id}', 'DocumentController@show');
+
+// Route::get('document/{id}/display', 'DashboardController@display');
+
+Route::get('document/{id}/display', 'DocumentController@display');
 
 Route::post('document/upload', 'DocumentController@upload');
 Route::post('document/comment', 'DocumentController@comment');

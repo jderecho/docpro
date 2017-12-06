@@ -41,5 +41,7 @@ class User extends Authenticatable
         return in_array($id, $admins);
     }
     
-    
+    public function scopeFullName($query){
+        return $this->emp_firstname . ' ' . $this->emp_lastname;
+    }
 }

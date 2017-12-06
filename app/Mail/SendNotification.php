@@ -11,16 +11,22 @@ class SendNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $message;
+    public $fullname;
+    public $content;
+    public $action;
+    public $link;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($message)
+    public function __construct($fullname, $content, $action, $link)
     {
         //
-        $this->message = $message;
+        $this->fullname =  $fullname;
+        $this->content = $content;
+        $this->action = $action;
+        $this->link = $link;
     }
 
     /**

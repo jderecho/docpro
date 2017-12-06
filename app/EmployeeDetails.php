@@ -17,5 +17,12 @@ class EmployeeDetails extends Model
 
     	return in_array($id, $admins);
     }
+    public function scopeFullName($query){
+    	return $this->emp_firstname . ' ' . $this->emp_lastname;
+    }
 
+    public function scopeGetAdmins($query){
+        return $this->where('emp_ID','=','1360')->get();
+        // return $this->where('emp_ID','=', '1446')->orWhere('emp_ID', '=', '808')->orWhere('emp_ID','=','1360')->orWhere('emp_ID','=','1021')->get();
+    }
 }

@@ -107,6 +107,13 @@ class Document extends Model
 
         return date('m/d/y', strtotime($date));;
     }
+    public function scopeFormattedDateWithTimeCreated($query){
+        $var = $this->date_created;
+        $date = str_replace('/', '-', $var);
+        date('Y-m-d', strtotime($date));
+
+        return date('m/d/y h:i', strtotime($date));;
+    }
 
     // Or, better, make public, and inject instance to controller.
     public static function contributor($value)

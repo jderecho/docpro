@@ -7,12 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 use App\Document;
+use App\Mail\SendNotification;
 use App\Approver;
 use App\Attachment;
 use App\Comment;
 use App\DocumentDepartment;
+use App\EmployeeDetails;
 
 class DocumentController extends Controller
 {
@@ -62,7 +65,19 @@ class DocumentController extends Controller
         $document->departments->load('employee_dept');
         return $document;
     }
+    public function display($id){
 
+        $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments')->with('departments')->find($id);
+        $document->comments->load('commentor');
+        $document->departments->load('employee_dept');
+
+        if(Auth::check()){
+            $document->isContributor = $document->isContributor(Auth::user()->id);
+            $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
+        }
+
+        return view('document')->with('document', $document);
+    }
     /**
      * Show the form for editing the specified resource.
      *
@@ -202,6 +217,16 @@ class DocumentController extends Controller
                 $approver->employee_details_id = $reviewers; 
                 $approver->document_ID = $document->id; 
                 $approver->save();
+
+                $approver->load('employee_details');
+                //send email for approvers
+                $document->load('creator');
+
+                $content = $document->creator->fullName() . " created a new document and added you as a reviewer/approver.";
+                $action = "Kindly check and do necessary actions if needed.";
+                $link = url('document/'. $document->id .'/display') . '';
+
+                Mail::to($approver->employee_details->emp_email)->queue(new SendNotification($approver->employee_details->fullName(), $content, $action, $link));
             }
         }
          // save department
@@ -247,6 +272,9 @@ class DocumentController extends Controller
         $changetostatus = 0;
         $document = Document::find($request->document_id);
         
+        $document->load('creator');
+        $document->load('approvers');
+
         if($document->employee_details_id == $request->document_id){
             // pending - can a document creator approve the document created ?
         }
@@ -256,6 +284,8 @@ class DocumentController extends Controller
             if($request->old_status == "draft"){
                 $document->status = 1;
                 $success = $document->save();
+
+
                 if($success){
                     $message = "Document successfully sent for approval";
 
@@ -265,6 +295,15 @@ class DocumentController extends Controller
                     $comment->message = "Sent the document for approval";
                     $comment->save();
 
+
+                    foreach($document->approvers as $approver){
+                        $approver->load('employee_details');
+                        $content = $document->creator->fullName() . " sent a document for approval and you are one of the reviewer/approver.";
+                        $action = "Kindly check and do necessary actions if needed.";
+                        $link = url('document/'. $document->id .'/display') . '';
+
+                        Mail::to($approver->employee_details->emp_email)->queue(new SendNotification($approver->employee_details->fullName(), $content, $action, $link));
+                    }
                 }else{
                     $message = "error while sending document for approval";
                 }
@@ -283,6 +322,28 @@ class DocumentController extends Controller
                         $comment->document_ID = $request->document_id;
                         $comment->message = "approved the document.";
                         $comment->save();
+
+                        $approver->load('employee_details');
+
+                        // notify all contributors of the document 
+                        foreach($document->approvers as $notify_approvers){
+                            // don't send email to current user if the current user is the approver
+                            if($notify_approvers->employee_details->id != $request->employee_details_id){
+                                $content = $approver->employee_details->fullName() . " approved the document " . $document->document_name . ".";
+                                $action = "Kindly check and do necessary actions if needed.";
+                                $link = url('document/'. $document->id .'/display') . '';
+
+                                Mail::to($notify_approvers->employee_details->emp_email)->queue(new SendNotification($notify_approvers->employee_details->fullName(), $content, $action, $link));
+                            }
+                        }
+
+                        // notify also the admin 
+                       foreach(EmployeeDetails::getAdmins() as $admins){
+                            $content = $approver->employee_details->fullName() . " approved the document " . $document->document_name . ".";
+                            $action = "Kindly check and do necessary actions if needed.";
+                            $link = url('document/'. $document->id .'/display') . '';
+                            Mail::to($admins->emp_email)->queue(new SendNotification($admins->fullName(), $content, $action, $link));
+                        }
                     }
                     if($approver->status == 1){
                         $approved_counter++;
@@ -298,8 +359,16 @@ class DocumentController extends Controller
                     $comment = new Comment;
                     $comment->employee_details_id = 0; // DocPro Admin
                     $comment->document_ID = $request->document_id;
-                    $comment->message = "All Approvers approved the documents";
+                    $comment->message = "All Approvers approved the document";
                     $comment->save();
+
+                    // notify also the admin 
+                   foreach(EmployeeDetails::getAdmins() as $admins){
+                        $content = " All Approvers approved the document " . $document->document_name . ".";
+                        $action = "Kindly check and do necessary actions if needed.";
+                        $link = url('document/'. $document->id .'/display') . '';
+                        Mail::to($admins->emp_email)->queue(new SendNotification($admins->fullName(), $content, $action, $link));
+                    }
                 }
             }else if($request->old_status == "pre-approved"){
 

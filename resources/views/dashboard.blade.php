@@ -1,6 +1,6 @@
 @extends('main')
 @section('title')
-Dashboard: Document Controller
+Dashboard: Doc Pro
 @endsection
 @section('css')
 <link href="{{ asset('public/css/chosen.min.css') }}" rel="stylesheet">
@@ -224,7 +224,7 @@ Dashboard: Document Controller
                   <label>Attachment</label>
                   <!-- <input type="file" name="" placeholder="File"> -->
 
-                   <form action="/file-upload" id="create_document_dropzone"
+                   <form action="{!! url('document/upload') !!}" id="createDocumentDropzone"
                     class="dropzone">
                       {{ csrf_field() }}
 
@@ -306,7 +306,7 @@ Dashboard: Document Controller
                     <br>
       
                   <label>Attachment</label>
-                   <form action="/file-upload" id="edit_document_dropzone"
+                   <form action="{{ url('document/upload') }}" id="editDocumentDropzone"
                     class="dropzone">
                       {{ csrf_field() }}
 
@@ -403,7 +403,7 @@ Dashboard: Document Controller
                   <label>Attachment</label>
                   <!-- <input type="file" name="" placeholder="File"> -->
 
-                   <form action="/file-upload" id="view_document_dropzone_comment"
+                   <form action="{{ url('document/upload') }}" id="viewDocumentDropzoneComment"
                     class="dropzone">
                       {{ csrf_field() }}
 
@@ -458,7 +458,7 @@ Dashboard: Document Controller
         </div>
         <div class="modal-body">
           <p>Are you sure you want to delete <span> Document</span>.</p>
-          <form id="" action="/file-upload" method="POST">
+          <form id="" action="{!! url('document/upload') !!}" method="POST">
               {{ csrf_field() }}
 
               <input type="hidden" name="_method" value="DELETE">
@@ -513,8 +513,8 @@ Dashboard: Document Controller
         width: "100%"
     });
 
-    Dropzone.options.create_document_dropzone = {
-      url: "document/upload",
+    Dropzone.options.createDocumentDropzone = {
+      url: '{{url("document/upload")}}',
       paramName: "file", // The name that will be used to transfer the file
       maxFilesize: 10, // MB
       accept: function(file, done) {
@@ -522,7 +522,7 @@ Dashboard: Document Controller
         console.log("add");
 
         var file_name = file.name;
-        // console.log(file_name);
+        console.log(file_name);
 
         $('#createDocumentModal #file_uploads_container').append('<input class="upload-input" type="hidden" name="file_uploads[]" value="' + file_name.replace(/\s/g,'') +'">');
 
@@ -547,8 +547,8 @@ Dashboard: Document Controller
       }
     };
 
-     Dropzone.options.view_document_dropzone_comment  = {
-      url: "document/upload",
+     Dropzone.options.viewDocumentDropzoneComment  = {
+      url: '{!! url("document/upload") !!}',
       paramName: "file", // The name that will be used to transfer the file
       maxFilesize: 10, // MB
       accept: function(file, done) {
@@ -979,5 +979,110 @@ Dashboard: Document Controller
   
      $('#commentbox_container').fadeToggle(500);
     $("#viewDocumentModal #attachment_holder").fadeToggle(500);
+
+    $(".btn_edit_document").click(function(){
+    $("#EditDocumentModal select").val('').trigger('chosen:updated');
+      var editDocumentDropzone = Dropzone.forElement("#edit_document_dropzone");
+      editDocumentDropzone.removeAllFiles(true);
+    // $("#EditDocumentModal input[name]").
+      //   $('.file_holder').html('');
+      //   $('#approver-list-container').html('');
+
+      // GET Document
+       $.ajax({url:  "document/" + $(this).attr('data-value'), 
+        method: 'GET', 
+        success: function(result){
+          $("#EditDocumentModal input[name=document_name]").val(result.document_name);
+          $("#EditDocumentModal input[name=revision_number]").val(result.revision_number);
+          console.log(result);
+          var list_approvers = [];
+          var list_departments = [];
+          result.approvers.forEach(function(approver, index){
+            list_approvers.push(approver.employee_details.id);
+          });
+
+          result.departments.forEach(function(department, index){
+            list_departments.push(department.employee_dept.dept_ID);
+          });
+
+
+          console.log(list_approvers);
+          $("#EditDocumentModal #select_reviewers").val(list_approvers).trigger('chosen:updated');
+          $("#EditDocumentModal #select_departments").val(list_departments).trigger('chosen:updated');
+
+
+          // display mock file of uploaded file in dropzonejs
+          // console.log(Dropzone);
+     // var myDropzone = $("#edit_document_dropzone").dropzone();
+          result.attachments.forEach(function(file, index){
+            console.log(file);
+
+            // Create the mock file:
+      var mockFile = { name: getFileName(file.file_location), size: 12345 };
+
+      // Call the default addedfile event handler
+      editDocumentDropzone.emit("addedfile", mockFile);
+
+      // And optionally show the thumbnail of the file:
+      editDocumentDropzone.emit("thumbnail", mockFile, "http://localhost/docpro/public/img/doctype/word.jpg");
+      
+      // Or if the file on your server is not yet in the right
+      // size, you can let Dropzone download and resize it
+      // callback and crossOrigin are optional.
+      editDocumentDropzone.createThumbnailFromUrl(file, "http://localhost/docpro/" + file.file_location);
+
+      // Make sure that there is no progress bar, etc...
+      editDocumentDropzone.emit("complete", mockFile);
+
+      // If you use the maxFiles option, make sure you adjust it to the
+      // correct amount:
+      var existingFileCount = 1; // The number of files already uploaded
+      editDocumentDropzone.options.maxFiles = editDocumentDropzone.options.maxFiles - existingFileCount;
+
+      //       var mockFile = { name: "banner2.jpg", size: 12345, thumbnail: "http://localhost/docpro/img/doctype/word.jpg" };
+        // editDocumentDropzone.options.addedfile.call(editDocumentDropzone, mockFile);
+        // editDocumentDropzone.options.thumbnail.call(editDocumentDropzone, mockFile, "http://localhost/docpro/public/img/doctype/word.jpg");
+            
+          });
+          console.log(result);
+
+        }});
+    });
+
+Dropzone.options.edit_document_dropzone = {
+      url: "document/upload",
+      paramName: "file", // The name that will be used to transfer the file
+      maxFilesize: 10, // MB
+      accept: function(file, done) {
+        console.log(file[0]);
+        console.log("add");
+
+        var file_name = file.name;
+        // console.log(file_name);
+
+        $('#createDocumentModal #file_uploads_container').append('<input class="upload-input" type="hidden" name="file_uploads[]" value="' + file_name.replace(/\s/g,'') +'">');
+
+        done(); 
+      },
+      addRemoveLinks: true,
+      removedfile: function(file) {
+          console.log([file, "delete"]);
+           var filenames = [];
+           var found = false;
+            var file_name = file.name;
+
+           $("#createDocumentModal #file_uploads_container input.upload-input").each(function(){
+              if(file_name.replace(/\s/g,'') == $(this).val() && (!found) ){
+                $(this).remove();
+                found = true;
+              }
+          });
+
+          var _ref;
+          return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+      }
+    };
+
+
   </script>
   @endsection

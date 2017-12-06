@@ -35,4 +35,18 @@ class DashboardController extends Controller
          return view('dashboard')->with('documents', Document::contributor(Auth::user()->id))->with('approvers', EmployeeDetails::all())->with('departments', EmployeeDepartment::all());
        }
     }
+
+    //  public function display($id){
+        
+    //     $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments')->with('departments')->find($id);
+    //     $document->comments->load('commentor');
+    //     $document->departments->load('employee_dept');
+
+    //     if(Auth::check()){
+    //         $document->isContributor = $document->isContributor(Auth::user()->id);
+    //         $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
+    //     }
+        
+    //     return view('document')->with('document', $document);
+    // }
 }

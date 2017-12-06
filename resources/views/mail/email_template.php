@@ -218,28 +218,47 @@ a[x-apple-data-detectors=true] {
                   
                     <div align="center" class="img-container center  autowidth  fullwidth" style="padding-right: 0px;  padding-left: 0px;">
 <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 0px; padding-left: 0px;" align="center"><![endif]-->
-  <img class="center  autowidth  fullwidth" align="center" border="0" src="{{asset('public/img/mopro_header.png')}}" alt="MoProd Logo" title="MoProd Logo" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: 0;height: auto;float: none;width: 100%;max-width: 800px" width="800">
+  <img class="center  autowidth  fullwidth" align="center" border="0" src="http://192.168.11.212/moprodv2/assets/images/mopro_header.png" alt="MoProd Logo" title="MoProd Logo" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: 0;height: auto;float: none;width: 100%;max-width: 800px" width="800">
 <!--[if mso]></td></tr></table><![endif]-->
 </div>
                     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 30px; padding-left: 30px; padding-top: 30px; padding-bottom: 30px;"><![endif]-->
                     <div style="font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;line-height:180%;color:#000000; padding-right: 30px; padding-left: 30px; padding-top: 30px; padding-bottom: 30px;border: 1px solid #000">	
                     	<div style="font-size:12px;line-height:22px;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;color:#000000;text-align:left;"><p style="margin: 0;font-size: 14px;line-height: 25px">
                         <span style="color: rgb(0, 0, 0); font-size: 14px; line-height: 25px;">
-                          <strong>Hello {{$fullname}}</strong>
+                          <strong>Hello</strong>
                         </span>,</p>
                         <p style="margin: 0;font-size: 14px;line-height: 25px">
-                          <span style="text-align: initial; background-color: transparent; font-size: 14px; line-height: 25px;">{{$content}}</span>
+                          <span style="text-align: initial; background-color: transparent; font-size: 14px; line-height: 25px;">This is to inform you that your agent has cases which are already overdue.</span>
                         </p>
                         <p style="margin: 0;font-size: 14px;line-height: 25px">
-                          <span style="text-align: initial; background-color: transparent; font-size: 14px; line-height: 25px;">{{$action}}&#160;<br><br></span>
-                          <strong><a href="{{$link}}">Link</a></strong>
+                          <span style="text-align: initial; background-color: transparent; font-size: 14px; line-height: 25px;">Kindly check and do necessary actions if needed.&#160;<br><br></span>
+                          <strong>Details</strong>
                         </p>
-                        
+                        <ol>
+                          <li style="font-size: 14px; line-height: 16px;">&#160;
+                            <span style="font-size: 18px; line-height: 32px;">Christine Gallego</span>
+                            <ol style="list-style-type: upper-alpha;"><li style="font-size: 14px; line-height: 16px;">
+                              <span style="font-size: 12px; line-height: 21px;">
+                                <strong><a href="https://na54.salesforce.com/500j000000HlquL" target="_blank">PCH (MP-102718) - Nov. 15, 2017</a></strong>
+                              </span></li>
+                              <li style="font-size: 14px; line-height: 16px;">
+                                <span style="font-size: 12px; line-height: 21px;">
+                                  <strong><a href="https://na54.salesforce.com/500j000000L6AHF" target="_blank">Greenport designs (MP-117474) - Nov. 15, 2017</a></strong>
+                                </span>
+                              </li>
+                            <li style="font-size: 14px; line-height: 16px;">
+                              <span style="font-size: 12px; line-height: 21px;">
+                                <strong><a href="https://na54.salesforce.com/500j000000Oikex" target="_blank">Ya Man Apparel (MP-56408) - Nov. 15, 2017</a></strong>
+                              </span>
+                            </li>
+                          </ol>
+                        </li>
+                      </ol>
                       <p style="margin: 0;font-size: 12px;line-height: 22px">&#160;<br></p>
                       <p style="margin: 0;font-size: 12px;line-height: 22px">
                         <span style="font-size: 12px; line-height: 21px;"><strong>Thank you!</strong></span></p>
                         <p style="margin: 0;font-size: 12px;line-height: 22px">
-                          <span style="font-size: 12px; line-height: 21px;"><strong><br>Sent via Docpro</strong></span>
+                          <span style="font-size: 12px; line-height: 21px;"><strong><br>Sent via MoProd</strong></span>
                         </p>
                       </div>	
                     </div>

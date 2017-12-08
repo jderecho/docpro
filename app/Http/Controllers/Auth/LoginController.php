@@ -68,6 +68,9 @@ class LoginController extends Controller
             if (Auth::attempt($user)){
 
                 Auth::login(Auth::user());
+                if($request->_previous != null){
+                    return redirect()->intended($request->_previous);
+                }
 
                 return redirect()->intended('home');
             }else{

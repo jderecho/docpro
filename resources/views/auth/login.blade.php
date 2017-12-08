@@ -3,7 +3,6 @@
 Login: Document Controller
 @endsection
 @section('content')
-
     <div class="content-fluid" style="background: #191919">
         <div class="spacer-top">
         </div>
@@ -23,7 +22,8 @@ Login: Document Controller
                     @endif
                 <form action="login" class="" method="post" accept-charset="utf-8">
                     <!-- <input type="hidden" name="csrf_moprod" value="b15a98d7570882c640f37ad9fc075938">  -->
-                     {{ csrf_field() }}                                                             
+                     {{ csrf_field() }}      
+                        <input type="hidden" name="_previous" value="{{ Session::get('ref') }}">                                                       
                                 <div class="form-group" style="margin-bottom:23px;">
                         <label class="text-desc">EMAIL ADDRESS</label>
                         <div id="inputgroupEmail" class="input-group">

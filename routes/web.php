@@ -41,7 +41,9 @@ Route::get('document/{id}', 'DocumentController@show');
 Route::get('document/{id}/display', 'DocumentController@display');
 
 Route::post('document/upload', 'DocumentController@upload');
-Route::post('document/comment', 'DocumentController@comment');
+
+Route::post('document/comment', 'CommentController@comment');
+Route::post('comment/upload', 'CommentController@upload');
 
 Route::post('document/save', 'DocumentController@save'); 
 Route::post('document/forapproval', 'DocumentController@approval');

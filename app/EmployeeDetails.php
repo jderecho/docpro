@@ -13,7 +13,8 @@ class EmployeeDetails extends Model
 
     public function scopeIsSuperAdmin($query, $id){
     	// defined user admin
-    	$admins = array('1446', '808', '1360', '1021' );
+        // $admins = array('1446', '808', '1360', '1021' );
+    	$admins = array( '1360');
 
     	return in_array($id, $admins);
     }

@@ -185,46 +185,45 @@ View Document : DocPro
 			                 @endforeach()
 		               </div>
 		               <div class="col-md-12" id="commentbox_container">
-		                
-		               
-		                 <table style="width: 100%">
-		                   <tr>
-		                    <td></td>
-		                    <td id="attachment_holder"><br>
-		                  <label>Attachment</label>
-		                  <!-- <input type="file" name="" placeholder="File"> -->
+                
+               
+                 <table style="width: 100%">
+                   <tr>
+                    <td></td>
+                    <td id="attachment_holder"><br>
+                  <label>Attachment</label>
+                  <!-- <input type="file" name="" placeholder="File"> -->
 
-		                   <form action="/file-upload" id="view_document_dropzone_comment"
-		                    class="dropzone">
-		                      {{ csrf_field() }}
-		                      @if(Auth::check())
-		                      <input type="hidden" name="_code" value="{{ md5(time())}}">
-		                      <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
-		                      <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
-		                      @endif
-		                  </form>
-		                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-		                  <!-- <textarea class="form-control" rows="25" ></textarea> --> 
-		                  <div id="file_uploads_container" class="hidden">
-		                    
-		                  </div></td>
-		                  <td>
-		                    
-		                  </td>
-		                  </tr>
-		                   <tr>
-		                    <td style='width: 10%; padding-left: 15px;'> <span><img class="comment_profile" style="width: 30px" src="http://localhost/docpro/public/img/mopro_profile.png">
-		                </span></td>
-		                    <td style='width: 80%'>
-		                      <input type="hidden" name="document_id">
-		                      <textarea id="comment_area" style="width: 97%"></textarea>
-		                      <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
-		                    </td>
-		                    <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px">Send</button></td>
-		                  </tr>
-		                 
-		                 </table>
-		               </div>
+                   <form style="margin-bottom: 20px" action="/comment/upload" id="viewDocumentDropzoneComment"
+                    class="dropzone">
+                      {{ csrf_field() }}
+
+                      <input type="hidden" name="_code" value="{{ md5(time())}}">
+                      <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
+                      <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
+                  </form>
+                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
+                  <!-- <textarea class="form-control" rows="25" ></textarea> --> 
+                  <div id="comment_attachment_holder" class="hidden">
+                    
+                  </div></td>
+                  <td>
+                    
+                  </td>
+                  </tr>
+                   <tr>
+                    <td style='width: 10%; padding-left: 15px;'> <span><img class="comment_profile" style="width: 30px;" src="http://localhost/docpro/public/img/mopro_profile.png">
+                </span></td>
+                    <td style='width: 80%'>
+                      <input type="hidden" name="document_id">
+                      <textarea id="comment_area" style="width: 97%"></textarea>
+                      <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
+                    </td>
+                    <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px">Send</button></td>
+                  </tr>
+                 
+                 </table>
+               </div>
                     </div>
               </div>
           </div>

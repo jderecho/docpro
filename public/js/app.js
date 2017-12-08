@@ -1,4 +1,5 @@
 var root_URL = "";
+var base_URL = "localhost/docpro/";
 $(document).ready(function(){
 
 	root_URL = $('input[name=root_url]').val();
@@ -60,4 +61,45 @@ function showMessage(type, message){
 	$("#messageDocumentModal").modal('show');
 }
 
+
+function statusString(id){
+    var str = "";
+    switch (id) {
+        case 0:
+            str = "Draft";
+            break;
+        case 1:
+            str = "For Approval";
+            break;
+        case 2:
+            str = "Pre-Approved";
+            break;
+        case 3:
+            str = "Approved";
+            break;
+        default:
+            break;
+    }
+    return str;
+}
+  function statusClass(id){
+    var str = "";
+    switch (id) {
+        case 0:
+            str = "status-draft";
+            break;
+        case 1:
+            str = "status-for-approval";
+            break;
+        case 2:
+            str = "status-pre-approved";
+            break;
+        case 3:
+            str = "status-approved";
+            break;
+        default:
+            break;
+    }
+    return str;
+}
 

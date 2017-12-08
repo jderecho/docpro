@@ -77,7 +77,9 @@ Dashboard: Doc Pro
                   </ul>
                 </div>
               </li> -->
+              <li><div><a class="btn btn-success" href="{{url('login')}}" style=" margin-right: 10px;">Login</a> &nbsp; </div></li>
            </ul>
+           
         </div><!--/.navbar-collapse -->
       </div>
     </nav>
@@ -86,7 +88,7 @@ Dashboard: Doc Pro
               <div class="card">
                   <div class="card-header card-gradient">
                        <h4 class="title"><span class="glyphicon glyphicon-time"></span></span>&nbsp;&nbsp;Recent
-                        <a class="btn btn-success pull-right" data-toggle="modal" data-target="#createDocumentModal"><span class="glyphicon glyphicon-plus"></span></a>
+                        <!-- <a class="btn btn-success pull-right" data-toggle="modal" data-target="#createDocumentModal"><span class="glyphicon glyphicon-plus"></span></a> -->
                        </h4>
                         
                   </div>
@@ -103,7 +105,7 @@ Dashboard: Doc Pro
                                         <td>Status</td>
                                         <!-- <td><center>Total NO. OF Reviewer</center></td>
                                         <td><center>Already approved</center></td> -->
-                                        <td><center>Creator</center></td>
+                                        <td><center>Originator</center></td>
                                         <td class="text-right">OPTIONS</td>
                                     </tr>
                                 </thead>
@@ -201,7 +203,7 @@ Dashboard: Doc Pro
                 <div class="col-md-3">
                   <label>Created By:</label>
                   <div id="attachment-list-container">
-                     <input type="text" name="created_by" placeholder="Creator" class="form-control disabled" disabled>
+                     <input type="text" name="created_by" placeholder="Originator" class="form-control disabled" disabled>
                   </div>
                   <br>
                   <label>Department:</label>
@@ -220,48 +222,13 @@ Dashboard: Doc Pro
                </div>
                <div class="col-md-12" id="commentbox_container">
                 
-               
-                 <table style="width: 100%">
-                   <tr>
-                    <td></td>
-                    <td id="attachment_holder"><br>
-                  <label>Attachment</label>
-                  <!-- <input type="file" name="" placeholder="File"> -->
-
-                   <form action="{{ url('document/upload') }}" id="viewDocumentDropzoneComment"
-                    class="dropzone">
-                      {{ csrf_field() }}
-
-                     
-                  </form>
-                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-                  <!-- <textarea class="form-control" rows="25" ></textarea> --> 
-                  <div id="file_uploads_container" class="hidden">
-                    
-                  </div></td>
-                  <td>
-                    
-                  </td>
-                  </tr>
-                   <tr>
-                    <td style='width: 10%; padding-left: 15px;'> <span><img class="comment_profile" height="30" src="http://localhost/docpro/public/img/mopro_profile.png">
-                </span></td>
-                    <td style='width: 80%'>
-                      <input type="hidden" name="document_id">
-                      <textarea id="comment_area" style="width: 97%"></textarea>
-                      <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
-                    </td>
-                    <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px">Send</button></td>
-                  </tr>
-                 
-                 </table>
                </div>
             </div>
           </div>
           <div class="modal-footer">
             <div class="container-fluid">
               <div class="col-md-12 button-container">
-                <button type="button" class="btn btn-success" id="btn_toggle_commentbox"><span class="glyphicon glyphicon-comment">&nbsp;</span>Add Comment</button>
+                <!-- <button type="button" class="btn btn-success" id="btn_toggle_commentbox"><span class="glyphicon glyphicon-comment">&nbsp;</span>Add Comment</button> -->
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               </div>
             </div>
@@ -270,52 +237,16 @@ Dashboard: Doc Pro
       </div>
     </div>
   @endsection
-  @section('script')
+  @section('scripts')
   <script>
+
   // VIEW MODAL
-  
-   Dropzone.options.viewDocumentDropzoneComment  = {
-      url: '{!! url("document/upload") !!}',
-      paramName: "file", // The name that will be used to transfer the file
-      maxFilesize: 10, // MB
-      accept: function(file, done) {
-        console.log(file[0]);
-        console.log("add");
-
-        var file_name = file.name;
-        // console.log(file_name);
-
-        $('#createDocumentModal #file_uploads_container').append('<input class="upload-input" type="hidden" name="file_uploads[]" value="' + file_name.replace(/\s/g,'') +'">');
-
-        done(); 
-      },
-      addRemoveLinks: true,
-      removedfile: function(file) {
-          console.log([file, "delete"]);
-           var filenames = [];
-           var found = false;
-            var file_name = file.name;
-
-           $("#createDocumentModal #file_uploads_container input.upload-input").each(function(){
-              if(file_name.replace(/\s/g,'') == $(this).val() && (!found) ){
-                $(this).remove();
-                found = true;
-              }
-          });
-
-          var _ref;
-          return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
-      }
-    };
-
-
     $(".btn_view_document").click(function(){
-
-       $("#viewDocumentModal .button-container").find("#btn_approve").remove();
-       $("#viewDocumentModal .button-container").find("#btn_disapprove").remove();
-       $("#viewDocumentModal .button-container").find("#btn_send_for_approval").remove();
-       $("#viewDocumentModal .button-container").find("#btn_resend_for_approval").remove();
-       $("#viewDocumentModal .button-container").find("#btn_final_approve").remove();
+       // $("#viewDocumentModal .button-container").find("#btn_approve").remove();
+       // $("#viewDocumentModal .button-container").find("#btn_disapprove").remove();
+       // $("#viewDocumentModal .button-container").find("#btn_send_for_approval").remove();
+       // $("#viewDocumentModal .button-container").find("#btn_resend_for_approval").remove();
+       // $("#viewDocumentModal .button-container").find("#btn_final_approve").remove();
        $("#viewDocumentModal #department-list-container").html('');
 
        $("#viewDocumentModal #comment_container").html('');
@@ -323,13 +254,15 @@ Dashboard: Doc Pro
         $('#approver-list-container').html('');
 
       // GET Document
-       $.ajax({url:  "document/" + $(this).attr('data-value'), 
+       $.ajax({url:  "{!! url('document') !!}/" + $(this).attr('data-value'), 
         method: 'GET', 
         success: function(result){
-          $("#viewDocumentModal input[name=document_name]").val(result.document_name);
-          $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
+          console.log(result);
 
-          $("#viewDocumentModal input[name=document_id]").val(result.id);
+          // $("#viewDocumentModal input[name=document_name]").val(result.document_name);
+          // $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
+
+          // $("#viewDocumentModal input[name=document_id]").val(result.id);
 
           var checked = "";
           var comment = "";
@@ -348,12 +281,14 @@ Dashboard: Doc Pro
 
             });
           }
+
           if(result.departments != null){
             result.departments.forEach(function(department, index){
               var department_str = '<span class="badge ">'+ department.employee_dept.dept_description+'</span>';
               $("#viewDocumentModal #department-list-container").append(department_str);
             });
           }
+
            if(result.attachments != null){
               console.log('nisud');
             result.attachments.forEach(function(file, index){
@@ -402,7 +337,7 @@ Dashboard: Doc Pro
 
 
 
-          console.log(result);
+          // console.log(result);
         }});
     });
 </script>

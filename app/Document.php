@@ -33,6 +33,7 @@ class Document extends Model
         return $query->with('approvers')->where('approvers.status', '=', '0');
     }
     public function scopeIsContributor($query, $id){
+        
         // if($this->employee_details_id == $id){
         //     return false;
         // }
@@ -47,7 +48,7 @@ class Document extends Model
      public function scopeIsContributorStatus($query, $id){
 
         if($this->employee_details_id == $id){
-            // return true;
+            return true;
         }
 
         foreach($this->approvers as $approver){

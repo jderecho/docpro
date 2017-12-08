@@ -109,12 +109,11 @@ Dashboard: Doc Pro
                                         <td>Status</td>
                                         <!-- <td><center>Total NO. OF Reviewer</center></td>
                                         <td><center>Already approved</center></td> -->
-                                        <td><center>Creator</center></td>
+                                        <td><center>Originator</center></td>
                                         <td class="text-right">OPTIONS</td>
                                     </tr>
                                 </thead>
                                 <tbody>
-
                                   @foreach($documents as $document)
                                     <tr>
                                       <td><input type="checkbox" name="checked" ></td>
@@ -355,7 +354,7 @@ Dashboard: Doc Pro
                 <br>
                 <div class="col-lg-9">
                   <label>Attachment</label>
-                  <div class="file_holder" style="width: 100%;">
+                  <div class="file_holder col-md-12" style="width: 100%;">
                     
                   
                   <div style="float: left;">
@@ -370,13 +369,19 @@ Dashboard: Doc Pro
                   </div>
 
                   </div>
+
+                  <div class="col-md-12" id="final_document_holder" style="width: 100%;">
+                    <label>Latest Document</label>
+                    <br>
+
+                  </div>
                   <!-- <iframe src="https://docs.google.com/gview?url=https://docs.google.com/document/d/1llhbwQ3i9VkX4JrxkS1KHbmfC4tSam_9iOf8_Hc0Rkw&embedded=true"></iframe> -->
                   <!-- <textarea class="form-control" rows="25" ></textarea> -->
                 </div>
                 <div class="col-md-3">
                   <label>Created By:</label>
                   <div id="attachment-list-container">
-                     <input type="text" name="created_by" placeholder="Creator" class="form-control disabled" disabled>
+                     <input type="text" name="created_by" placeholder="Originator" class="form-control disabled" disabled>
                   </div>
                   <br>
                   <label>Department:</label>
@@ -387,6 +392,9 @@ Dashboard: Doc Pro
                   <label>Approved by</label>
                   <div id="approver-list-container">
                   </div>
+                  <br>
+                  <label>Status: </label>
+                  <span id="document_status" class="circle {{ $document->statusClass() }}">•</span><span id="document_status_label">{{ $document->statusString() }}</span>
                 </div>
                <div class="col-md-12" id="comment_container">
                 <hr style="height: 2px; border-color: #dadada;">
@@ -413,7 +421,7 @@ Dashboard: Doc Pro
                   </form>
                   <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
                   <!-- <textarea class="form-control" rows="25" ></textarea> --> 
-                  <div id="file_uploads_container" class="hidden">
+                  <div id="comment_attachment_holder" class="hidden">
                     
                   </div></td>
                   <td>
@@ -547,39 +555,7 @@ Dashboard: Doc Pro
       }
     };
 
-     Dropzone.options.viewDocumentDropzoneComment  = {
-      url: '{!! url("document/upload") !!}',
-      paramName: "file", // The name that will be used to transfer the file
-      maxFilesize: 10, // MB
-      accept: function(file, done) {
-        console.log(file[0]);
-        console.log("add");
-
-        var file_name = file.name;
-        // console.log(file_name);
-
-        $('#createDocumentModal #file_uploads_container').append('<input class="upload-input" type="hidden" name="file_uploads[]" value="' + file_name.replace(/\s/g,'') +'">');
-
-        done(); 
-      },
-      addRemoveLinks: true,
-      removedfile: function(file) {
-          console.log([file, "delete"]);
-           var filenames = [];
-           var found = false;
-            var file_name = file.name;
-
-           $("#createDocumentModal #file_uploads_container input.upload-input").each(function(){
-              if(file_name.replace(/\s/g,'') == $(this).val() && (!found) ){
-                $(this).remove();
-                found = true;
-              }
-          });
-
-          var _ref;
-          return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
-      }
-    };
+  
 
     $(document).ready(function(){
       
@@ -663,7 +639,7 @@ Dashboard: Doc Pro
        $("#viewDocumentModal .button-container").find("#btn_resend_for_approval").remove();
        $("#viewDocumentModal .button-container").find("#btn_final_approve").remove();
        $("#viewDocumentModal #department-list-container").html('');
-
+       $('#final_document_holder').html('');
        $("#viewDocumentModal #comment_container").html('');
         $('.file_holder').html('');
         $('#approver-list-container').html('');
@@ -676,6 +652,11 @@ Dashboard: Doc Pro
           $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
 
           $("#viewDocumentModal input[name=document_id]").val(result.id);
+
+          $('#document_status').removeClass();
+          $('#document_status').addClass("circle " + statusClass(result.status));
+          $('#document_status_string').addClass(statusString(result.status));
+
 
           var checked = "";
           var comment = "";
@@ -702,9 +683,13 @@ Dashboard: Doc Pro
           }
            if(result.attachments != null){
               console.log('nisud');
+              var attachment_view = "<label>Latest Document</label><br>";
+              $('#final_document_holder').append(attachment_view);
+
             result.attachments.forEach(function(file, index){
               console.log('nisud');
-              var attachment_view = '<a target="_blank" href=" {{asset('/')}}' +  file.file_location+'">';
+
+                  attachment_view = '<a target="_blank" href=" {{asset('/')}}' +  file.file_location+'">';
                   attachment_view += '<div style="float: left; margin-left: 10px;">';
                   attachment_view += '<div class="card" style="width:100px">';
                   attachment_view += '<img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">';
@@ -717,8 +702,20 @@ Dashboard: Doc Pro
                   attachment_view += '</div>';
                   attachment_view += '</a>';
 
-              $('.file_holder').append(attachment_view);
+
+
+                  if(result.attachments.length == (index+1) && result.status > 0){
+                    $('#final_document_holder').append(attachment_view);
+                  }else{
+                     $('.file_holder').append(attachment_view);
+                  }
             });
+          }
+
+          if(result.status > 0){
+            $('#final_document_holder').show();
+          }else{
+            $('#final_document_holder').hide();
           }
 
           // Document State
@@ -729,9 +726,8 @@ Dashboard: Doc Pro
           
           if(result.status == 0){
             if(result.creator.id == {!! Auth::user()->id !!}){
-               if(result.contributorStatus != 1){
+              
                 $("#viewDocumentModal .button-container").prepend('<button id="btn_send_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-send">&nbsp;</span>Send for Approval</button>');
-              }
             }
           } // 1 means for approval
           else if(result.status == 1){
@@ -743,6 +739,10 @@ Dashboard: Doc Pro
                 if(approver.status == 2){
                    $("#viewDocumentModal .button-container").prepend('<button id="btn_resend_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-send">&nbsp;</span>Resend for Approval</button>');
                    return;
+                }else if(approver.status == 0 && approver.employee_details_id ==  {!! Auth::user()->id !!}){
+                   $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Disapprove</button>');
+
+                $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
                 }
               });
             }
@@ -774,15 +774,27 @@ Dashboard: Doc Pro
                 comment += '<br>';
                 comment += '<img height="30" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>'+ obj.commentor.emp_firstname + ' ' + obj.commentor.emp_lastname +'</b>';
                 comment += '<span>&nbsp;</span>';
-                comment += '<span>approved the document</span>';
-                comment += '<span>-</span>';
-                comment += '<span> 08/Nov/17 4:02 PM </span>';
+                comment += '<span> commented at </span>';
+                comment += '<span>  </span>';
+                comment += '<span> ' + obj.created_at + '</span>';
                 comment += '<br>';
                 comment += '<br>';
                 comment += '<span class="comment_text_holder">';
                 // comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
                 comment +=  obj.message;
                 comment += '</span>';
+                comment += '<span class="comment_attachments_holder">';
+                comment += '<br>';
+                if(obj.attachments.length > 0){
+                  comment += "<span class='label label-success comment_text_holder'>"+ obj.attachments.length+" attachments</span>";
+                }
+                // obj.attachments.forEach(function(file, index){
+
+                //   comment += '<div class="card" style="width:100px"><img class="card-img-top" src="' + file.file_location +'" alt="Card image" style="width:100%"><div class="card-body">';
+                //   comment += '<center><span class="card-text">'+getFileName(file.file_location)+'</span></center></div></div>';
+                //   comment += '</span>';
+                // });
+                
                 comment += '</span>';
                 comment += ' </p>';
 
@@ -903,53 +915,6 @@ Dashboard: Doc Pro
     $('#btn_toggle_commentbox').click(function(){
           $('#commentbox_container').fadeToggle(500);
     });
-
-
-    $('#btn_send_comment').click(function(){
-      var message = $('#comment_area').val();
-      var document_id = $('#viewDocumentModal input[name=document_id]').val();
-
-      $.ajax({url:  "document/comment" , 
-          method: 'POST', 
-          data: { 
-            "_token" : $("#viewDocumentModal input[name=_token]").val(),     
-            "document_id" : document_id,     
-            "message" : message,     
-            "employee_details_id" : {!! Auth::user()->id !!} ,     
-          }, 
-          success: function(result){
-            if(result.success){
-              // location.reload();
-              // console.log(result);
-                var comment = "";
-                comment = '<p class="comment_holder">';
-                comment += '<span>';
-                comment += '<br>';
-                comment += '<img height="30" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>'+ "{{ Auth::user()->emp_firstname}}" + ' ' + "{{ Auth::user()->emp_lastname }}" +'</b>';
-                comment += '<span>&nbsp;</span>';
-                comment += '<span>approved the document</span>';
-                comment += '<span>-</span>';
-                comment += '<span> 08/Nov/17 4:02 PM </span>';
-                comment += '<br>';
-                comment += '<br>';
-                comment += '<span class="comment_text_holder">';
-                comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
-                comment +=  message;
-                comment += '</span>';
-                comment += '</span>';
-                comment += ' </p>';
-
-                $('#comment_container').append(comment);
-
-                $('#comment_area').val("");
-
-            }else{
-              console.log(result);
-            }
-        }});
-
-    });
-
 
     $(document).on('click','#btn_final_approve', function(){
       var id = $(this).attr('data-value');

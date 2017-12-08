@@ -32,7 +32,10 @@ class DashboardController extends Controller
        if(Auth::user()->isSuperAdmin()){
         return view('dashboard')->with('documents', Document::with('approvers.employee_details', 'creator', 'attachments')->get())->with('approvers', EmployeeDetails::all())->with('departments', EmployeeDepartment::all());
        }else{
-         return view('dashboard')->with('documents', Document::contributor(Auth::user()->id))->with('approvers', EmployeeDetails::all())->with('departments', EmployeeDepartment::all());
+            $documents = Document::contributor(Auth::user()->id);
+         return view('dashboard')->with('documents', $documents)->with('approvers', EmployeeDetails::all())->with('departments', EmployeeDepartment::all());
+        }
+
        }
     }
 
@@ -49,4 +52,3 @@ class DashboardController extends Controller
         
     //     return view('document')->with('document', $document);
     // }
-}

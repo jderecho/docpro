@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
 
 use App\Document;
 use App\Mail\SendNotification;
@@ -58,9 +59,11 @@ class DocumentController extends Controller
      */
     public function show($id)
     {
-        $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments')->with('departments')->find($id);
-        $document->isContributor = $document->isContributor(Auth::user()->id);
-        $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
+        $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments.attachments')->with('departments')->find($id);
+        if(Auth::check()){
+            $document->isContributor = $document->isContributor(Auth::user()->id);
+            $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
+        }
         $document->comments->load('commentor');
         $document->departments->load('employee_dept');
         return $document;
@@ -74,6 +77,8 @@ class DocumentController extends Controller
         if(Auth::check()){
             $document->isContributor = $document->isContributor(Auth::user()->id);
             $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
+        }else{
+            return redirect()->route('login')->with('ref', 'document/'. $id. '/display');
         }
 
         return view('document')->with('document', $document);
@@ -222,7 +227,7 @@ class DocumentController extends Controller
                 //send email for approvers
                 $document->load('creator');
 
-                $content = $document->creator->fullName() . " created a new document and added you as a reviewer/approver.";
+                $content = $document->creator->fullName() . " created a new document and added you as a reviewers/approvers.";
                 $action = "Kindly check and do necessary actions if needed.";
                 $link = url('document/'. $document->id .'/display') . '';
 
@@ -298,7 +303,7 @@ class DocumentController extends Controller
 
                     foreach($document->approvers as $approver){
                         $approver->load('employee_details');
-                        $content = $document->creator->fullName() . " sent a document for approval and you are one of the reviewer/approver.";
+                        $content = $document->creator->fullName() . " sent a document for approval and you are one of the reviewers/approvers.";
                         $action = "Kindly check and do necessary actions if needed.";
                         $link = url('document/'. $document->id .'/display') . '';
 
@@ -381,11 +386,19 @@ class DocumentController extends Controller
                     $comment->document_ID = $request->document_id;
                     $comment->message = "Document is ready!";
                     $comment->save();
-
+                     // notify all contributors of the document 
+                    foreach($document->approvers as $notify_approvers){
+                            $content = $document->document_name . " document is ready!";
+                            $action = "Kindly check and do necessary actions if needed.";
+                            $link = url('document/'. $document->id .'/display') . '';
+                            Mail::to($notify_approvers->employee_details->emp_email)->queue(new SendNotification($notify_approvers->employee_details->fullName(), $content, $action, $link));
+                    }
                     return array("success" => true);
                 }else{
                     return array("success" => false);
                 }
+
+
             }
         }else if($request->status == "disapprove"){
             if($request->old_status == "for-approval"){
@@ -401,6 +414,24 @@ class DocumentController extends Controller
                         $comment->message = "disapproved the document.";
                         if($comment->save()){
                             $message = "Document successfully disapproved!";
+                        }
+                        $approver->load('employee_details');
+                         // notify also the admin 
+                        foreach(EmployeeDetails::getAdmins() as $admins){
+                            $content = $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname . " disapproved the document " . $document->document_name . ".";
+                            $action = "Kindly check and do necessary actions if needed.";
+                            $link = url('document/'. $document->id .'/display') . '';
+                            Mail::to($admins->emp_email)->queue(new SendNotification($admins->fullName(), $content, $action, $link));
+                        }
+
+                        foreach($document->approvers as $approver_others){
+                            $approver_others->load('employee_details');
+                            if($approver_others->employee_details_id != $request->employee_details_id){
+                                $content = $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname . " disapproved the document " . $document->document_name . ".";
+                                $action = "Kindly check and do necessary actions if needed.";
+                                $link = url('document/'. $document->id .'/display') . '';
+                                Mail::to($approver_others->employee_details->emp_email)->queue(new SendNotification($approver_others->employee_details->fullName(), $content, $action, $link));
+                            }
                         }
                     }
                     if($approver->status == 2){
@@ -419,13 +450,21 @@ class DocumentController extends Controller
                         if($approver->status == 2){
                             $approver->status = 0;
                             $approver->save();
+
+                            $approver->load('employee_details');
+                            $content = "The originator of the document " . $document->document_name . " resent it for approval.";
+                            $action = "Kindly check and do necessary actions if needed.";
+                            $link = url('document/'. $document->id .'/display') . '';
+                            Mail::to($approver->employee_details->emp_email)->queue(new SendNotification($approver->employee_details->fullName(), $content, $action, $link));
                         }
                     }
+
                     $comment = new Comment;
                     $comment->employee_details_id = $request->employee_details_id;
                     $comment->document_ID = $request->document_id;
                     $comment->message = "resent the document for approval.";
-                    if($comment->save()){
+                    $success = $comment->save();
+                    if($success){
                         $message = "Document successfully resent for approval!";
                     } 
                 }
@@ -433,31 +472,5 @@ class DocumentController extends Controller
         }
        
         return array("success" => $success, "message" => $message);
-     }
-
-     public function comment(Request $request){
-
-        $comment = new Comment;
-        $comment->employee_details_id = $request->employee_details_id;
-        $comment->document_ID = $request->document_id;
-        $comment->message = $request->message;
-
-        if($comment->save()){
-            return array("success" => true);
-        }else{
-            return array("success" => false);
-        }
-     }
-     public function makeComment($employee_details_id, $document_id, $message){
-     $comment = new Comment;
-        $comment->employee_details_id = $employee_details_id;
-        $comment->document_ID = $document_id;
-        $comment->message = $message;
-
-        if($comment->save()){
-            return array("success" => true);
-        }else{
-            return array("success" => false);
-        }
      }
 }

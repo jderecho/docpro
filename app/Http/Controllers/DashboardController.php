@@ -30,9 +30,12 @@ class DashboardController extends Controller
     public function index()
     {   
        if(Auth::user()->isSuperAdmin()){
-        return view('dashboard')->with('documents', Document::with('approvers.employee_details', 'creator', 'attachments')->get())->with('approvers', EmployeeDetails::all())->with('departments', EmployeeDepartment::all());
+        // return Document::with('approvers.employee_details', 'creator', 'attachments')->get();
+        return view('dashboard')->with('documents', Document::with('approvers.employee_details', 'creator', 'attachments')->orderBy('id', 'DESC')->get())->with('approvers', EmployeeDetails::all())->with('departments', EmployeeDepartment::all());
        }else{
             $documents = Document::contributor(Auth::user()->id);
+
+            // return $documents;
          return view('dashboard')->with('documents', $documents)->with('approvers', EmployeeDetails::all())->with('departments', EmployeeDepartment::all());
         }
 

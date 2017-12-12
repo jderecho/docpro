@@ -1,3 +1,6 @@
+.loading-overlay{
+    top: 0px !important;
+}
 .navbar-inverse{
 	background: #191919 !important;
 	padding-top: 20px;

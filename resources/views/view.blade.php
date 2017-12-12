@@ -3,9 +3,6 @@
 Dashboard: Doc Pro
 @endsection
 @section('css')
-<link href="{{ asset('public/css/chosen.min.css') }}" rel="stylesheet">
-<link href="{{ asset('public/css/dropzone.css') }}" rel="stylesheet">
-
     <style type="text/css">
       h4.title{
         margin-bottom: 0px !important;
@@ -63,20 +60,6 @@ Dashboard: Doc Pro
         
           <ul class="nav navbar-nav navbar-right white">
               <li style="height: 50px;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
-              <!-- <li><img src="{{ asset('public/img/mopro_profile_1.png') }}" height="50" class="img-circle"></li> 
-              <li>
-                <div class="dropdown" id="current_user">
-                  <button class="btn dropdown-toggle btn-user" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                     @if(Auth::check())
-                            {{ Auth::user()->emp_firstname . " " . Auth::user()->emp_lastname  }}
-                        @endif
-                    <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                    <li><a href="logout">Logout</a></li>
-                  </ul>
-                </div>
-              </li> -->
               <li><div><a class="btn btn-success" href="{{url('login')}}" style=" margin-right: 10px;">Login</a> &nbsp; </div></li>
            </ul>
            
@@ -172,7 +155,8 @@ Dashboard: Doc Pro
             <div class="container-fluid">
                 <div class="col-md-12">
                   <label>File Name </label>
-                  <input type="text" name="document_name" placeholder="Document Name" class="form-control">
+                    <br>
+                    <span id="span_document_name"></span>
 
                       {{ csrf_field() }}
                 </div>
@@ -181,10 +165,8 @@ Dashboard: Doc Pro
                 <br>
                 <br>
                 <div class="col-lg-9">
-                  <label>Attachment</label>
+                  <label>Final Attachment</label>
                   <div class="file_holder" style="width: 100%;">
-                    
-                  
                   <div style="float: left;">
                      <div class="card" style="width:100px">
                       <img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
@@ -195,10 +177,7 @@ Dashboard: Doc Pro
                       </div>
                     </div>
                   </div>
-
                   </div>
-                  <!-- <iframe src="https://docs.google.com/gview?url=https://docs.google.com/document/d/1llhbwQ3i9VkX4JrxkS1KHbmfC4tSam_9iOf8_Hc0Rkw&embedded=true"></iframe> -->
-                  <!-- <textarea class="form-control" rows="25" ></textarea> -->
                 </div>
                 <div class="col-md-3">
                   <label>Created By:</label>
@@ -242,13 +221,7 @@ Dashboard: Doc Pro
 
   // VIEW MODAL
     $(".btn_view_document").click(function(){
-       // $("#viewDocumentModal .button-container").find("#btn_approve").remove();
-       // $("#viewDocumentModal .button-container").find("#btn_disapprove").remove();
-       // $("#viewDocumentModal .button-container").find("#btn_send_for_approval").remove();
-       // $("#viewDocumentModal .button-container").find("#btn_resend_for_approval").remove();
-       // $("#viewDocumentModal .button-container").find("#btn_final_approve").remove();
        $("#viewDocumentModal #department-list-container").html('');
-
        $("#viewDocumentModal #comment_container").html('');
         $('.file_holder').html('');
         $('#approver-list-container').html('');
@@ -259,7 +232,7 @@ Dashboard: Doc Pro
         success: function(result){
           console.log(result);
 
-          // $("#viewDocumentModal input[name=document_name]").val(result.document_name);
+          $("#viewDocumentModal #span_document_name").html(result.document_name);
           // $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
 
           // $("#viewDocumentModal input[name=document_id]").val(result.id);
@@ -290,9 +263,8 @@ Dashboard: Doc Pro
           }
 
            if(result.attachments != null){
-              console.log('nisud');
             result.attachments.forEach(function(file, index){
-              console.log('nisud');
+              if(result.attachments.length == index + 1){
               var attachment_view = '<a target="_blank" href=" {{asset('/')}}' +  file.file_location+'">';
                   attachment_view += '<div style="float: left; margin-left: 10px;">';
                   attachment_view += '<div class="card" style="width:100px">';
@@ -306,38 +278,10 @@ Dashboard: Doc Pro
                   attachment_view += '</div>';
                   attachment_view += '</a>';
 
-              $('.file_holder').append(attachment_view);
+                $('.file_holder').append(attachment_view);
+              }
             });
           }
-
-         
-          // Comment 
-          if(result.comments != null){
-            result.comments.forEach(function(obj, index){
-                comment = '<p class="comment_holder">';
-                comment += '<span>';
-                comment += '<br>';
-                comment += '<img height="30" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>'+ obj.commentor.emp_firstname + ' ' + obj.commentor.emp_lastname +'</b>';
-                comment += '<span>&nbsp;</span>';
-                comment += '<span>approved the document</span>';
-                comment += '<span>-</span>';
-                comment += '<span> 08/Nov/17 4:02 PM </span>';
-                comment += '<br>';
-                comment += '<br>';
-                comment += '<span class="comment_text_holder">';
-                // comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
-                comment +=  obj.message;
-                comment += '</span>';
-                comment += '</span>';
-                comment += ' </p>';
-
-                $('#comment_container').append(comment);
-            });
-          }
-
-
-
-          // console.log(result);
         }});
     });
 </script>

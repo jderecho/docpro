@@ -15,18 +15,15 @@ class SendNotification extends Mailable implements ShouldQueue
     public $content;
     public $action;
     public $link;
+
+    
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($fullname, $content, $action, $link)
-    {
-        //
-        $this->fullname =  $fullname;
-        $this->content = $content;
-        $this->action = $action;
-        $this->link = $link;
+    public function __construct(){
+
     }
 
     /**

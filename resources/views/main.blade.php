@@ -12,9 +12,8 @@
     <link href="{{ asset('public/css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/colors.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/jquery.dataTables.css') }}" rel="stylesheet">
-
+    <link href="{{ asset('public/css/jquery.loading.css') }}" rel="stylesheet">
     @yield('css')
-    
   </head>
   <body>
 
@@ -32,7 +31,6 @@
     <script src="{{ asset('public/js/jquery.dataTables.js') }}"></script>
     @yield('scripts')
     <script src="{{ asset('public/js/app.js') }}"></script>
-    <script src="{{ asset('public/js/comment.js') }}"></script>
 
     <input type="hidden" name="root_url" value="{{asset('/')}}">
   </body>

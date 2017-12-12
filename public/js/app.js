@@ -1,5 +1,7 @@
 var root_URL = "";
 var base_URL = "localhost/docpro/";
+
+
 $(document).ready(function(){
 
 	root_URL = $('input[name=root_url]').val();

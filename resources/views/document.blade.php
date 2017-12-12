@@ -40,9 +40,25 @@ View Document : DocPro
         padding-top: 10px !important;
         padding-bottom: 10px !important;
     }
+    .btn.action-btn.pull-right {
+        margin-top: -28px !important;
+        margin-left: 5px;
+    }
+    .loading-spinner {
+    font-size: 12px;
+    margin: 6.7em auto;
+    width: 1em;
+    height: 1em;
+    border-radius: 50%;
+    position: relative;
+    text-indent: -9999em;
+    -webkit-animation: load4 1.3s infinite linear;
+    animation: load4 1.3s infinite linear;
+}
     </style>
 @endsection
 @section('content')
+
 	<nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -67,8 +83,6 @@ View Document : DocPro
               </p> -->
             </li>
            </ul>
-          
-        
           <ul class="nav navbar-nav navbar-right white">
               <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
                @if(Auth::check())
@@ -98,6 +112,37 @@ View Document : DocPro
                   <div class="card-header card-gradient">
                        <h4 class="title"><span class="glyphicon glyphicon-time"></span></span>&nbsp;&nbsp;View Document
                        </h4>
+                       {{ csrf_field() }}
+                       <input type="hidden" name="_code" value="{{ md5(time())}}">
+                        @if(Auth::user()->isSuperAdmin())
+                          @if($document->status == 2)
+                            <button id="btn_final_approve" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Final Approve</button>
+                          @endif
+                        @endif
+
+                        @if(Auth::user()->id == $document->creator->id)
+                            @if($document->status == 0)
+                                <button id="btn_send_for_approval" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-send">&nbsp;</span>Send for Approval</button>
+                            @elseif($document->status == 1)
+                               @foreach($document->approvers as $approver)
+                                  @if($approver->status == 2) <!-- Disapprove -->
+                                      <button id="btn_resend_for_approval" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-send">&nbsp;</span>Resend for Approval</button>
+                                    @break
+                                  @endif
+                               @endforeach
+                            @endif
+                        @else
+                          @foreach($document->approvers as $approver)
+                            @if($document->status == 1)
+                              @if($approver->employee_details_id == Auth::user()->id)
+                                @if($approver->status == 0) <!-- not yet -->
+                                  <button id="btn_disapprove" type="button" class="btn btn-danger pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>
+                                  <button id="btn_approve" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>
+                                @endif
+                              @endif
+                            @endif
+                          @endforeach
+                        @endif
                   </div>
                     <div class="card-content">
                         <div class="container-fluid table-container">
@@ -219,21 +264,236 @@ View Document : DocPro
                       <textarea id="comment_area" style="width: 97%"></textarea>
                       <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
                     </td>
-                    <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px">Send</button></td>
+                    <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px" data-value="{{$document->id}}">Send</button></td>
                   </tr>
                  
                  </table>
+
+      <br>
+      <br>
                </div>
                     </div>
               </div>
           </div>
       </div>
-
+      <!-- <div class="col-md-12">
+        <div id="custom-overlay" class="loading-shown" style="position: fixed; z-index: 2; top: 0px; left: 0px; width: 100%; height: 100%;">
+      <div class="loading-spinner">
+        Custom loading...
+      </div>
+    </div>
+      </div> -->
 @endsection
 @section('scripts')
 <script src="{{ asset('public/js/chosen.jquery.min.js') }}"></script>
 <script src="{{ asset('public/js/dropzone.js') }}"></script>
 <script type="text/javascript">
 
+  $(document).on("click", "#btn_approve", function(){
+       var id = $(this).attr('data-value');
+
+         $.ajax({url:  '{{ url("document/status") }}' , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("input[name=_token]").val(),     
+            "status" : "approve",     
+            "old_status" : "for-approval",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              location.reload();
+            }else{
+            console.log(result);
+            }
+        }});
+    });
+    
+    $(document).on("click", "#btn_disapprove", function(){
+       var id = $(this).attr('data-value');
+
+         $.ajax({url:  '{{ url("document/status") }}' , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("input[name=_token]").val(),     
+            "status" : "disapprove",     
+            "old_status" : "for-approval",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              location.reload();
+            }else{
+            console.log(result);
+            }
+        }});
+    });
+
+    $(document).on("click", "#btn_send_for_approval", function(){
+       var id = $(this).attr('data-value');
+
+         $.ajax({url:  '{{ url("document/status") }}' , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("input[name=_token]").val(),     
+            "status" : "for-approval",     
+            "old_status" : "draft",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              location.reload();
+            }else{
+              console.log(result);
+            }
+        }});
+    });
+
+    $(document).on("click", "#btn_resend_for_approval", function(){
+       var id = $(this).attr('data-value');
+
+         $.ajax({url:  '{{ url("document/status") }}' , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("input[name=_token]").val(),     
+            "status" : "resend-for-approval",     
+            "old_status" : "for-approval",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              location.reload();
+            }else{
+              console.log(result);
+            }
+        }});
+    });
+    
+    $('#btn_toggle_commentbox').click(function(){
+          $('#commentbox_container').fadeToggle(500);
+    });
+
+    $(document).on('click','#btn_final_approve', function(){
+      var id = $(this).attr('data-value');
+
+         $.ajax({url:  '{{ url("document/status") }}' , 
+          method: 'POST', 
+          data: { 
+            "_token" : $("input[name=_token]").val(),     
+            "status" : "approve",     
+            "old_status" : "pre-approved",     
+            "document_id" : id,     
+            "employee_details_id" : {!! Auth::user()->id !!} ,     
+          }, 
+          success: function(result){
+            if(result.success){
+              location.reload();
+            }else{
+              console.log(result);
+            }
+        }});
+    });
+
+  $("#btn_attachment").click(function(){
+    $("#attachment_holder").fadeToggle(500);
+  });
+
+  $('#btn_send_comment').click(function(){
+
+    
+    var filenames = [];
+
+     $("input.comment-upload-input").each(function(){
+        filenames.push({filename : $(this).val()});
+    });
+
+    var message = $('#comment_area').val();
+    var document_id = $(this).attr('data-value');
+    var comment_attachment = filenames;
+    var employee_details_id = $('input[name=employee_details_id]').val();
+
+    // $("body").loading();
+   
+
+    $.ajax({url:  '{{ url("document/comment") }}' , 
+        method: 'POST', 
+        data: { 
+          "_token" : $("input[name=_token]").val(),     
+          "_code" : $("input[name=_code]").val(),     
+          "document_id" : document_id,   
+          "comment_attachments" : comment_attachment,  
+          "message" : message,     
+          "employee_details_id" : employee_details_id,     
+        }, 
+        success: function(result){
+          console.log(result);
+          
+          if(result.success){
+
+              var comment = "";
+              comment = '<p class="comment_holder">';
+              comment += '<span>';
+              comment += '<br>';
+              comment += '<img style="width: 30px;" src="' + root_URL + 'public/img/mopro_profile.png">&nbsp;&nbsp;<b>'+ result.comment.commentor.emp_firstname + ' ' + result.comment.commentor.emp_lastname +'</b>';
+              comment += '<span>&nbsp;</span>';
+              comment += '<span>commented at </span>';
+              comment += '<span>'+ result.comment.created +'</span>';
+              comment += '<br>';
+              comment += '<br>';
+              comment += '<span class="comment_text_holder">';
+              // comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
+              comment +=  message;
+              comment += '</span>';
+              comment += '</span>';
+              comment += ' </p>';
+              $('#comment_container').append(comment);
+              $('#comment_area').val("");
+          }else{
+            console.log(result);
+          }
+      },error : function(result){
+          
+      }});
+
+  });
+
+  Dropzone.options.viewDocumentDropzoneComment  = {
+      url: '{{ url("comment/upload") }}',
+      paramName: "file", // The name that will be used to transfer the file
+      maxFilesize: 10, // MB
+      accept: function(file, done) {
+        console.log(file[0]);
+        console.log("add");
+
+        var file_name = file.name;
+        // console.log(file_name);
+
+        $('#comment_attachment_holder').append('<input class="comment-upload-input" type="hidden" name="comment_file_uploads[]" value="' + file_name.replace(/\s/g,'') +'">');
+
+        done(); 
+      },
+      addRemoveLinks: true,
+      removedfile: function(file) {
+          console.log([file, "delete"]);
+           var filenames = [];
+           var found = false;
+            var file_name = file.name;
+
+           $("#createDocumentModal #file_uploads_container input.upload-input").each(function(){
+              if(file_name.replace(/\s/g,'') == $(this).val() && (!found) ){
+                $(this).remove();
+                found = true;
+              }
+          });
+
+          var _ref;
+          return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+      }
+    };
 </script>
+
 @endsection

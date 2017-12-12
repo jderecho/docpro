@@ -122,6 +122,6 @@ class Document extends Model
       return static::select("documents.*")->with('creator','approvers', 'attachments')->leftJoin(
         'approvers',
         'documents.id', '=', 'approvers.document_ID'
-      )->where("documents.employee_details_id", "=",  $value)->orWhere("approvers.employee_details_id", "=", $value)->groupBy('documents.id')->get();
+      )->where("documents.employee_details_id", "=",  $value)->orWhere("approvers.employee_details_id", "=", $value)->groupBy('documents.id')->orderBy('id', 'DESC')->get();
     }
 }

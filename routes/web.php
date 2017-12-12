@@ -21,7 +21,7 @@ Route::get('/', function () {
 		return Redirect::route('home');
 	}
 
-	return view('view')->with('documents', Document::all());
+	return view('view')->with('documents', Document::where('status','=', '3')->orderBy('id','DESC')->get());
 });
 Route::get('home','DashboardController@index');
 Route::get('test', 'DocumentController@test');

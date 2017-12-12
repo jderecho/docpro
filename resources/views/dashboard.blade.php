@@ -5,7 +5,6 @@ Dashboard: Doc Pro
 @section('css')
 <link href="{{ asset('public/css/chosen.min.css') }}" rel="stylesheet">
 <link href="{{ asset('public/css/dropzone.css') }}" rel="stylesheet">
-
     <style type="text/css">
       h4.title{
         margin-bottom: 0px !important;
@@ -38,6 +37,15 @@ Dashboard: Doc Pro
         padding-top: 10px !important;
         padding-bottom: 10px !important;
     }
+    select#department_select {
+      margin-right: 300px;
+      margin-top: 2px;
+      position: fixed;
+      right: 100px;
+      z-index: 100;
+      padding:10px;
+
+    }
     </style>
 @endsection
 @section('content')
@@ -57,12 +65,6 @@ Dashboard: Doc Pro
             <li> <a class="navbar-brand" ><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
             <li>  
               <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/dms_logo.png') }}">
-              <!-- <h4 class="project-title">
-                DocPro <span style="font-size: 12px !important; font-weight: 300">(Document Management System for Mopro)</span>
-              </h4>
-              <p class="project-subtitle">
-                Operational Excellence
-              </p> -->
             </li>
            </ul>
           
@@ -92,12 +94,16 @@ Dashboard: Doc Pro
               <div class="card">
                   <div class="card-header card-gradient">
                        <h4 class="title"><span class="glyphicon glyphicon-time"></span></span>&nbsp;&nbsp;Recent
-                        <a class="btn btn-success pull-right" data-toggle="modal" data-target="#createDocumentModal"><span class="glyphicon glyphicon-plus"></span></a>
+                        <a class="btn btn-success pull-right" data-toggle="modal" data-target="#createDocumentModal"><span class="glyphicon glyphicon-plus"></span> Add Document</a>
                        </h4>
-                        
                   </div>
                     <div class="card-content">
                         <div class="container-fluid table-container">
+                          <!--  <select id="department_select">
+                            @foreach($departments as $department)
+                             <option>{{$department->dept_description}}</option>
+                             @endforeach
+                           </select> -->
                             <table class="table" id="document-table">
                                 <thead>
                                     <tr>
@@ -107,13 +113,12 @@ Dashboard: Doc Pro
                                         <td><center>Revision Number</center></td>
                                         <td><center>Department</center></td>
                                         <td>Status</td>
-                                        <!-- <td><center>Total NO. OF Reviewer</center></td>
-                                        <td><center>Already approved</center></td> -->
                                         <td><center>Originator</center></td>
                                         <td class="text-right">OPTIONS</td>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                  @if(!(empty($documents)))
                                   @foreach($documents as $document)
                                     <tr>
                                       <td><input type="checkbox" name="checked" ></td>
@@ -162,6 +167,7 @@ Dashboard: Doc Pro
                                         </td>
                                     </tr>
                                     @endforeach
+                                    @endif
                                 </tbody>
                             </table>
                         </div>
@@ -344,7 +350,7 @@ Dashboard: Doc Pro
             <div class="container-fluid">
                 <div class="col-md-12">
                   <label>File Name </label>
-                  <input type="text" name="document_name" placeholder="Document Name" class="form-control">
+                  <input type="text" name="document_name" placeholder="Document Name" disabled class="form-control">
 
                       {{ csrf_field() }}
                 </div>
@@ -353,6 +359,12 @@ Dashboard: Doc Pro
                 <br>
                 <br>
                 <div class="col-lg-9">
+                  <div class="col-md-12" id="final_document_holder" style="width: 100%;">
+                    <label>Latest Document</label>
+                    <br>
+
+                  </div>
+                  
                   <label>Attachment</label>
                   <div class="file_holder col-md-12" style="width: 100%;">
                     
@@ -370,11 +382,7 @@ Dashboard: Doc Pro
 
                   </div>
 
-                  <div class="col-md-12" id="final_document_holder" style="width: 100%;">
-                    <label>Latest Document</label>
-                    <br>
-
-                  </div>
+                  
                   <!-- <iframe src="https://docs.google.com/gview?url=https://docs.google.com/document/d/1llhbwQ3i9VkX4JrxkS1KHbmfC4tSam_9iOf8_Hc0Rkw&embedded=true"></iframe> -->
                   <!-- <textarea class="form-control" rows="25" ></textarea> -->
                 </div>
@@ -394,7 +402,7 @@ Dashboard: Doc Pro
                   </div>
                   <br>
                   <label>Status: </label>
-                  <span id="document_status" class="circle {{ $document->statusClass() }}">•</span><span id="document_status_label">{{ $document->statusString() }}</span>
+                  <span id="document_status" class="">•</span><span id="document_status_label"></span>
                 </div>
                <div class="col-md-12" id="comment_container">
                 <hr style="height: 2px; border-color: #dadada;">
@@ -512,6 +520,7 @@ Dashboard: Doc Pro
   @section('scripts')
   <script src="{{ asset('public/js/chosen.jquery.min.js') }}"></script>
   <script src="{{ asset('public/js/dropzone.js') }}"></script>
+  <script src="{{ asset('public/js/comment.js') }}"></script>
   <script type="text/javascript">
     var imagecounter = 0;
 
@@ -558,7 +567,6 @@ Dashboard: Doc Pro
   
 
     $(document).ready(function(){
-      
     });
 
     $("#btn_for_approve").click(function(){
@@ -655,7 +663,7 @@ Dashboard: Doc Pro
 
           $('#document_status').removeClass();
           $('#document_status').addClass("circle " + statusClass(result.status));
-          $('#document_status_string').addClass(statusString(result.status));
+          $('#document_status_label').html(statusString(result.status));
 
 
           var checked = "";
@@ -740,7 +748,7 @@ Dashboard: Doc Pro
                    $("#viewDocumentModal .button-container").prepend('<button id="btn_resend_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-send">&nbsp;</span>Resend for Approval</button>');
                    return;
                 }else if(approver.status == 0 && approver.employee_details_id ==  {!! Auth::user()->id !!}){
-                   $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Disapprove</button>');
+                   $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
 
                 $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
                 }
@@ -751,7 +759,7 @@ Dashboard: Doc Pro
 
               if(result.contributorStatus == 0){
 
-                $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Disapprove</button>');
+                $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
 
                 $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
               }
@@ -849,6 +857,7 @@ Dashboard: Doc Pro
             }
         }});
     });
+
     $(document).on("click", "#btn_disapprove", function(){
        var id = $(this).attr('data-value');
 
@@ -946,8 +955,9 @@ Dashboard: Doc Pro
     $("#viewDocumentModal #attachment_holder").fadeToggle(500);
 
     $(".btn_edit_document").click(function(){
-    $("#EditDocumentModal select").val('').trigger('chosen:updated');
-      var editDocumentDropzone = Dropzone.forElement("#edit_document_dropzone");
+
+      $("#EditDocumentModal select").val('').trigger('chosen:updated');
+      var editDocumentDropzone = Dropzone.forElement("#editDocumentDropzone");
       editDocumentDropzone.removeAllFiles(true);
     // $("#EditDocumentModal input[name]").
       //   $('.file_holder').html('');
@@ -970,43 +980,36 @@ Dashboard: Doc Pro
             list_departments.push(department.employee_dept.dept_ID);
           });
 
-
-          console.log(list_approvers);
           $("#EditDocumentModal #select_reviewers").val(list_approvers).trigger('chosen:updated');
           $("#EditDocumentModal #select_departments").val(list_departments).trigger('chosen:updated');
-
-
-          // display mock file of uploaded file in dropzonejs
-          // console.log(Dropzone);
-     // var myDropzone = $("#edit_document_dropzone").dropzone();
+        
           result.attachments.forEach(function(file, index){
-            console.log(file);
+           
+      //       // Create the mock file:
+      //     var mockFile = { name: getFileName(file.file_location), size: 12345 };
 
-            // Create the mock file:
-      var mockFile = { name: getFileName(file.file_location), size: 12345 };
+      //     // Call the default addedfile event handler
+      //     editDocumentDropzone.emit("addedfile", mockFile);
 
-      // Call the default addedfile event handler
-      editDocumentDropzone.emit("addedfile", mockFile);
+      //     // And optionally show the thumbnail of the file:
+      //     editDocumentDropzone.emit("thumbnail", mockFile, "http://localhost/docpro/public/img/doctype/word.jpg");
+          
+      //     // Or if the file on your server is not yet in the right
+      //     // size, you can let Dropzone download and resize it
+      //     // callback and crossOrigin are optional.
+      //     editDocumentDropzone.createThumbnailFromUrl(file, "http://localhost/docpro/" + file.file_location);
 
-      // And optionally show the thumbnail of the file:
-      editDocumentDropzone.emit("thumbnail", mockFile, "http://localhost/docpro/public/img/doctype/word.jpg");
-      
-      // Or if the file on your server is not yet in the right
-      // size, you can let Dropzone download and resize it
-      // callback and crossOrigin are optional.
-      editDocumentDropzone.createThumbnailFromUrl(file, "http://localhost/docpro/" + file.file_location);
+      //     // Make sure that there is no progress bar, etc...
+      //     editDocumentDropzone.emit("complete", mockFile);
 
-      // Make sure that there is no progress bar, etc...
-      editDocumentDropzone.emit("complete", mockFile);
+      //     // If you use the maxFiles option, make sure you adjust it to the
+      //     // correct amount:
+      //     var existingFileCount = 1; // The number of files already uploaded
+      //     editDocumentDropzone.options.maxFiles = editDocumentDropzone.options.maxFiles - existingFileCount;
 
-      // If you use the maxFiles option, make sure you adjust it to the
-      // correct amount:
-      var existingFileCount = 1; // The number of files already uploaded
-      editDocumentDropzone.options.maxFiles = editDocumentDropzone.options.maxFiles - existingFileCount;
-
-      //       var mockFile = { name: "banner2.jpg", size: 12345, thumbnail: "http://localhost/docpro/img/doctype/word.jpg" };
-        // editDocumentDropzone.options.addedfile.call(editDocumentDropzone, mockFile);
-        // editDocumentDropzone.options.thumbnail.call(editDocumentDropzone, mockFile, "http://localhost/docpro/public/img/doctype/word.jpg");
+      // //       var mockFile = { name: "banner2.jpg", size: 12345, thumbnail: "http://localhost/docpro/img/doctype/word.jpg" };
+      //   // editDocumentDropzone.options.addedfile.call(editDocumentDropzone, mockFile);
+      //   // editDocumentDropzone.options.thumbnail.call(editDocumentDropzone, mockFile, "http://localhost/docpro/public/img/doctype/word.jpg");
             
           });
           console.log(result);
@@ -1014,7 +1017,7 @@ Dashboard: Doc Pro
         }});
     });
 
-Dropzone.options.edit_document_dropzone = {
+Dropzone.options.editDocumentDropzone = {
       url: "document/upload",
       paramName: "file", // The name that will be used to transfer the file
       maxFilesize: 10, // MB
@@ -1047,6 +1050,9 @@ Dropzone.options.edit_document_dropzone = {
           return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
       }
     };
+
+
+
 
 
   </script>

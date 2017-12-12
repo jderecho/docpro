@@ -50,7 +50,7 @@ class CommentController extends Controller
         }
     }
     public function comment(Request $request){
-    		// return $request->all();
+    	$email_recipient = [];
         $comment = new Comment;
         $comment->employee_details_id = $request->employee_details_id;
         $comment->document_ID = $request->document_id;
@@ -58,17 +58,30 @@ class CommentController extends Controller
         if($comment->save()){
             $document = Document::find($request->document_id);
             $document->load('approvers');
+            $document->load('creator');
+            $comment->load('commentor');
 
             foreach($document->approvers as $approver){
+            	$approver->load('employee_details');
                 if($comment->employee_details_id != $approver->employee_details_id){
-                    $comment->load('commentor');
-                    $content = $comment->commentor->fullName() . " added a comment in a document.";
-                    $action = "Kindly check and do necessary actions if needed.";
-                    $link = url('document/'. $document->id .'/display') . '';
-                    Mail::to($approver->employee_details->emp_email)->queue(new SendNotification($approver->employee_details->fullName(), $content, $action, $link));
+                    array_push($email_recipient, $approver->employee_details->emp_email);
                 }
             }  
-            $comment->load('commentor');
+             // notify also the admin 
+           	foreach(EmployeeDetails::getAdmins() as $admins){
+              array_push($email_recipient, $admins->emp_email);
+            }
+
+            // add the creator as a recipient
+            array_push($email_recipient, $document->creator->emp_email);
+
+            $sendNotification = new SendNotification;
+            $sendNotification->content = $comment->commentor->fullName() . " added a comment in a document.";
+            $sendNotification->action = "Kindly check and do necessary actions if needed.";
+            $sendNotification->link = url('document/'. $document->id .'/display') . '';
+            $sendNotification->fullName = "";
+            Mail::to($email_recipient)->queue($sendNotification);
+
             $comment->created = $comment->formattedDateWithTimeCreated();
 
              	// save attachments

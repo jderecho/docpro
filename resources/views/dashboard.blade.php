@@ -62,7 +62,7 @@ Dashboard: Doc Pro
         </div>
         <div id="navbar" class="navbar-collapse collapse">
            <ul class="nav navbar-nav navbar-left white">
-            <li> <a class="navbar-brand" ><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
+            <li> <a class="navbar-brand" href="{{url('home')}}"><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
             <li>  
               <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/dms_logo.png') }}">
             </li>
@@ -70,11 +70,11 @@ Dashboard: Doc Pro
           
         
           <ul class="nav navbar-nav navbar-right white">
-              <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
+              <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time" style="margin-top: 15px;"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
               <li><img src="{{ asset('public/img/mopro_profile_1.png') }}" height="50" class="img-circle"></li> 
               <li>
                 <div class="dropdown" id="current_user">
-                  <button class="btn dropdown-toggle btn-user" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  <button style="margin-top: 7px;" class="btn dropdown-toggle btn-user" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                      @if(Auth::check())
                             {{ Auth::user()->emp_firstname . " " . Auth::user()->emp_lastname  }}
                         @endif
@@ -160,9 +160,12 @@ Dashboard: Doc Pro
                                           <a title="Edit" data-toggle="modal" data-target="#EditDocumentModal" class="btn_edit_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></a>
                                           @endif
 
-                                         @if(Auth::user()->isSuperAdmin())
+                                         @if(Auth::user()->isSuperAdmin() || Auth::user()->id == $document->employee_details_id)
                                           <a title="Delete" data-toggle="modal" data-target="#deleteDocumentModal" class="btn_delete_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-trash grey">&nbsp;</span></a>
-                                          @endif                                            
+                                          @endif   
+
+
+
                                           </div>
                                         </td>
                                     </tr>
@@ -309,8 +312,11 @@ Dashboard: Doc Pro
                   
                     <br>
                     <br>
-      
-                  <label>Attachment</label>
+                      {{ csrf_field() }}
+                      <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
+                      <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
+
+                  <!-- <label>Attachment</label>
                    <form action="{{ url('document/upload') }}" id="editDocumentDropzone"
                     class="dropzone">
                       {{ csrf_field() }}
@@ -318,7 +324,7 @@ Dashboard: Doc Pro
                       <input type="hidden" name="_code" value="{{ md5(time())}}">
                       <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
                       <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
-                  </form>
+                  </form> -->
       
                   <div id="file_uploads_container" class="hidden">
                     
@@ -329,7 +335,7 @@ Dashboard: Doc Pro
           <div class="modal-footer">
             <div class="container-fluid">
               <div class="col-md-12">
-                <button type="button"  id="btn_save" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Update</button>
+                <button type="button"  id="btn_update" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Update</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               </div>
             </div>
@@ -397,7 +403,7 @@ Dashboard: Doc Pro
                      
                   </div>
                   <br>
-                  <label>Approved by</label>
+                  <label>Approvers</label>
                   <div id="approver-list-container">
                   </div>
                   <br>
@@ -946,23 +952,16 @@ Dashboard: Doc Pro
         }});
     });
 
-  $("#btn_attachment").click(function(){
-    $("#viewDocumentModal #attachment_holder").fadeToggle(500);
-  });
-
+    $("#btn_attachment").click(function(){
+      $("#viewDocumentModal #attachment_holder").fadeToggle(500);
+    });
   
-     $('#commentbox_container').fadeToggle(500);
+    $('#commentbox_container').fadeToggle(500);
     $("#viewDocumentModal #attachment_holder").fadeToggle(500);
 
     $(".btn_edit_document").click(function(){
-
       $("#EditDocumentModal select").val('').trigger('chosen:updated');
-      var editDocumentDropzone = Dropzone.forElement("#editDocumentDropzone");
-      editDocumentDropzone.removeAllFiles(true);
-    // $("#EditDocumentModal input[name]").
-      //   $('.file_holder').html('');
-      //   $('#approver-list-container').html('');
-
+      $("#btn_update").attr("data-value",$(this).attr('data-value'));
       // GET Document
        $.ajax({url:  "document/" + $(this).attr('data-value'), 
         method: 'GET', 
@@ -983,38 +982,30 @@ Dashboard: Doc Pro
           $("#EditDocumentModal #select_reviewers").val(list_approvers).trigger('chosen:updated');
           $("#EditDocumentModal #select_departments").val(list_departments).trigger('chosen:updated');
         
-          result.attachments.forEach(function(file, index){
-           
-      //       // Create the mock file:
-      //     var mockFile = { name: getFileName(file.file_location), size: 12345 };
-
-      //     // Call the default addedfile event handler
-      //     editDocumentDropzone.emit("addedfile", mockFile);
-
-      //     // And optionally show the thumbnail of the file:
-      //     editDocumentDropzone.emit("thumbnail", mockFile, "http://localhost/docpro/public/img/doctype/word.jpg");
-          
-      //     // Or if the file on your server is not yet in the right
-      //     // size, you can let Dropzone download and resize it
-      //     // callback and crossOrigin are optional.
-      //     editDocumentDropzone.createThumbnailFromUrl(file, "http://localhost/docpro/" + file.file_location);
-
-      //     // Make sure that there is no progress bar, etc...
-      //     editDocumentDropzone.emit("complete", mockFile);
-
-      //     // If you use the maxFiles option, make sure you adjust it to the
-      //     // correct amount:
-      //     var existingFileCount = 1; // The number of files already uploaded
-      //     editDocumentDropzone.options.maxFiles = editDocumentDropzone.options.maxFiles - existingFileCount;
-
-      // //       var mockFile = { name: "banner2.jpg", size: 12345, thumbnail: "http://localhost/docpro/img/doctype/word.jpg" };
-      //   // editDocumentDropzone.options.addedfile.call(editDocumentDropzone, mockFile);
-      //   // editDocumentDropzone.options.thumbnail.call(editDocumentDropzone, mockFile, "http://localhost/docpro/public/img/doctype/word.jpg");
-            
-          });
           console.log(result);
 
         }});
+    });
+
+    $("#btn_update").click(function(){
+
+        $.ajax({url:  "document/" + $(this).attr('data-value'), 
+        method: 'PUT', 
+        data:{
+          "_token" : $("#EditDocumentModal input[name=_token]").val(),
+          "document_name" : $("#EditDocumentModal input[name=document_name]").val(),
+          "revision_number" : $('#EditDocumentModal input[name=revision_number]').val(),
+          "reviewers" :  $("#EditDocumentModal #select_reviewers").val(),
+          "department_id" : $('#EditDocumentModal #select_departments').val(),
+          "creator" : $("#EditDocumentModal input[name=employee_details_id]").val()  
+        },
+        success: function(result){
+          console.log(result);
+          if(result.success){
+            location.reload();
+          }
+        }});
+
     });
 
 Dropzone.options.editDocumentDropzone = {

@@ -104,7 +104,63 @@ class DocumentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        #-------------------------------------------------------------------------
+        # Load document by id
+        $document = Document::find($id);
+        $document->document_name = $request->document_name;
+        $document->revision_number = $request->revision_number;
+        $document->load('approvers');
+        $document->load('departments');
+
+        #-------------------------------------------------------------------------
+        ## Update Approvers / Reviewers
+        foreach($request->reviewers as $reviewer){
+            $array = $document->approvers->where('employee_details_id', $reviewer);
+            if($array->count() > 0){
+               
+            }else{
+                $approver = new Approver;
+                $approver->employee_details_id = $reviewer;
+                $approver->document_ID = $id;
+                $approver->save(); 
+            }
+        }
+
+        foreach($document->approvers as $approver){
+            if($request->reviewers){
+                if(in_array($approver->employee_details_id, $request->reviewers)){
+                    
+                }else{
+                    $approver->delete();
+                }
+            }else{
+                $approver->delete();
+            }
+        }
+        #--------------------------------------------------------------------------
+        ## Update departments 
+        foreach($request->department_id as $department){
+            $array = $document->departments->where("dept_id", $department);
+            if(empty($array)){
+                $d = new DocumentDepartment;
+                $d->dept_id = $department; 
+                $d->document_id = $id; 
+                $d->save();
+            }
+        }
+
+        foreach($document->departments as $department){
+            if($request->department_id){
+                if(in_array($department->dept_id, $request->department_id)){
+
+                }else{
+                    $department->delete;
+                }
+            }else{
+                $department->delete;
+            }
+        }
+        return array("success" => $document->save());
     }
 
     /**
@@ -534,15 +590,6 @@ class DocumentController extends Controller
         return array("success" => $success, "message" => $message);
      }
      public function test(Request $request){
-
-
-        $sendNotification = new SendNotification();
-        $sendNotification->content = "Test Email Multiple";
-        $sendNotification->action = "Test";
-        $sendNotification->link = url('document/'. 76 .'/display') . '';
-
-        $additional_receiver = ['jan2.str8@gmail.com', 'jmanuel.derecho@gmail.com'];
-
-        Mail::to($additional_receiver)->cc("john.derecho@mopro.com")->queue($sendNotification);
+        
      }
 }

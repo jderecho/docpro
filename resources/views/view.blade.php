@@ -70,13 +70,20 @@ Dashboard: Doc Pro
           <div class="col-md-12">
               <div class="card">
                   <div class="card-header card-gradient">
-                       <h4 class="title"><span class="glyphicon glyphicon-time"></span></span>&nbsp;&nbsp;Recent
+                       <h4 class="title"><span class="glyphicon glyphicon-time"></span></span>&nbsp;&nbsp;Approved Documents
                         <!-- <a class="btn btn-success pull-right" data-toggle="modal" data-target="#createDocumentModal"><span class="glyphicon glyphicon-plus"></span></a> -->
                        </h4>
                         
                   </div>
                     <div class="card-content">
                         <div class="container-fluid table-container">
+                          @if($documents->count() == 0)
+                          <div class="col-md-12">
+                            <center><h4>No Approved Documents</h4></center>
+                          </div>
+                          <br>&nbsp;
+                          <br>&nbsp;
+                          @else
                             <table class="table" id="document-table">
                                 <thead>
                                     <tr>
@@ -137,6 +144,7 @@ Dashboard: Doc Pro
                                     @endforeach
                                 </tbody>
                             </table>
+                            @endif
                         </div>
                     </div>
               </div>

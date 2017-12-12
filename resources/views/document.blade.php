@@ -72,28 +72,19 @@ View Document : DocPro
         </div>
         <div id="navbar" class="navbar-collapse collapse">
            <ul class="nav navbar-nav navbar-left white">
-            <li> <a class="navbar-brand" ><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
+            <li> <a class="navbar-brand" href="{{url('home')}}"><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
             <li>  
               <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/dms_logo.png') }}">
-              <!-- <h4 class="project-title">
-                DocPro <span style="font-size: 12px !important; font-weight: 300">(Document Management System for Mopro)</span>
-              </h4>
-              <p class="project-subtitle">
-                Operational Excellence
-              </p> -->
             </li>
            </ul>
           <ul class="nav navbar-nav navbar-right white">
               <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
                @if(Auth::check())
               <li><img src="{{ asset('public/img/mopro_profile_1.png') }}" height="50" class="img-circle"></li> 
-              
               <li>
                 <div class="dropdown" id="current_user">
                   <button class="btn dropdown-toggle btn-user" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    
-                            {{ Auth::user()->emp_firstname . " " . Auth::user()->emp_lastname  }}
-                        
+                      {{ Auth::user()->emp_firstname . " " . Auth::user()->emp_lastname  }}
                     <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
@@ -156,25 +147,69 @@ View Document : DocPro
                            	<input text="text" disabled="" value="{{ $document->revision_number}}" class="form-control" >
                            </div>
                            <div class="col-md-9">
+                                    <br>
+                              <?php $counter = 0;?>
+                            @if($document->status > 2)
+                                @foreach($document->attachments as $attachment)
+                                  <?php $counter++; ?>
+                                  @if($document->attachments->count() == $counter)
+                                  <label>Final Attachment</label>
+                                    <div class="col-md-12">
+                                    <a target="_blank" href="{{url($attachment->file_location)}}">
+                                      <div style="float: left; margin-left: 10px;">
+                                       <div class="card" style="width:100px">
+                                         <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                        <div class="card-body">
+                                          <center>
+                                           <span class="card-text">{{ basename($attachment->file_location)}}</span>
+                                          </center>
+                                        </div>
+                                        </div>
+                                      </div>
+                                    </a>
+                                </div>
+                                  @endif
+                                @endforeach
+                                @endif
                            	<br>
                            	<label>Attachment</label>
                            	<div>
-                           		@foreach($document->attachments as $attachment)
-                           			<a target="_blank" href="{{url($attachment->file_location)}}">
-					                 <div style="float: left; margin-left: 10px;">
-					                 <div class="card" style="width:100px">
-					                 <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
-					                  <div class="card-body">
-					                 <center>
-					                  <span class="card-text">{{ basename($attachment->file_location)}}</span>
-					                  </center>
-					                  </div>
-					                  </div>
-					                  </div>
-					                  </a>
-                           		@endforeach
+                              @if($document->status < 2)
+                                @foreach($document->attachments as $attachment)
+                                  <a target="_blank" href="{{url($attachment->file_location)}}">
+                                    <div style="float: left; margin-left: 10px;">
+                                     <div class="card" style="width:100px">
+                                       <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                      <div class="card-body">
+                                        <center>
+                                         <span class="card-text">{{ basename($attachment->file_location)}}</span>
+                                        </center>
+                                      </div>
+                                      </div>
+                                    </div>
+                                  </a>
+                                @endforeach
+                              @else
+                                <?php $counter2 = 0; ?>
+                                 @foreach($document->attachments as $attachment)
+                                  <?php $counter2++; ?>
+                                  @if($document->attachments->count() > $counter2)
+                                  <a target="_blank" href="{{url($attachment->file_location)}}">
+                                    <div style="float: left; margin-left: 10px;">
+                                     <div class="card" style="width:100px">
+                                       <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                      <div class="card-body">
+                                        <center>
+                                         <span class="card-text">{{ basename($attachment->file_location)}}</span>
+                                        </center>
+                                      </div>
+                                      </div>
+                                    </div>
+                                  </a>
+                                  @endif
+                                @endforeach
+                              @endif
                            	</div>
-
                            </div>
                            <div class="col-md-3">
                            	<br>

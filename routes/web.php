@@ -35,6 +35,7 @@ Route::get('logout', 'Auth\LoginController@logout');
 // document routes
 
 Route::get('document/{id}', 'DocumentController@show');
+Route::put('document/{id}', 'DocumentController@update');
 
 // Route::get('document/{id}/display', 'DashboardController@display');
 

@@ -13,6 +13,12 @@
     <link href="{{ asset('public/css/colors.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/jquery.dataTables.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/jquery.loading.css') }}" rel="stylesheet">
+    <!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <style>
+    a,p,h1,h2,h3,h4,h5, input::placeholder, label{
+        font-family: 'Open Sans', sans-serif !important;
+    }
+    </style> -->
     @yield('css')
   </head>
   <body>

@@ -38,9 +38,14 @@ class DashboardController extends Controller
             // return $documents;
          return view('dashboard')->with('documents', $documents)->with('approvers', EmployeeDetails::all())->with('departments', EmployeeDepartment::all());
         }
-
-       }
     }
+    public function profile(){
+        return view('profile');
+    }
+    public function changepass(){
+        return view('changepass');
+    }
+}
 
     //  public function display($id){
         

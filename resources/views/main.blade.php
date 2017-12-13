@@ -13,6 +13,7 @@
     <link href="{{ asset('public/css/colors.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/jquery.dataTables.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/jquery.loading.css') }}" rel="stylesheet">
+    <link href="{{ asset('public/css/animate.css') }}" rel="stylesheet">
     <!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <style>
     a,p,h1,h2,h3,h4,h5, input::placeholder, label{
@@ -35,9 +36,17 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{{ asset('public/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('public/js/jquery.dataTables.js') }}"></script>
+    <script src="{{ asset('public/js/jquery.validate.min.js') }}"></script>
+    <script src="{{ asset('public/js/bootstrap-notify.min.js') }}"></script>
     @yield('scripts')
     <script src="{{ asset('public/js/app.js') }}"></script>
 
     <input type="hidden" name="root_url" value="{{asset('/')}}">
   </body>
+   <div class="col-md-12">
+    <br>
+    <br>
+    <!-- <center><h6 style="color: #aaa;">Developed by: Operational Excellence Team </h6></center> -->
+  
+   </footer>
 </html>

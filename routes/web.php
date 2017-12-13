@@ -24,6 +24,11 @@ Route::get('/', function () {
 	return view('view')->with('documents', Document::where('status','=', '3')->orderBy('id','DESC')->get());
 });
 Route::get('home','DashboardController@index');
+Route::get('profile', 'DashboardController@profile');
+Route::get('profile/changepass', 'DashboardController@changepass');
+Route::post('profile/changepass', 'EmployeeDetailController@changepassword');
+
+Route::get('forgot/password', 'EmployeeDetailController@forgotpassword');
 Route::get('test', 'DocumentController@test');
 
 Auth::routes();

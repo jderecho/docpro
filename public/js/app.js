@@ -104,4 +104,37 @@ function statusString(id){
     }
     return str;
 }
+function alert_message(alert_message, alert_type){
+    var alerttype = "danger";
+    if(alert_type == true){
+        alerttype = "success";
+    }
+
+    $.notifyDefaults({
+        placement: {
+            from: "top"
+        },
+        animate:{
+            enter: "animated fadeInDown",
+            exit: "animated fadeOutUp"
+        }
+    });
+
+    $.notify({
+      // options
+      message: alert_message 
+    },{
+      // settings
+      type: alerttype,
+      allow_dismiss: true,
+      newest_on_top: true
+    });
+
+    setTimeout(function() {
+        $.notifyClose();
+        if(alert_type){
+            location.reload();
+        }
+    }, 3000);
+}
 

@@ -8,7 +8,7 @@ Login: Document Controller
         </div>
         <div class="cw">
             <div class="text-center">
-           <h1 class="white" style="font-size: 70px;padding: 10px;">DocPro</h1>
+           <h1 class="white" style="font-size: 70px;padding: 10px;"><img src="{{asset('public/img/docpro_logo_final.png')}}" style="width: 300px;"></h1>
             </div>
         </div>
         <div class="container">
@@ -42,7 +42,7 @@ Login: Document Controller
                       <button type="submit" class="btn btn-green btn-lg btn-block">Login</button>
                     </div>
                     <div class="form-group topPadding15">
-                      <p class="text-center">Forgot Password? <a style="cursor: pointer"> Click Here </a></p>
+                      <p class="text-center">Forgot Password? <a href="forgot/password" style="cursor: pointer"> Click Here </a></p>
                     </div>
                     <div class="text-center">
                         <span class="text-signature">Developed by: Operational Excellence Team</span> <br>

@@ -45,4 +45,17 @@ class User extends Authenticatable
     public function scopeFullName($query){
         return $this->emp_firstname . ' ' . $this->emp_lastname;
     }
+
+    public function position(){
+        return $this->belongsTo('App\EmployeePosition', 'emp_position_ID','position_ID');
+    }
+    public function scopeGender(){
+        if($this->emp_gender == 2){
+            return "Female";
+        }else if($this->emp_gender == 1){
+            return "Male";
+        }else{
+            return " ";
+        }
+    }
 }

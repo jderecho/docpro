@@ -53,7 +53,7 @@ Dashboard: Doc Pro
            <ul class="nav navbar-nav navbar-left white">
             <li> <a class="navbar-brand" ><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
             <li>  
-              <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/dms_logo.png') }}">
+              <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/docpro_logo_final.png') }}">
             </li>
            </ul>
           
@@ -241,7 +241,7 @@ Dashboard: Doc Pro
           console.log(result);
 
           $("#viewDocumentModal #span_document_name").html(result.document_name);
-          // $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
+          $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
 
           // $("#viewDocumentModal input[name=document_id]").val(result.id);
 

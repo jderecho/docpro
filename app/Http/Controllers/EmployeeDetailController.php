@@ -6,9 +6,12 @@ use Redirect;
 use Auth;
 
 use App\EmployeeDetails;
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Input;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
+
 class EmployeeDetailController extends Controller
 {
     /**
@@ -52,7 +55,6 @@ class EmployeeDetailController extends Controller
     {
         //
 
-        echo "aw";
         echo $employeeDetails->all();
     }
 
@@ -96,5 +98,32 @@ class EmployeeDetailController extends Controller
      public function test(Request $request)
     {
         echo $request;
+    }
+    public function changepassword(Request $request){
+
+        $user = User::find($request->user_id);
+        // return Hash::check($request->old_password, $user->emp_password)."";
+        if(!(Hash::check($request->old_password, $user->emp_password))){
+             return array("success" => false, "message" => "Old Password incorrect");
+        }
+
+        if($request->new_password != $request->confirm_password){
+            return array("success" => false, "message" => "New Password and Confirm Password is not the same.");
+        }else if($request->new_password == $request->old_password ){
+             return array("success" => false, "message" => "New Password and Old Password should not be the same.");
+        }
+
+        $user->emp_password = Hash::make($request->new_password);
+
+        if($user->save()){
+            return array("success" => true, "message" => "Successfully changed the password");
+        }else{
+            return array("success" => false, "message" => "Error in changing the password");
+        }
+
+    }
+    public function forgotpassword(){
+        
+        return "An email was sent to your email to reset your password.";
     }
 }

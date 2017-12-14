@@ -59,44 +59,8 @@ View Document : DocPro
 @endsection
 @section('content')
 
-	<nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-           
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-           <ul class="nav navbar-nav navbar-left white">
-            <li> <a class="navbar-brand" href="{{url('home')}}"><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
-            <li>  
-              <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/docpro_logo_final.png') }}">
-            </li>
-           </ul>
-          <ul class="nav navbar-nav navbar-right white">
-              <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
-               @if(Auth::check())
-              <li><img src="{{ asset('public/img/mopro_profile_1.png') }}" height="50" class="img-circle"></li> 
-              <li>
-                <div class="dropdown" id="current_user">
-                  <button class="btn dropdown-toggle btn-user" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                      {{ Auth::user()->emp_firstname . " " . Auth::user()->emp_lastname  }}
-                    <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                    <li><a href="{{ url('logout') }}">Logout</a></li>
-                  </ul>
-                </div>
-              </li>
-              @endif
-           </ul>
-        </div><!--/.navbar-collapse -->
-      </div>
-    </nav>
+  @include('nav')
+	
      <div class="container document-list-container" style="margin-top: 120px;">
           <div class="col-md-8 col-md-offset-2">
               <div class="card">
@@ -124,14 +88,19 @@ View Document : DocPro
                             @endif
                         @else
                           @foreach($document->approvers as $approver)
-                            @if($document->status == 1)
                               @if($approver->employee_details_id == Auth::user()->id)
-                                @if($approver->status == 0) <!-- not yet -->
-                                  <button id="btn_disapprove" type="button" class="btn btn-danger pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>
-                                  <button id="btn_approve" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>
+                                @if($document->status == 1)
+                                  @if($approver->status == 0) <!-- not yet -->
+                                    <button id="btn_disapprove" type="button" class="btn btn-danger pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>
+                                    <button id="btn_approve" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>
+                                  @endif
+                                @elseif($document->status == 4)
+                                     @if($approver->status == 0) <!-- not yet -->
+                                      <button id="btn_disapprove" type="button" class="btn btn-danger pull-right action-btn" data-value="{{$document->id}}" data-old-status="reviewed"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>
+                                      <button id="btn_approve" type="button" class="btn btn-success pull-right action-btn" data-old-status="reviewed"data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>
+                                    @endif
                                 @endif
                               @endif
-                            @endif
                           @endforeach
                         @endif
                   </div>
@@ -225,19 +194,36 @@ View Document : DocPro
 			                     @endforeach
 			                  </div>
 			                  <br>
-			                  <label>Approved by</label>
-			                  <div id="approver-list-container">
-			                  	@foreach($document->approvers as $approver)
-			                      @if( $approver->status == 1)
-					                  <h5>{{ $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname}} <span class="status-ok pull-right green"><img src="{{ url('public/img/status/check.png') }}"></span></h5> 
-					              @elseif($approver->status == 2)
-					                <h5>{{ $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname}} <span class="status-ok pull-right green"><img src="{{ url('public/img/status/uncheck.png') }}"></span></h5> 
-					              @else
-					              	<h5>{{ $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname}} </h5>
-					              @endif
-			                     @endforeach
-			                  </div>
-			                  <br>
+                        @if($document->approvers->where('type',1)->count() != 0)
+  			                  <label>Reviewers</label>
+  			                  <div id="approver-list-container">
+  			                  	@foreach($document->approvers->where('type',1) as $approver)
+  			                      @if( $approver->status == 1)
+  					                  <h5>{{ $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname}} <span class="status-ok pull-right green"><img src="{{ url('public/img/status/check.png') }}"></span></h5> 
+      					              @elseif($approver->status == 2)
+      					                <h5>{{ $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname}} <span class="status-ok pull-right green"><img src="{{ url('public/img/status/uncheck.png') }}"></span></h5> 
+      					              @else
+      					              	<h5>{{ $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname}} </h5>
+      					              @endif
+  			                     @endforeach
+  			                  </div>
+                        <br>
+                        @endif
+                        @if($document->approvers->where('type',2)->count() != 0)
+                          <label>Approvers</label>
+                          <div id="approver-list-container">
+                            @foreach($document->approvers->where('type', 2) as $approver)
+                              @if( $approver->status == 1)
+                              <h5>{{ $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname}} <span class="status-ok pull-right green"><img src="{{ url('public/img/status/check.png') }}"></span></h5> 
+                              @elseif($approver->status == 2)
+                                <h5>{{ $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname}} <span class="status-ok pull-right green"><img src="{{ url('public/img/status/uncheck.png') }}"></span></h5> 
+                              @else
+                                <h5>{{ $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname}} </h5>
+                              @endif
+                             @endforeach
+                          </div>
+                        <br>
+                        @endif
 			                  <label>Status: </label>
 			                  <span class="circle {{ $document->statusClass() }}">•</span><span class="status-label">{{ $document->statusString() }}</span>
                         </div>
@@ -304,20 +290,13 @@ View Document : DocPro
                  
                  </table>
 
-      <br>
-      <br>
+              <br>
+              <br>
                </div>
                     </div>
               </div>
           </div>
       </div>
-      <!-- <div class="col-md-12">
-        <div id="custom-overlay" class="loading-shown" style="position: fixed; z-index: 2; top: 0px; left: 0px; width: 100%; height: 100%;">
-      <div class="loading-spinner">
-        Custom loading...
-      </div>
-    </div>
-      </div> -->
 @endsection
 @section('scripts')
 <script src="{{ asset('public/js/chosen.jquery.min.js') }}"></script>
@@ -326,42 +305,49 @@ View Document : DocPro
 
   $(document).on("click", "#btn_approve", function(){
        var id = $(this).attr('data-value');
+       var old_status = "for-approval";
+       if($(this).attr('data-old-status')){
+          old_status = $(this).attr('data-old-status');
+       }
 
-         $.ajax({url:  '{{ url("document/status") }}' , 
-          method: 'POST', 
-          data: { 
-            "_token" : $("input[name=_token]").val(),     
-            "status" : "approve",     
-            "old_status" : "for-approval",     
-            "document_id" : id,     
-            "employee_details_id" : {!! Auth::user()->id !!} ,     
-          }, 
-          success: function(result){
-            if(result.success){
-              location.reload();
-            }else{
-            console.log(result);
-            }
-        }});
+       $.ajax({url:  '{{ url("document/status") }}' , 
+        method: 'POST', 
+        data: { 
+          "_token" : $("input[name=_token]").val(),     
+          "status" : "approve",     
+          "old_status" : old_status,  
+          "document_id" : id,     
+          "employee_details_id" : {!! Auth::user()->id !!} ,     
+        }, 
+        success: function(result){
+          if(result.success){
+            alert_message('Successfully approved the document', true);
+          }else{
+            alert_message('Error in approving the document');
+          }
+      }});
     });
     
     $(document).on("click", "#btn_disapprove", function(){
        var id = $(this).attr('data-value');
-
+        var old_status = "for-approval";
+       if($(this).attr('data-old-status')){
+          old_status = $(this).attr('data-old-status');
+       }
          $.ajax({url:  '{{ url("document/status") }}' , 
           method: 'POST', 
           data: { 
             "_token" : $("input[name=_token]").val(),     
             "status" : "disapprove",     
-            "old_status" : "for-approval",     
+            "old_status" : old_status,      
             "document_id" : id,     
             "employee_details_id" : {!! Auth::user()->id !!} ,     
           }, 
           success: function(result){
             if(result.success){
-              location.reload();
+              alert_message('Successfully disapproved the document', true);
             }else{
-            console.log(result);
+              alert_message('Error in disapproving the document');
             }
         }});
     });
@@ -485,7 +471,7 @@ View Document : DocPro
               comment += '</span>';
               comment += '</span>';
               comment += ' </p>';
-              $('#comment_container').append(comment);
+              $('#comment_container').prepend(comment);
               $('#comment_area').val("");
           }else{
             console.log(result);

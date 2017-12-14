@@ -46,51 +46,15 @@ Dashboard: Doc Pro
       padding:10px;
 
     }
+    #viewDocumentDropzoneComment{
+      margin-bottom: 20px;
+    }
     </style>
 @endsection
 @section('content')
-<nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-           
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-           <ul class="nav navbar-nav navbar-left white">
-            <li> <a class="navbar-brand" href="{{url('home')}}"><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
-            <li>  
-              <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/docpro_logo_final.png') }}">
-            </li>
-           </ul>
-          
-        
-          <ul class="nav navbar-nav navbar-right white">
-              <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time" style="margin-top: 15px;"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
-              <li><img src="{{ asset('public/img/mopro_profile_1.png') }}" height="50" class="img-circle"></li> 
-              <li>
-                <div class="dropdown" id="current_user">
-                  <button style="margin-top: 7px;" class="btn dropdown-toggle btn-user" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                     @if(Auth::check())
-                            {{ Auth::user()->emp_firstname . " " . Auth::user()->emp_lastname  }}
-                        @endif
-                    <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                    <li><a href="profile">Profile</a></li>
-                    <li><a href="profile/changepass">Change My Password</a></li>
-                    <li><a href="logout">Logout</a></li>
-                  </ul>
-                </div>
-              </li>
-           </ul>
-        </div><!--/.navbar-collapse -->
-      </div>
-    </nav>
+    
+   @include('nav')
+
     <div class="container document-list-container" style="margin-top: 120px;">
           <div class="col-md-12">
               <div class="card">
@@ -166,8 +130,6 @@ Dashboard: Doc Pro
                                           <a title="Delete" data-toggle="modal" data-target="#deleteDocumentModal" class="btn_delete_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-trash grey">&nbsp;</span></a>
                                           @endif   
 
-
-
                                           </div>
                                         </td>
                                     </tr>
@@ -190,7 +152,7 @@ Dashboard: Doc Pro
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('public/img/fav-white.png')}}"></span>Create Attachment</h4>
+            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('public/img/fav-white.png')}}">Create Attachment</h4>
           </div>
           <div class="modal-body">
             <div class="container-fluid">
@@ -210,7 +172,16 @@ Dashboard: Doc Pro
                 <br>
                 <br>
                 <div class="col-lg-12 col-md-12">
-                  <label>Reviewer</label>
+                  <label>Reviewers</label>
+                  <select data-placeholder="Add Reviewer" class="chosen-select form-control" id="select_reviewers" multiple="" tabindex="-1">
+                      <option value=""></option>
+                      @foreach($approvers as $employee)
+                      <option value="{{ $employee->id }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
+                      @endforeach
+                  </select>
+                  <br>
+                  <br>
+                  <label>Approvers</label>
                   <select data-placeholder="Add Reviewer" class="chosen-select form-control" id="select_approvers" multiple="" tabindex="-1">
                       <option value=""></option>
                       @foreach($approvers as $employee)
@@ -219,7 +190,6 @@ Dashboard: Doc Pro
                   </select>
                   <br>
                   <br>
-
                   <label>Department</label>
                   <select data-placeholder="Select Department" class="chosen-select form-control" id="select_departments" multiple="" tabindex="-1">
                       <option value=""></option>
@@ -254,8 +224,8 @@ Dashboard: Doc Pro
           <div class="modal-footer">
             <div class="container-fluid">
               <div class="col-md-12">
-                <button type="button"  id="btn_save" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Save</button>
-                <button type="button"  id="btn_for_approve" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>For Approval</button>
+                <button type="button"  id="btn_save" class="btn btn-success" data-dismiss="modal"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Save</button>
+                <button type="button"  id="btn_for_approve" class="btn btn-success" data-dismiss="modal"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>For Approval</button>
               </div>
             </div>
           </div>
@@ -270,7 +240,7 @@ Dashboard: Doc Pro
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('public/img/fav-white.png')}}"></span>Update Document</h4>
+            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('public/img/fav-white.png')}}">Update Document</h4>
           </div>
           <div class="modal-body">
             <div class="container-fluid">
@@ -352,7 +322,7 @@ Dashboard: Doc Pro
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('public/img/fav-white.png')}}"></span>View Attachment</h4>
+            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('public/img/fav-white.png')}}">View Attachment</h4>
           </div>
           <div class="modal-body">
             <div class="container-fluid">
@@ -405,6 +375,10 @@ Dashboard: Doc Pro
                      
                   </div>
                   <br>
+                  <label>Reviewers</label>
+                  <div id="reviewer-list-container">
+                  </div>
+                  <br>
                   <label>Approvers</label>
                   <div id="approver-list-container">
                   </div>
@@ -412,11 +386,7 @@ Dashboard: Doc Pro
                   <label>Status: </label>
                   <span id="document_status" class="">•</span><span id="document_status_label"></span>
                 </div>
-               <div class="col-md-12" id="comment_container">
-                <hr style="height: 2px; border-color: #dadada;">
-               <!-- <span class="label label-success">2 Comments</span> -->
-                
-               </div>
+               
                <div class="col-md-12" id="commentbox_container">
                 
                
@@ -457,6 +427,11 @@ Dashboard: Doc Pro
                  
                  </table>
                </div>
+               <div class="col-md-12" id="comment_container">
+                <hr style="height: 2px; border-color: #dadada;">
+               <!-- <span class="label label-success">2 Comments</span> -->
+                
+               </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -473,7 +448,6 @@ Dashboard: Doc Pro
  <!-- Delete Modal -->
   <div class="modal fade" id="deleteDocumentModal" role="dialog">
     <div class="modal-dialog">
-    
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -498,14 +472,12 @@ Dashboard: Doc Pro
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
-      
     </div>
   </div>
 
   <!-- Message Modal -->
   <div class="modal fade" id="messageDocumentModal" role="dialog">
     <div class="modal-dialog">
-    
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
@@ -520,7 +492,6 @@ Dashboard: Doc Pro
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         </div>
       </div>
-      
     </div>
   </div>
   @endsection
@@ -594,7 +565,8 @@ Dashboard: Doc Pro
           "revision_number" : $('#createDocumentModal input[name=revision_number]').val(),
           "department_id" : $('#createDocumentModal #select_departments').val(),
           "file_uploads" : filenames,
-          "reviewers" :  $("#createDocumentModal .chosen-select").val(),
+          "reviewers" :  $("#createDocumentModal #select_reviewers").val(),
+          "approvers" :  $("#createDocumentModal #select_approvers").val(),
           "creator" : $("#createDocumentModal input[name=employee_details_id]").val()       
         }, 
         success: function(result){
@@ -626,7 +598,8 @@ Dashboard: Doc Pro
           "document_name" : $("#createDocumentModal input[name=document_name]").val(),
           "revision_number" : $('#createDocumentModal input[name=revision_number]').val(),
           "file_uploads" : filenames,
-          "reviewers" :  $("#createDocumentModal #select_approvers").val(),
+          "reviewers" :  $("#createDocumentModal #select_reviewers").val(),
+          "approvers" :  $("#createDocumentModal #select_approvers").val(),
           "department_id" : $('#createDocumentModal #select_departments').val(),
           "" :  $("#createDocumentModal #select_approvers").val(),
           "creator" : $("input[name=employee_details_id]").val()       
@@ -634,12 +607,10 @@ Dashboard: Doc Pro
         success: function(result){
           console.log(result);
           if(result.success){
-            location.reload();
+            alert_message("Successfully created the document!", result.success);
           }else{
-            showMessage('Error');
+            alert_message("Error in saving the document", result.success);
           }
-
-          // location.reload();
         },
         error: function($result){
           showMessage('error','Error');
@@ -654,10 +625,14 @@ Dashboard: Doc Pro
        $("#viewDocumentModal .button-container").find("#btn_send_for_approval").remove();
        $("#viewDocumentModal .button-container").find("#btn_resend_for_approval").remove();
        $("#viewDocumentModal .button-container").find("#btn_final_approve").remove();
+
+       $("#viewDocumentModal *").show();
+
        $("#viewDocumentModal #department-list-container").html('');
        $('#final_document_holder').html('');
        $("#viewDocumentModal #comment_container").html('');
         $('.file_holder').html('');
+        $('#reviewer-list-container').html('');
         $('#approver-list-container').html('');
 
       // GET Document
@@ -677,7 +652,11 @@ Dashboard: Doc Pro
           var checked = "";
           var comment = "";
           if(result.approvers != null){
+            var numOfReviewers = 0;
+            var numOfApprovers = 0;
+
             result.approvers.forEach(function(approver, index) {
+
                 if( approver.status == 1){
                   checked = '<span class="status-ok pull-right green"><img src="' + root_URL + 'public/img/status/check.png"></span>';
                 }else if(approver.status == 2){
@@ -685,12 +664,29 @@ Dashboard: Doc Pro
                 }else{
                   checked = "";
                 }
-
-                $('#approver-list-container').append('<h5> ' + approver.employee_details.emp_firstname + ' ' + approver.employee_details.emp_lastname + checked + '</h5>')
-
-
+                if(approver.type == 1){
+                  numOfReviewers ++;
+                  $('#reviewer-list-container').append('<h5> ' + approver.employee_details.emp_firstname + ' ' + approver.employee_details.emp_lastname + checked + '</h5>')
+                }else{
+                  numOfApprovers ++;
+                  $('#approver-list-container').append('<h5> ' + approver.employee_details.emp_firstname + ' ' + approver.employee_details.emp_lastname + checked + '</h5>')
+                }
             });
+
+            // hide reviewer/aprover holder when it contains nothing
+            if(numOfReviewers == 0){
+              $('#reviewer-list-container').hide();
+              $('#reviewer-list-container').prev('label').hide();
+            }
+            if(numOfApprovers == 0){
+              $('#approver-list-container').hide();
+              $('#approver-list-container').prev('label').hide();
+            }
+
+            //------------------------------------- 
+
           }
+
           if(result.departments != null){
             result.departments.forEach(function(department, index){
               var department_str = '<span class="badge ">'+ department.employee_dept.dept_description+'</span>';
@@ -743,7 +739,7 @@ Dashboard: Doc Pro
           if(result.status == 0){
             if(result.creator.id == {!! Auth::user()->id !!}){
               
-                $("#viewDocumentModal .button-container").prepend('<button id="btn_send_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-send">&nbsp;</span>Send for Approval</button>');
+                $("#viewDocumentModal .button-container").prepend('<button id="btn_send_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-send">&nbsp;</span>Send for Approval</button>');
             }
           } // 1 means for approval
           else if(result.status == 1){
@@ -753,12 +749,12 @@ Dashboard: Doc Pro
                 // check if any approver disapprove the doc
                 console.log('aw');
                 if(approver.status == 2){
-                   $("#viewDocumentModal .button-container").prepend('<button id="btn_resend_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-send">&nbsp;</span>Resend for Approval</button>');
+                   $("#viewDocumentModal .button-container").prepend('<button id="btn_resend_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-send">&nbsp;</span>Resend for Approval</button>');
                    return;
                 }else if(approver.status == 0 && approver.employee_details_id ==  {!! Auth::user()->id !!}){
-                   $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
+                   $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
 
-                $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
+                $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
                 }
               });
             }
@@ -767,19 +763,23 @@ Dashboard: Doc Pro
 
               if(result.contributorStatus == 0){
 
-                $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
+                $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
 
-                $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
+                $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
               }
             }
           } // 2 means 
           else if(result.status == 2){  
             if({!! Auth::user()->isSuperAdmin() == true ? "true" : "false" !!}){
-                  $("#viewDocumentModal .button-container").prepend('<button id="btn_final_approve" type="button" class="btn btn-success" data-value="'+ result.id+'"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
+                  $("#viewDocumentModal .button-container").prepend('<button id="btn_final_approve" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
             }
           } // 3 means 
           else if(result.status == 3){
 
+          }else if(result.status == 4){
+             $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-old-status="reviewed" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
+
+             $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-old-status="reviewed" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
           }
 
           // Comment 
@@ -814,11 +814,9 @@ Dashboard: Doc Pro
                 comment += '</span>';
                 comment += ' </p>';
 
-                $('#comment_container').append(comment);
+                $('#comment_container').prepend(comment);
             });
           }
-
-
 
           console.log(result);
         }});
@@ -837,9 +835,9 @@ Dashboard: Doc Pro
         }, 
         success: function(result){
           if(result.success){
-            location.reload();
+            alert_message('Successfully deleted the document', true);
           }else{
-          console.log(result);
+            alert_message('Error in deleting the document');
           }
         }});
 
@@ -847,42 +845,49 @@ Dashboard: Doc Pro
 
     $(document).on("click", "#btn_approve", function(){
        var id = $(this).attr('data-value');
-
+       var old_status = "for-approval";
+       if($(this).attr('data-old-status')){
+          old_status = $(this).attr('data-old-status');
+       }
          $.ajax({url:  "document/status" , 
           method: 'POST', 
           data: { 
             "_token" : $("#viewDocumentModal input[name=_token]").val(),     
             "status" : "approve",     
-            "old_status" : "for-approval",     
+            "old_status" : old_status,     
             "document_id" : id,     
             "employee_details_id" : {!! Auth::user()->id !!} ,     
           }, 
           success: function(result){
-            if(result.success){
-              location.reload();
-            }else{
             console.log(result);
+            if(result.success){
+              alert_message('Successfully approved the document', true);
+            }else{
+              alert_message('Error in approving the document');
             }
         }});
     });
 
     $(document).on("click", "#btn_disapprove", function(){
+      var old_status = "for-approval";
+       if($(this).attr('data-old-status')){
+          old_status = $(this).attr('data-old-status');
+       }
        var id = $(this).attr('data-value');
-
          $.ajax({url:  "document/status" , 
           method: 'POST', 
           data: { 
             "_token" : $("#viewDocumentModal input[name=_token]").val(),     
             "status" : "disapprove",     
-            "old_status" : "for-approval",     
+            "old_status" : old_status,     
             "document_id" : id,     
             "employee_details_id" : {!! Auth::user()->id !!} ,     
           }, 
           success: function(result){
             if(result.success){
-              location.reload();
+              alert_message('Successfully disapproved the document', true);
             }else{
-            console.log(result);
+              alert_message('Error in disapproving the document');
             }
         }});
     });
@@ -901,9 +906,9 @@ Dashboard: Doc Pro
           }, 
           success: function(result){
             if(result.success){
-              location.reload();
+              alert_message('Successfully sent the document for approval!', true);
             }else{
-              console.log(result);
+              alert_message('Error in sending for approval!', false);
             }
         }});
     });
@@ -922,9 +927,9 @@ Dashboard: Doc Pro
           }, 
           success: function(result){
             if(result.success){
-              location.reload();
+              alert_message('Document is sent for approval!', true);
             }else{
-              console.log(result);
+              alert_message('Error resending document for approval');
             }
         }});
     });
@@ -947,9 +952,9 @@ Dashboard: Doc Pro
           }, 
           success: function(result){
             if(result.success){
-              location.reload();
+              alert_message('Document is ready!', true);
             }else{
-              console.log(result);
+              alert_message('Error approving document!');
             }
         }});
     });

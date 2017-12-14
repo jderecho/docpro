@@ -123,7 +123,36 @@ class EmployeeDetailController extends Controller
 
     }
     public function forgotpassword(){
-        
-        return "An email was sent to your email to reset your password.";
+        return view('auth.passwords.email');
+    }
+
+    public function passwordemail(Request $request){
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email'
+        ]);
+
+        if( ! $validator->fails() )
+        {
+            if( $user = User::where('emp_email', $request->input('email') )->first())
+            {
+                $token = str_random(64);
+
+                DB::table(config('auth.passwords.users.table'))->insert([
+                    'email' => $user->email, 
+                    'token' => $token
+                ]);
+
+                
+
+                
+
+                return redirect()->back()->with('status', trans(Password::RESET_LINK_SENT));
+            }
+        } else{
+
+        }
+
+        return $request->all();
     }
 }

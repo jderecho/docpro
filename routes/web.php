@@ -29,10 +29,12 @@ Route::get('profile/changepass', 'DashboardController@changepass');
 Route::post('profile/changepass', 'EmployeeDetailController@changepassword');
 
 Route::get('forgot/password', 'EmployeeDetailController@forgotpassword');
-Route::get('test', 'DocumentController@test');
 
 Auth::routes();
 
+Route::post('password/email', 'EmployeeDetailController@passwordemail')->name('password.email');
+
+Route::get('test', 'DocumentController@downloadFile');
 
 // hack for logout
 Route::get('logout', 'Auth\LoginController@logout');

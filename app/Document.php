@@ -73,6 +73,9 @@ class Document extends Model
             case 3:
                 $str = "Approved";
                 break;
+            case 4:
+            $str = "Reviewed";
+            break;
             default:
                 # code...
                 break;
@@ -94,6 +97,9 @@ class Document extends Model
             case 3:
                 $str = "status-approved";
                 break;
+            case 4:
+                $str = "status-reviewed";
+            break;
             default:
                 # code...
                 break;

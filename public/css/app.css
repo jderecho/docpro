@@ -433,7 +433,7 @@ thead td{
 	color: white;
 }
 
-#approver-list-container{
+#approver-list-container, #reviewer-list-container{
 	background: #fff;
 	border-radius: 5px;
 	padding: 10px;

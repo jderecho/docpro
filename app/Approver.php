@@ -18,4 +18,11 @@ class Approver extends Model
     	return $this->belongsTo('App\User', 'employee_details_id');
     }
 
+    public function scopeIsReviewer(){
+    	return $this->type == 1;
+    }
+
+    public function scopeIsApprover(){
+    	return $this->type == 2;
+    }
 }

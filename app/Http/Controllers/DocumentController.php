@@ -217,15 +217,27 @@ class DocumentController extends Controller
         // catch if error saving document
         if(!$success) return array( "success" => false );
 
-        // save approvers
+        // save reviewers
         if($request->reviewers != null){
             foreach($request->reviewers as $reviewers){
                 $approver = new Approver;
                 $approver->employee_details_id = $reviewers; 
                 $approver->document_ID = $document->id; 
+                $approver->type = 1; 
                 $approver->save();
             }
         }
+        // save approvers
+        if($request->approvers != null){
+            foreach($request->approvers as $approvers){
+                $approver = new Approver;
+                $approver->employee_details_id = $approvers; 
+                $approver->document_ID = $document->id; 
+                $approver->type = 2; 
+                $approver->save();
+            }
+        }
+
          // save department
         if($request->department_id != null){
             foreach($request->department_id as $department){
@@ -293,6 +305,18 @@ class DocumentController extends Controller
                 Mail::to($approver->employee_details->emp_email)->queue($sendNotification);
             }
         }
+
+        // save approvers
+        if($request->approvers != null){
+            foreach($request->approvers as $approvers){
+                $approver = new Approver;
+                $approver->employee_details_id = $reviewers; 
+                $approver->document_ID = $document->id; 
+                $approver->type = 2; 
+                $approver->save();
+            }
+        }
+
          // save department
         if($request->department_id != null){
             foreach($request->department_id as $department){
@@ -381,57 +405,133 @@ class DocumentController extends Controller
                     }
 
                  break;
+            #--------------------------------------------------------------------------------
+            #-------------------------- APPROVE DOCUMENT ------------------------------------
+            #--------------------------------------------------------------------------------
 
              case "approve": 
+
                  if($request->old_status == "for-approval") {
-                     $approved_counter = 0;
-                     foreach($document->approvers as $approver){
-                         if($approver->employee_details_id == $request->employee_details_id){
-                            $mail_recipient = [];
 
-                            $approver->status = 1;
-                            $success = $approver->save();
+                    $mail_recipient = [];
 
-                            $comment = new Comment;
-                            $comment->employee_details_id = $request->employee_details_id;
-                            $comment->document_ID = $request->document_id;
-                            $comment->message = "approved the document.";
-                            $comment->save();
+                    $approver = $document->approvers->where('employee_details_id', $request->employee_details_id )->first();
+                    $approver->status = 1;
+                    $success = $approver->save();
 
-                            $approver->load('employee_details');
+                    $comment = new Comment;
+                    $comment->employee_details_id = $request->employee_details_id;
+                    $comment->document_ID = $request->document_id;
+                    $comment->message = "approved the document.";
+                    $comment->save();
+                    // notify all contributors of the document 
+                    // don't send email to current user if the current user is the approver
+                    $document->approvers->load('employee_details');
+                    array_push( $mail_recipient, $document->approvers->where('employee_details.id', '!=', $request->employee_details_id)->pluck('employee_details.emp_email')->get(0));
 
-                            // notify all contributors of the document 
-                            foreach($document->approvers as $notify_approvers){
-                                $notify_approvers->load('employee_details');
-                                // don't send email to current user if the current user is the approver
-                                if($notify_approvers->employee_details->id != $request->employee_details_id){
-                                  array_push($mail_recipient, $notify_approvers->employee_details->emp_email);
-                                }
-                            }
-                            // notify also the admin 
-                           foreach(EmployeeDetails::getAdmins() as $admins){
-                                array_push($mail_recipient, $admins->emp_email);
-                            }
+                    // notify also the admin 
+                    array_push($mail_recipient, EmployeeDetails::getAdmins()->pluck('emp_email')->get(0));
 
-                            // add the creator as a recipient
-                            array_push($mail_recipient, $document->creator->emp_email);
-
-
-                            $sendNotification = new SendNotification;
-
-                            $sendNotification->content = $approver->employee_details->fullName() . " approved the document " . $document->document_name . ".";
-                            $sendNotification->action = "Kindly check and do necessary actions if needed.";
-                            $sendNotification->link = url('document/'. $document->id .'/display') . '';
-                            $sendNotification->fullName = "";
-
-                            Mail::to($mail_recipient)->queue($sendNotification);
-                        }
-                        if($approver->status == 1){
-                            $approved_counter++;
-                        }
+                    // add the creator as a recipient
+                    if($request->employee_details_id != $document->creator->id){
+                        array_push($mail_recipient, $document->creator->emp_email);
                     }
 
-                    if(count($document->approvers) == $approved_counter){
+
+                    $approver->load('employee_details');
+
+                    $sendNotification = new SendNotification;
+                    $sendNotification->content = $approver->employee_details->fullName() . " approved the document " . $document->document_name . ".";
+                    $sendNotification->action = "Kindly check and do necessary actions if needed.";
+                    $sendNotification->link = url('document/'. $document->id .'/display') . '';
+                    $sendNotification->fullName = "";
+                    
+                    Mail::to($mail_recipient)->queue($sendNotification);
+                        
+
+                    $approved_counter = $document->approvers->where('type',1)->where('status', '1')->count();
+                    
+
+                    if($document->approvers->where('type', 1)->count() == $approved_counter){
+                        $mail_recipient = [];
+
+                        $message = "Document is fully reviewed.";
+                        $document->status = 4;
+                        $success = $document->save();
+
+                        $comment = new Comment;
+                        $comment->employee_details_id = 999; // DocPro Admin
+                        $comment->document_ID = $request->document_id;
+                        $comment->message = "All Reviewers approved the document";
+                        $comment->save();
+
+                        foreach($document->approvers as $notify_approvers){
+                            $notify_approvers->load('employee_details');
+                            // don't send email to current user if the current user is the approver
+                            if($notify_approvers->employee_details->id != $request->employee_details_id){
+                              array_push($mail_recipient, $notify_approvers->employee_details->emp_email);
+                            }
+                        }
+                        // notify also the admin 
+                       foreach(EmployeeDetails::getAdmins() as $admins){
+                          array_push($mail_recipient, $admins->emp_email);
+                        }
+
+                        // add the creator as a recipient
+                        if($request->employee_details_id != $document->creator->id){
+                            array_push($mail_recipient, $document->creator->emp_email);
+                        }
+                        
+
+                        $sendNotification = new SendNotification;
+                        $sendNotification->content = " All Reviewers approved the document " . $document->document_name . ".";
+                        $sendNotification->action = "Kindly check and do necessary actions if needed.";
+                        $sendNotification->link = url('document/'. $document->id .'/display') . '';
+                        $sendNotification->fullName = "";
+                        Mail::to($mail_recipient)->queue($sendNotification);
+                    }
+
+                }else if($request->old_status == "reviewed"){
+                    $mail_recipient = [];
+
+                    $approver = $document->approvers->where('employee_details_id', $request->employee_details_id )->first();
+                    $approver->status = 1;
+                    $success = $approver->save();
+
+                    $comment = new Comment;
+                    $comment->employee_details_id = $request->employee_details_id;
+                    $comment->document_ID = $request->document_id;
+                    $comment->message = "approved the document.";
+                    $comment->save();
+                    // notify all contributors of the document 
+                    // don't send email to current user if the current user is the approver
+                    $document->approvers->load('employee_details');
+                    array_push( $mail_recipient, $document->approvers->where('employee_details.id', '!=', $request->employee_details_id)->pluck('employee_details.emp_email')->get(0));
+
+                    // notify also the admin 
+                    array_push($mail_recipient, EmployeeDetails::getAdmins()->pluck('emp_email')->get(0));
+
+                    // add the creator as a recipient
+                    if($request->employee_details_id != $document->creator->id){
+                        array_push($mail_recipient, $document->creator->emp_email);
+                    }
+
+
+                    $approver->load('employee_details');
+
+                    $sendNotification = new SendNotification;
+                    $sendNotification->content = $approver->employee_details->fullName() . " approved the document " . $document->document_name . ".";
+                    $sendNotification->action = "Kindly check and do necessary actions if needed.";
+                    $sendNotification->link = url('document/'. $document->id .'/display') . '';
+                    $sendNotification->fullName = "";
+                    
+                    Mail::to($mail_recipient)->queue($sendNotification);
+                        
+
+                    $approved_counter = $document->approvers->where('type', 2)->where('status', '1')->count();
+                    
+
+                    if($document->approvers->where('type', 2)->count() == $approved_counter){
                         $mail_recipient = [];
 
                         $message = "Document is partially approved.";
@@ -457,7 +557,10 @@ class DocumentController extends Controller
                         }
 
                         // add the creator as a recipient
-                        array_push($mail_recipient, $document->creator->emp_email);
+                        if($request->employee_details_id != $document->creator->id){
+                            array_push($mail_recipient, $document->creator->emp_email);
+                        }
+                        
 
                         $sendNotification = new SendNotification;
                         $sendNotification->content = " All Approvers approved the document " . $document->document_name . ".";
@@ -466,6 +569,7 @@ class DocumentController extends Controller
                         $sendNotification->fullName = "";
                         Mail::to($mail_recipient)->queue($sendNotification);
                     }
+
                 }else if($request->old_status == "pre-approved"){
 
                     $document->status = 3;
@@ -503,50 +607,89 @@ class DocumentController extends Controller
                         return array("success" => false);
                     }
                 }
+
+                # END APPROVE DOCUMENT ----------------------------------------------------------------
+                #--------------------------------------------------------------------------------------
+
                 break;  
                 case "disapprove":
                     if($request->old_status == "for-approval"){
-                        $disapproved = 0;
-                         foreach($document->approvers as $approver){
-                            if($approver->employee_details_id == $request->employee_details_id){
-                                $mail_recipient = [];
+                        // $disapproved = 0;
+                        //  foreach($document->approvers as $approver){
+                        //     if($approver->employee_details_id == $request->employee_details_id){
+                        //         $mail_recipient = [];
 
-                                $approver->status = 2;
-                                $success = $approver->save();
+                        //         $approver->status = 2;
+                        //         $success = $approver->save();
 
-                                $comment = new Comment;
-                                $comment->employee_details_id = $request->employee_details_id;
-                                $comment->document_ID = $request->document_id;
-                                $comment->message = "disapproved the document.";
-                                if($comment->save()){
-                                    $message = "Document successfully disapproved!";
-                                }
-                                $approver->load('employee_details');
+                        //         $comment = new Comment;
+                        //         $comment->employee_details_id = $request->employee_details_id;
+                        //         $comment->document_ID = $request->document_id;
+                        //         $comment->message = "disapproved the document.";
+                        //         if($comment->save()){
+                        //             $message = "Document successfully disapproved!";
+                        //         }
+                        //         $approver->load('employee_details');
 
 
-                                foreach($document->approvers as $approver_others){
-                                    $approver_others->load('employee_details');
-                                    if($approver_others->employee_details_id != $request->employee_details_id){
-                                        array_push($mail_recipient, $approver_others->employee_details->emp_email);
-                                    }
-                                }
+                        //         foreach($document->approvers as $approver_others){
+                        //             $approver_others->load('employee_details');
+                        //             if($approver_others->employee_details_id != $request->employee_details_id){
+                        //                 array_push($mail_recipient, $approver_others->employee_details->emp_email);
+                        //             }
+                        //         }
 
-                                 // notify also the admin 
-                                foreach(EmployeeDetails::getAdmins() as $admins){
-                                    array_push($mail_recipient, $admins->emp_email);
-                                }
+                        //          // notify also the admin 
+                        //         foreach(EmployeeDetails::getAdmins() as $admins){
+                        //             array_push($mail_recipient, $admins->emp_email);
+                        //         }
 
-                                // add the creator as a recipient
-                                array_push($mail_recipient, $document->creator->emp_email);
+                        //         // add the creator as a recipient
+                        //         array_push($mail_recipient, $document->creator->emp_email);
                                 
-                                $sendNotification = new SendNotification;
-                                $sendNotification->content = $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname . " disapproved the document " . $document->document_name . ".";
-                                $sendNotification->action = "Kindly check and do necessary actions if needed.";
-                                $sendNotification->link = url('document/'. $document->id .'/display') . '';
-                                $sendNotification->fullName = "";
-                                Mail::to($mail_recipient)->queue($sendNotification);
-                            }
+                        //         $sendNotification = new SendNotification;
+                        //         $sendNotification->content = $approver->employee_details->emp_firstname . ' ' . $approver->employee_details->emp_lastname . " disapproved the document " . $document->document_name . ".";
+                        //         $sendNotification->action = "Kindly check and do necessary actions if needed.";
+                        //         $sendNotification->link = url('document/'. $document->id .'/display') . '';
+                        //         $sendNotification->fullName = "";
+                        //         Mail::to($mail_recipient)->queue($sendNotification);
+                        //     }
+                        // }
+
+                        $mail_recipient = [];
+
+                        $approver = $document->approvers->where('employee_details_id', $request->employee_details_id )->first();
+                        $approver->status = 2;
+                        $success = $approver->save();
+
+                        $comment = new Comment;
+                        $comment->employee_details_id = $request->employee_details_id;
+                        $comment->document_ID = $request->document_id;
+                        $comment->message = "disapproved the document.";
+                        $comment->save();
+                        // notify all contributors of the document 
+                        // don't send email to current user if the current user is the approver
+                        $document->approvers->load('employee_details');
+                        array_push( $mail_recipient, $document->approvers->where('employee_details.id', '!=', $request->employee_details_id)->pluck('employee_details.emp_email')->get(0));
+
+                        // notify also the admin 
+                        array_push($mail_recipient, EmployeeDetails::getAdmins()->pluck('emp_email')->get(0));
+
+                        // add the creator as a recipient
+                        if($request->employee_details_id != $document->creator->id){
+                            array_push($mail_recipient, $document->creator->emp_email);
                         }
+
+                        $approver->load('employee_details');
+
+                        $sendNotification = new SendNotification;
+                        $sendNotification->content = $approver->employee_details->fullName() . " disapproved the document " . $document->document_name . ".";
+                        $sendNotification->action = "Kindly check and do necessary actions if needed.";
+                        $sendNotification->link = url('document/'. $document->id .'/display') . '';
+                        $sendNotification->fullName = "";
+                        
+                        Mail::to($mail_recipient)->queue($sendNotification);
+
                     }else if($request->old_status == "pre-approved"){
                         // Super admin disapprove
                          $success = true;
@@ -590,6 +733,19 @@ class DocumentController extends Controller
         return array("success" => $success, "message" => $message);
      }
      public function test(Request $request){
-        
+        $sendNotification = new SendNotification;
+        $sendNotification->content = "TEST" ;
+        $sendNotification->action = "";
+        $sendNotification->link = url('');
+        $sendNotification->fullName = "";
+        Mail::to("john.derecho@mopro.com")->queue($sendNotification);
+     }
+
+     public function downloadFile(Request $request){
+
+        header("Content-Disposition: attachment; filename=\"" . basename($request->file_url) . "\"");
+        header("Content-Type: application/force-download");
+        header("Content-Length: " . filesize($request->file_url));
+        header("Connection: close");
      }
 }

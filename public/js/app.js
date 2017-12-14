@@ -79,6 +79,9 @@ function statusString(id){
         case 3:
             str = "Approved";
             break;
+        case 4:
+            str = "Reviewed";
+            break;
         default:
             break;
     }
@@ -98,6 +101,9 @@ function statusString(id){
             break;
         case 3:
             str = "status-approved";
+            break;
+        case 4:
+            str = "status-reviewed";
             break;
         default:
             break;
@@ -122,6 +128,7 @@ function alert_message(alert_message, alert_type){
 
     $.notify({
       // options
+      type : "",
       message: alert_message 
     },{
       // settings

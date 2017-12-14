@@ -71,7 +71,7 @@
                 comment += '</span>';
                 comment += '</span>';
                 comment += ' </p>';
-                $('#comment_container').append(comment);
+                $('#comment_container').prepend(comment);
                 $('#comment_area').val("");
             }else{
               console.log(result);

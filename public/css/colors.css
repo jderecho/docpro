@@ -24,6 +24,9 @@
 .status-approved{
 	color: #36A405;
 }
+.status-reviewed{
+	color: #ffa31a;
+}
 
 .status-pending{
 	color: #DB2A2A;

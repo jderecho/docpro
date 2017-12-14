@@ -59,8 +59,8 @@ Dashboard: Doc Pro
           
         
           <ul class="nav navbar-nav navbar-right white">
-              <li style="height: 50px;margin-right: 20px;"><h4 class="mopro-time"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
-              <li><div><a class="btn btn-success" href="{{url('login')}}" style=" margin-right: 10px;">Login</a> &nbsp; </div></li>
+              <li style="height: 50px;margin-right: 10px;"><h4 class="mopro-time" style="    padding-top: 10px;"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
+              <li><div><a class="btn btn-success" href="{{url('login')}}" style=" margin-right: 10px; margin-top: 10px;">&nbsp;&nbsp;&nbsp;&nbsp;LOGIN&nbsp;&nbsp;&nbsp;</a> &nbsp; </div></li>
            </ul>
            
         </div><!--/.navbar-collapse -->

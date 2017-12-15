@@ -8,7 +8,7 @@ Login: Document Controller
         </div>
         <div class="cw">
             <div class="text-center">
-           <h1 class="white" style="font-size: 70px;padding: 10px;"><img src="{{asset('public/img/docpro_logo_final.png')}}" style="width: 300px;"></h1>
+           <h1 class="white" style="font-size: 70px;padding: 10px;"><img src="{{asset('public/img/docpro_logo.gif')}}" style="width: 300px;"></h1>
             </div>
         </div>
         <div class="container">

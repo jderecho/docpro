@@ -13,7 +13,7 @@
            <ul class="nav navbar-nav navbar-left white">
             <li> <a class="navbar-brand" href="{{url('home')}}"><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
             <li>  
-              <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/docpro_logo_final.png') }}">
+              <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/docpro_logo.gif') }}">
             </li>
            </ul>
           

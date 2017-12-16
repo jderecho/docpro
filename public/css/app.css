@@ -382,8 +382,9 @@ button.btn.btn-lg.btn-warning{
 	padding-left: 20px;
 	padding-right: 20px;
 }
-.table-container{
-	margin-top: 50px;
+div#document-table_filter label input {
+    margin-top: 50px;
+    margin-bottom: 0px !important;
 }
 .table-container thead tr td{
 	color: #6145B6;

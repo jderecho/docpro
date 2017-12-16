@@ -38,15 +38,15 @@
     <script src="{{ asset('public/js/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('public/js/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('public/js/bootstrap-notify.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/src/loadingoverlay.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/extras/loadingoverlay_progress/loadingoverlay_progress.min.js"></script>
     @yield('scripts')
     <script src="{{ asset('public/js/app.js') }}"></script>
-
     <input type="hidden" name="root_url" value="{{asset('/')}}">
   </body>
    <div class="col-md-12">
     <br>
     <br>
     <!-- <center><h6 style="color: #aaa;">Developed by: Operational Excellence Team </h6></center> -->
-  
    </footer>
 </html>

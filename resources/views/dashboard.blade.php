@@ -56,97 +56,85 @@ Dashboard: Doc Pro
    @include('nav')
 
     <div class="container document-list-container" style="margin-top: 120px;">
-          <div class="col-md-12">
-              <div class="card">
-                  <div class="card-header card-gradient">
-                       <h4 class="title"><span class="glyphicon glyphicon-time"></span></span>&nbsp;&nbsp;Recent
-                        <a class="btn btn-success pull-right" data-toggle="modal" data-target="#createDocumentModal"><span class="glyphicon glyphicon-plus"></span> Add Document</a>
-                       </h4>
-                  </div>
-                    <div class="card-content">
-                        <div class="container-fluid table-container">
-                          <!--  <select id="department_select">
-                            @foreach($departments as $department)
-                             <option>{{$department->dept_description}}</option>
-                             @endforeach
-                           </select> -->
-                            <table class="table" id="document-table">
-                                <thead>
-                                    <tr>
-                                        <td></td>
-                                        <td class="text-left">Date Created</td>
-                                        <td>Document Name</td>
-                                        <td><center>Revision Number</center></td>
-                                        <td><center>Department</center></td>
-                                        <td>Status</td>
-                                        <td><center>Originator</center></td>
-                                        <td class="text-right">OPTIONS</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                  @if(!(empty($documents)))
-                                  @foreach($documents as $document)
-                                    <tr>
-                                      <td><input type="checkbox" name="checked" ></td>
-                                        <td>{{ $document->formattedDateCreated() }}</td>
-                                        <td>{{ $document->document_name }}</td>
-                                        <td><center>{{ $document->revision_number }}</center></td>
-                                        <td>
-                                          <?php
-                                          $tooltip_departments = "";
-                                            foreach($document->departments as $department){
-                                              $tooltip_departments .= ''. $department->employee_dept->dept_description .'</br>' ;
-                                            }
-                                          ?>
-
-                                          <center>
-                                            <?php if(count($document->departments) == 1 ){
-                                              echo '<span class="badge">' .$document->departments[0]->employee_dept->dept_description . '</span>';
-                                            }else if(count($document->departments) > 1){
-                                              echo ' <a href="#" data-toggle="tooltip" title="' . $tooltip_departments . '">';
-                                              echo '<span class="badge">' .$document->departments[0]->employee_dept->dept_description . '..</span>';
-                                              echo '</a>';
-                                            }else{
-                                               echo '<span class="badge">N/A</span>';
-                                            }
-                                               ?>
-                                              <br/>
-                                            </a>
-                                          </center>
-                                        </td>
-                                        <td><span class="circle {{ $document->statusClass() }}">•</span><span class="status-label">{{ $document->statusString() }}</span></td>
-                                     
-                                        
-                                       <!--  <td><center>{{ $document->approvers->where('status','=', '1')->count() }}</center></td> -->
-                                        <td><center>{{ $document->creator->emp_firstname . ' ' . $document->creator->emp_lastname }}</center></td>
-                                        <td >
-                                          <div class="pull-right">
-                                          <a title="View" data-toggle="modal" data-target="#viewDocumentModal" class="btn_view_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-eye-open grey">&nbsp</span></a>
-                                          @if($document->employee_details_id == Auth::user()->id || Auth::user()->isSuperAdmin())
-                                          <a title="Edit" data-toggle="modal" data-target="#EditDocumentModal" class="btn_edit_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></a>
-                                          @endif
-
-                                         @if(Auth::user()->isSuperAdmin() || Auth::user()->id == $document->employee_details_id)
-                                          <a title="Delete" data-toggle="modal" data-target="#deleteDocumentModal" class="btn_delete_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-trash grey">&nbsp;</span></a>
-                                          @endif   
-
-                                          </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                    @endif
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+      <div class="col-md-12">
+          <div class="card">
+              <div class="card-header card-gradient">
+                <h4 class="title"><span class="glyphicon glyphicon-time"></span>&nbsp;&nbsp;Recent
+                  <a class="btn btn-success pull-right" data-toggle="modal" data-target="#createDocumentModal"><span class="glyphicon glyphicon-plus"></span> Add Document</a>
+                </h4>
               </div>
+              <div class="card-content">
+                <div class="container-fluid table-container">
+                  <table class="table" id="document-table">
+                    <thead>
+                      <tr>
+                        <td></td>
+                        <td class="text-left">Date Created</td>
+                        <td>Document Name</td>
+                        <td><center>Revision Number</center></td>
+                        <td><center>Department</center></td>
+                        <td>Status</td>
+                        <td><center>Originator</center></td>
+                        <td class="text-right">OPTIONS</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @if(!(empty($documents)))
+                        @foreach($documents as $document)
+                          <tr>
+                            <td></td>
+                            <td>{{ $document->formattedDateCreated() }}</td>
+                            <td>{{ $document->document_name }}</td>
+                            <td><center>{{ $document->revision_number }}</center></td>
+                            <td>
+                              <?php $tooltip_departments = "";
+                                  foreach($document->departments as $department){
+                                    $tooltip_departments .= ''. $department->employee_dept->dept_description .'</br>' ;
+                                  }
+                              ?>
+                              <center>
+                                <?php if(count($document->departments) == 1 ){
+                                    echo '<span class="badge">' .$document->departments[0]->employee_dept->dept_description . '</span>';
+                                  }else if(count($document->departments) > 1){
+                                    echo ' <a href="#" data-toggle="tooltip" title="' . $tooltip_departments . '">';
+                                    echo '<span class="badge">' .$document->departments[0]->employee_dept->dept_description . '..</span>';
+                                    echo '</a>';
+                                  }else{
+                                    echo '<span class="badge">N/A</span>';
+                                  }
+                              ?>
+                              <br/>
+                              </center>
+                            </td>
+                            <td><span class="circle {{ $document->statusClass() }}">•</span><span class="status-label">{{ $document->statusString() }}</span></td>
+                            <td><center>{{ $document->creator->emp_firstname . ' ' . $document->creator->emp_lastname }}</center></td>
+                            <td >
+                              <div class="pull-right">
+                                <a title="View" data-toggle="modal" data-target="#viewDocumentModal" class="btn_view_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-eye-open grey">&nbsp</span></a>
+                              @if($document->employee_details_id == Auth::user()->id || Auth::user()->isSuperAdmin())
+                                <a title="Edit" data-toggle="modal" data-target="#EditDocumentModal" class="btn_edit_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></a>
+                              @endif
+
+                              @if(Auth::user()->isSuperAdmin() || Auth::user()->id == $document->employee_details_id)
+                                <a title="Delete" data-toggle="modal" data-target="#deleteDocumentModal" class="btn_delete_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-trash grey">&nbsp;</span></a>
+                              @endif   
+                              </div>
+                            </td>
+                          </tr>
+                        @endforeach
+                      @endif
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
       </div>
   @endsection
   @section('modals')
   
+    <!--########################################## Create Document Modal ##################################################-->
 
-      <!-- Create Document Modal -->
     <div class="modal fade" id="createDocumentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -196,14 +184,10 @@ Dashboard: Doc Pro
                       @foreach($departments as $department)
                       <option value="{{ $department->dept_ID }}">{{ $department->dept_description}}</option>
                       @endforeach
-              
                     </select>
-
                   <br>
                   <br>
                   <label>Attachment</label>
-                  <!-- <input type="file" name="" placeholder="File"> -->
-
                    <form action="{!! url('document/upload') !!}" id="createDocumentDropzone"
                     class="dropzone">
                       {{ csrf_field() }}
@@ -212,8 +196,6 @@ Dashboard: Doc Pro
                       <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
                       <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
                   </form>
-                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-                  <!-- <textarea class="form-control" rows="25" ></textarea> --> 
                   <div id="file_uploads_container" class="hidden">
                     
                   </div>
@@ -232,9 +214,9 @@ Dashboard: Doc Pro
         </div>
       </div>
     </div>
+<!-- ################################################################################################################################################# -->
 
-
-      <!-- Edit Document Modal -->
+      <!-- #######################################################  Edit Document Modal ##############################################################-->
     <div class="modal fade" id="EditDocumentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -269,10 +251,8 @@ Dashboard: Doc Pro
                       @endforeach
               
                     </select>
-  
                     <br>
                     <br>
-  
                   <label>Department</label>
                   <select data-placeholder="Select Department" class="chosen-select form-control" id="select_departments" multiple="" tabindex="-1">
                       <option value=""></option>
@@ -287,19 +267,7 @@ Dashboard: Doc Pro
                       {{ csrf_field() }}
                       <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
                       <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
-
-                  <!-- <label>Attachment</label>
-                   <form action="{{ url('document/upload') }}" id="editDocumentDropzone"
-                    class="dropzone">
-                      {{ csrf_field() }}
-
-                      <input type="hidden" name="_code" value="{{ md5(time())}}">
-                      <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
-                      <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
-                  </form> -->
-      
                   <div id="file_uploads_container" class="hidden">
-                    
                   </div>
                 </div>
             </div>
@@ -315,8 +283,9 @@ Dashboard: Doc Pro
         </div>
       </div>
     </div>
+<!-- #################################################################################################################################################### -->
 
-  <!-- View Document Modal -->
+  <!-- ############################################# View Document Modal ################################################################################ -->
     <div class="modal fade" id="viewDocumentModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" >
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -329,7 +298,6 @@ Dashboard: Doc Pro
                 <div class="col-md-12">
                   <label>File Name </label>
                   <input type="text" name="document_name" placeholder="Document Name" disabled class="form-control">
-
                       {{ csrf_field() }}
                 </div>
                 <br>
@@ -340,13 +308,9 @@ Dashboard: Doc Pro
                   <div class="col-md-12" id="final_document_holder" style="width: 100%;">
                     <label>Latest Document</label>
                     <br>
-
                   </div>
-                  
                   <label>Attachment</label>
                   <div class="file_holder col-md-12" style="width: 100%;">
-                    
-                  
                   <div style="float: left;">
                      <div class="card" style="width:100px">
                       <img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
@@ -357,12 +321,7 @@ Dashboard: Doc Pro
                       </div>
                     </div>
                   </div>
-
                   </div>
-
-                  
-                  <!-- <iframe src="https://docs.google.com/gview?url=https://docs.google.com/document/d/1llhbwQ3i9VkX4JrxkS1KHbmfC4tSam_9iOf8_Hc0Rkw&embedded=true"></iframe> -->
-                  <!-- <textarea class="form-control" rows="25" ></textarea> -->
                 </div>
                 <div class="col-md-3">
                   <label>Created By:</label>
@@ -372,7 +331,6 @@ Dashboard: Doc Pro
                   <br>
                   <label>Department:</label>
                   <div id="department-list-container">
-                     
                   </div>
                   <br>
                   <label>Reviewers</label>
@@ -386,32 +344,22 @@ Dashboard: Doc Pro
                   <label>Status: </label>
                   <span id="document_status" class="">•</span><span id="document_status_label"></span>
                 </div>
-               
                <div class="col-md-12" id="commentbox_container">
-                
-               
                  <table style="width: 100%">
-                   <tr>
+                   <tr id="attachment_holder" style="display: none !important;">
                     <td></td>
-                    <td id="attachment_holder"><br>
+                    <td ><br>
                   <label>Attachment</label>
-                  <!-- <input type="file" name="" placeholder="File"> -->
-
                    <form action="{{ url('document/upload') }}" id="viewDocumentDropzoneComment"
                     class="dropzone">
                       {{ csrf_field() }}
-
                       <input type="hidden" name="_code" value="{{ md5(time())}}">
                       <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
                       <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
                   </form>
-                  <!-- <textarea id="textarea"  rows="1" class="form-control"></textarea> -->
-                  <!-- <textarea class="form-control" rows="25" ></textarea> --> 
                   <div id="comment_attachment_holder" class="hidden">
-                    
                   </div></td>
                   <td>
-                    
                   </td>
                   </tr>
                    <tr>
@@ -419,7 +367,8 @@ Dashboard: Doc Pro
                 </span></td>
                     <td style='width: 80%'>
                       <input type="hidden" name="document_id">
-                      <textarea id="comment_area" style="width: 97%"></textarea>
+                      <textarea id="comment_area" style="    padding-top: 10px;
+    padding-left: 10px;width: 97% ;" placeholder="Leave a comment.."></textarea>
                       <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
                     </td>
                     <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px">Send</button></td>
@@ -429,15 +378,12 @@ Dashboard: Doc Pro
                </div>
                <div class="col-md-12" id="comment_container">
                 <hr style="height: 2px; border-color: #dadada;">
-               <!-- <span class="label label-success">2 Comments</span> -->
-                
                </div>
             </div>
           </div>
           <div class="modal-footer">
             <div class="container-fluid">
               <div class="col-md-12 button-container">
-                <button type="button" class="btn btn-success" id="btn_toggle_commentbox"><span class="glyphicon glyphicon-comment">&nbsp;</span>Add Comment</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               </div>
             </div>
@@ -445,10 +391,11 @@ Dashboard: Doc Pro
         </div>
       </div>
     </div>
- <!-- Delete Modal -->
+    <!-- ###################################################################################################################################################### -->
+
+ <!-- ###########################################################  Delete Modal ###############################################################################-->
   <div class="modal fade" id="deleteDocumentModal" role="dialog">
     <div class="modal-dialog">
-      <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -458,14 +405,12 @@ Dashboard: Doc Pro
           <p>Are you sure you want to delete <span> Document</span>.</p>
           <form id="" action="{!! url('document/upload') !!}" method="POST">
               {{ csrf_field() }}
-
               <input type="hidden" name="_method" value="DELETE">
               <input type="hidden" name="_code" value="{{ md5(time())}}">
               <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
               <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
               <input type="hidden" name="document_id" value="">
           </form>
-
         </div>
         <div class="modal-footer">
           <button type="button" id="btn_delete_document" class="btn btn-danger" data-dismiss="modal">Delete</button>
@@ -474,11 +419,8 @@ Dashboard: Doc Pro
       </div>
     </div>
   </div>
-
-  <!-- Message Modal -->
   <div class="modal fade" id="messageDocumentModal" role="dialog">
     <div class="modal-dialog">
-      <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -494,6 +436,7 @@ Dashboard: Doc Pro
       </div>
     </div>
   </div>
+  <!-- ###########################################################################################################################################################  -->
   @endsection
 
   @section('scripts')
@@ -524,6 +467,7 @@ Dashboard: Doc Pro
 
         done(); 
       },
+      acceptedFiles: ".pdf,.doc,.docx,.odt",
       addRemoveLinks: true,
       removedfile: function(file) {
           console.log([file, "delete"]);
@@ -626,8 +570,6 @@ Dashboard: Doc Pro
        $("#viewDocumentModal .button-container").find("#btn_resend_for_approval").remove();
        $("#viewDocumentModal .button-container").find("#btn_final_approve").remove();
 
-       $("#viewDocumentModal *").show();
-
        $("#viewDocumentModal #department-list-container").html('');
        $('#final_document_holder').html('');
        $("#viewDocumentModal #comment_container").html('');
@@ -639,6 +581,7 @@ Dashboard: Doc Pro
        $.ajax({url:  "document/" + $(this).attr('data-value'), 
         method: 'GET', 
         success: function(result){
+          console.log(result);
           $("#viewDocumentModal input[name=document_name]").val(result.document_name);
           $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
 
@@ -694,6 +637,25 @@ Dashboard: Doc Pro
             });
           }
            if(result.attachments != null){
+            var latest_file = result.attachments.slice(-1).pop();
+            if(result.status == 3){
+               var attachment_view = "<label>Final Document</label><br>";
+                  attachment_view += '<a target="_blank" href=" {{asset('/')}}' +  latest_file.file_location+'">';
+                  attachment_view += '<div style="float: left; margin-left: 10px;">';
+                  attachment_view += '<div class="card" style="width:100px">';
+                  attachment_view += '<img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">';
+                  attachment_view += '<div class="card-body">';
+                  attachment_view += '<center>';
+                  attachment_view += '<span class="card-text">'+ getFileName(latest_file.file_location) +'</span>';
+                  attachment_view += '</center>';
+                  attachment_view += '</div>';
+                  attachment_view += '</div>';
+                  attachment_view += '</div>';
+                  attachment_view += '</a>';
+
+                $('#final_document_holder').append(attachment_view);
+
+            }else{
               console.log('nisud');
               var attachment_view = "<label>Latest Document</label><br>";
               $('#final_document_holder').append(attachment_view);
@@ -723,7 +685,11 @@ Dashboard: Doc Pro
                   }
             });
           }
-
+          }else{
+            $('#final_document_holder').hide();
+             $('.file_holder').hide();
+             console.log("test");
+          }
           if(result.status > 0){
             $('#final_document_holder').show();
           }else{
@@ -738,7 +704,6 @@ Dashboard: Doc Pro
           
           if(result.status == 0){
             if(result.creator.id == {!! Auth::user()->id !!}){
-              
                 $("#viewDocumentModal .button-container").prepend('<button id="btn_send_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-send">&nbsp;</span>Send for Approval</button>');
             }
           } // 1 means for approval
@@ -771,15 +736,20 @@ Dashboard: Doc Pro
           } // 2 means 
           else if(result.status == 2){  
             if({!! Auth::user()->isSuperAdmin() == true ? "true" : "false" !!}){
-                  $("#viewDocumentModal .button-container").prepend('<button id="btn_final_approve" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
+                  $("#viewDocumentModal .button-container").prepend('<button id="btn_final_approve" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Final Approve</button>');
             }
           } // 3 means 
           else if(result.status == 3){
 
           }else if(result.status == 4){
-             $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-old-status="reviewed" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
+            if(result.isContributor && result.contributorStatus == 0){
+              $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-old-status="reviewed" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
 
              $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-old-status="reviewed" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
+            }else if(result.creator.id == {!! Auth::user()->id !!} && result.isDisapproved){
+
+              $("#viewDocumentModal .button-container").prepend('<button id="btn_resend_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-send">&nbsp;</span>Resend for Approval</button>');
+            }
           }
 
           // Comment 
@@ -814,11 +784,10 @@ Dashboard: Doc Pro
                 comment += '</span>';
                 comment += ' </p>';
 
-                $('#comment_container').prepend(comment);
+                $('#comment_container').append(comment);
             });
-          }
-
           console.log(result);
+            }
         }});
     });
 
@@ -884,6 +853,7 @@ Dashboard: Doc Pro
             "employee_details_id" : {!! Auth::user()->id !!} ,     
           }, 
           success: function(result){
+            console.log(result);
             if(result.success){
               alert_message('Successfully disapproved the document', true);
             }else{
@@ -963,8 +933,6 @@ Dashboard: Doc Pro
       $("#viewDocumentModal #attachment_holder").fadeToggle(500);
     });
   
-    $('#commentbox_container').fadeToggle(500);
-    $("#viewDocumentModal #attachment_holder").fadeToggle(500);
 
     $(".btn_edit_document").click(function(){
       $("#EditDocumentModal select").val('').trigger('chosen:updated');

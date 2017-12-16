@@ -53,7 +53,7 @@ Dashboard: Doc Pro
            <ul class="nav navbar-nav navbar-left white">
             <li> <a class="navbar-brand" ><img class="img-responsive pull-left" src="{{ asset('public/img/mopro_logo.png') }}"><div class="ripple-container"></div></a></li>
             <li>  
-              <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/docpro_logo_final.png') }}">
+              <img style="height: 50px; margin-left: 5px;" class="img-responsive pull-left" src="{{ asset('public/img/docpro_logo.gif') }}">
             </li>
            </ul>
           
@@ -87,7 +87,6 @@ Dashboard: Doc Pro
                             <table class="table" id="document-table">
                                 <thead>
                                     <tr>
-                                        <td></td>
                                         <td class="text-left">Date Created</td>
                                         <td>Document Name</td>
                                         <td><center>Revision Number</center></td>
@@ -103,7 +102,6 @@ Dashboard: Doc Pro
 
                                   @foreach($documents as $document)
                                     <tr>
-                                      <td><input type="checkbox" name="checked" ></td>
                                         <td>{{ $document->formattedDateCreated() }}</td>
                                         <td>{{ $document->document_name }}</td>
                                         <td><center>{{ $document->revision_number }}</center></td>

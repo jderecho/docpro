@@ -70,7 +70,10 @@ View Document : DocPro
                        {{ csrf_field() }}
                        <input type="hidden" name="_code" value="{{ md5(time())}}">
                         @if(Auth::user()->isSuperAdmin())
-                          @if($document->status == 2)
+                          @if($document->status == 1)
+                              <!--  <button id="btn_disapprove" type="button" class="btn btn-danger pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>
+                               <button id="btn_approve" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button> -->
+                          @elseif($document->status == 2)
                             <button id="btn_final_approve" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Final Approve</button>
                           @endif
                         @endif
@@ -85,14 +88,24 @@ View Document : DocPro
                                     @break
                                   @endif
                                @endforeach
+                            @elseif($document->status == 4)
+                               @foreach($document->approvers as $approver)
+                                  @if($approver->status == 2) <!-- Disapprove -->
+                                      <button id="btn_resend_for_approval" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-send">&nbsp;</span>Resend for Approval</button>
+                                    @break
+                                  @endif
+                               @endforeach
                             @endif
+
                         @else
                           @foreach($document->approvers as $approver)
                               @if($approver->employee_details_id == Auth::user()->id)
                                 @if($document->status == 1)
-                                  @if($approver->status == 0) <!-- not yet -->
-                                    <button id="btn_disapprove" type="button" class="btn btn-danger pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>
-                                    <button id="btn_approve" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>
+                                  @if($document->isContributor)
+                                    @if($approver->status == 0) <!-- not yet -->
+                                      <button id="btn_disapprove" type="button" class="btn btn-danger pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>
+                                      <button id="btn_approve" type="button" class="btn btn-success pull-right action-btn" data-value="{{$document->id}}"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>
+                                    @endif
                                   @endif
                                 @elseif($document->status == 4)
                                      @if($approver->status == 0) <!-- not yet -->
@@ -118,7 +131,7 @@ View Document : DocPro
                            <div class="col-md-9">
                                     <br>
                               <?php $counter = 0;?>
-                            @if($document->status > 2)
+                            @if($document->status == 3)
                                 @foreach($document->attachments as $attachment)
                                   <?php $counter++; ?>
                                   @if($document->attachments->count() == $counter)
@@ -141,9 +154,11 @@ View Document : DocPro
                                 @endforeach
                                 @endif
                            	<br>
-                           	<label>Attachment</label>
+                            @if($document->status < 3 || $document->status == 4)
+                           	 <label>Attachment</label>
+                             @endif
                            	<div>
-                              @if($document->status < 2)
+                              @if($document->status < 3 || $document->status == 4)
                                 @foreach($document->attachments as $attachment)
                                   <a target="_blank" href="{{url($attachment->file_location)}}">
                                     <div style="float: left; margin-left: 10px;">
@@ -157,25 +172,6 @@ View Document : DocPro
                                       </div>
                                     </div>
                                   </a>
-                                @endforeach
-                              @else
-                                <?php $counter2 = 0; ?>
-                                 @foreach($document->attachments as $attachment)
-                                  <?php $counter2++; ?>
-                                  @if($document->attachments->count() > $counter2)
-                                  <a target="_blank" href="{{url($attachment->file_location)}}">
-                                    <div style="float: left; margin-left: 10px;">
-                                     <div class="card" style="width:100px">
-                                       <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
-                                      <div class="card-body">
-                                        <center>
-                                         <span class="card-text">{{ basename($attachment->file_location)}}</span>
-                                        </center>
-                                      </div>
-                                      </div>
-                                    </div>
-                                  </a>
-                                  @endif
                                 @endforeach
                               @endif
                            	</div>
@@ -227,30 +223,7 @@ View Document : DocPro
 			                  <label>Status: </label>
 			                  <span class="circle {{ $document->statusClass() }}">•</span><span class="status-label">{{ $document->statusString() }}</span>
                         </div>
-
-                        <div class="col-md-12" id="comment_container">
-		                <hr style="height: 2px; border-color: #dadada;">
-		               <span class="label label-success">{{count( $document->comments) }} Comments</span>
-
-		               		@foreach( $document->comments as $comment)
-		                	<p class="comment_holder">
-			                <span>
-			                <br>
-			                <img style="width: 30px;" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>{{ $comment->commentor->emp_firstname . ' ' . $comment->commentor->emp_lastname}}</b>
-			                <span>&nbsp;</span>
-			                <span>{{ $comment->action}}</span>
-			                <span></span>
-			               <span></span>
-			                <br>
-			                <br>
-			                <span class="comment_text_holder">
-			                	{{$comment->message}}
-			                </span>
-			                </span>
-			                 </p>
-			                 @endforeach()
-		               </div>
-		               <div class="col-md-12" id="commentbox_container">
+                         <div class="col-md-12" id="commentbox_container">
                 
                
                  <table style="width: 100%">
@@ -293,7 +266,29 @@ View Document : DocPro
               <br>
               <br>
                </div>
-                    </div>
+               <span class="label label-success">{{count( $document->comments) }} Comments</span>
+                  <div class="col-md-12" id="comment_container">
+    		                <!-- <hr style="height: 2px; border-color: #dadada;"> -->
+    		               <!-- <span class="label label-success">{{count( $document->comments) }} Comments</span> -->
+    		               		@foreach( $document->comments as $comment)
+    		                	<p class="comment_holder">
+    			                <span>
+    			                <br>
+    			                <img style="width: 30px;" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>{{ $comment->commentor->emp_firstname . ' ' . $comment->commentor->emp_lastname}}</b>
+    			                <span>&nbsp;</span>
+    			                <span>{{ $comment->action}}</span>
+    			                <span></span>
+    			               <span></span>
+    			                <br>
+    			                <br>
+    			                <span class="comment_text_holder">
+    			                	{{$comment->message}}
+    			                </span>
+    			                </span>
+    			                 </p>
+    			                 @endforeach()
+    		               </div>
+                  </div>
               </div>
           </div>
       </div>
@@ -366,9 +361,9 @@ View Document : DocPro
           }, 
           success: function(result){
             if(result.success){
-              location.reload();
+              alert_message('Successfully sent the document for approval', true);
             }else{
-              console.log(result);
+              alert_message('Error in sending document for approval');
             }
         }});
     });
@@ -387,9 +382,9 @@ View Document : DocPro
           }, 
           success: function(result){
             if(result.success){
-              location.reload();
+              alert_message('Successfully resent the document for approval', true);
             }else{
-              console.log(result);
+              alert_message('Error in resending document for approval');
             }
         }});
     });
@@ -424,7 +419,7 @@ View Document : DocPro
   });
 
   $('#btn_send_comment').click(function(){
-
+    alert("awd");
     
     var filenames = [];
 

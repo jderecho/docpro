@@ -58,6 +58,8 @@ class DocumentController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    // AJAX RETURN
     public function show($id)
     {
         $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments.attachments')->with('departments')->find($id);
@@ -65,10 +67,13 @@ class DocumentController extends Controller
             $document->isContributor = $document->isContributor(Auth::user()->id);
             $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
         }
+        $document->isDisapproved = $document->isDisapproved();
         $document->comments->load('commentor');
         $document->departments->load('employee_dept');
+
         return $document;
     }
+
     public function display($id){
 
         $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments')->with('departments')->find($id);
@@ -179,7 +184,6 @@ class DocumentController extends Controller
 
      public function upload(Request $request){
 
-
         $directory = 'public/docs/uploads/' . $request->employee_details_id . '/'. $request->_code;
 
         if( is_dir($directory) == false){
@@ -197,8 +201,8 @@ class DocumentController extends Controller
 
         $target = $directory . '/' .  $filename ;
         $save = move_uploaded_file($_FILES['file']['tmp_name'], $target);
-
-
+        return $_FILES['file'];
+        return $_FILES['file']['tmp_name'] . 'wd';
         if($save){
             return "true";
         }else{
@@ -362,7 +366,7 @@ class DocumentController extends Controller
         
         $document->load('creator');
         $document->load('approvers');
-
+        // return $document->isDisapproved();
         if($document->employee_details_id == $request->document_id){
             // pending - can a document creator approve the document created ?
         }
@@ -613,7 +617,7 @@ class DocumentController extends Controller
 
                 break;  
                 case "disapprove":
-                    if($request->old_status == "for-approval"){
+                    if($request->old_status == "for-approval" || $request->old_status == "reviewed"){
                         // $disapproved = 0;
                         //  foreach($document->approvers as $approver){
                         //     if($approver->employee_details_id == $request->employee_details_id){
@@ -725,6 +729,35 @@ class DocumentController extends Controller
                                 $message = "Document successfully resent for approval!";
                             } 
                         }
+                    }else if ($request->old_status == "reviewed" && $document->isDisapproved()){
+                         $document->load('approvers');
+
+                        if($document->approvers != null){
+                            foreach($document->approvers as $approver){
+                                if($approver->status == 2){
+                                    $approver->status = 0;
+                                    $approver->save();
+
+                                    $approver->load('employee_details');
+
+                                    $sendNotification = new SendNotification;
+                                    $sendNotification->content = "The originator of the document " . $document->document_name . " resent it for approval.";
+                                    $sendNotification->action = "Kindly check and do necessary actions if needed.";
+                                    $sendNotification->link = url('document/'. $document->id .'/display') . '';
+                                    $sendNotification->fullName = "";
+                                    Mail::to($approver->employee_details->emp_email)->queue($sendNotification);
+                                }
+                            }
+
+                            $comment = new Comment;
+                            $comment->employee_details_id = $request->employee_details_id;
+                            $comment->document_ID = $request->document_id;
+                            $comment->message = "resent the document for approval.";
+                            $success = $comment->save();
+                            if($success){
+                                $message = "Document successfully resent for approval!";
+                            } 
+                        }
                     }
                 break;
              default:
@@ -733,6 +766,7 @@ class DocumentController extends Controller
         return array("success" => $success, "message" => $message);
      }
      public function test(Request $request){
+        return phpinfo();
         $sendNotification = new SendNotification;
         $sendNotification->content = "TEST" ;
         $sendNotification->action = "";
@@ -742,10 +776,10 @@ class DocumentController extends Controller
      }
 
      public function downloadFile(Request $request){
-
-        header("Content-Disposition: attachment; filename=\"" . basename($request->file_url) . "\"");
-        header("Content-Type: application/force-download");
-        header("Content-Length: " . filesize($request->file_url));
-        header("Connection: close");
+          phpinfo();
+        // header("Content-Disposition: attachment; filename=\"" . basename($request->file_url) . "\"");
+        // header("Content-Type: application/force-download");
+        // header("Content-Length: " . filesize($request->file_url));
+        // header("Connection: close");
      }
 }

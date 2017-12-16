@@ -218,7 +218,7 @@ a[x-apple-data-detectors=true] {
                   
                     <div align="center" class="img-container center  autowidth  fullwidth" style="padding-right: 0px;  padding-left: 0px;">
 <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 0px; padding-left: 0px;" align="center"><![endif]-->
-  <img class="center  autowidth  fullwidth" align="center" border="0" src="{{asset('public/img/mopro_header.png')}}" alt="MoProd Logo" title="MoProd Logo" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: 0;height: auto;float: none;width: 100%;max-width: 800px" width="800">
+  <img class="center  autowidth  fullwidth" align="center" border="0" src="{{asset('public/img/mopro_header.png')}}" alt="Docpro Logo" title="Docpro Logo" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: block !important;border: 0;height: auto;float: none;width: 100%;max-width: 800px" width="800">
 <!--[if mso]></td></tr></table><![endif]-->
 </div>
                     <!--[if mso]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding-right: 30px; padding-left: 30px; padding-top: 30px; padding-bottom: 30px;"><![endif]-->

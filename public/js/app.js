@@ -128,7 +128,6 @@ function alert_message(alert_message, alert_type){
 
     $.notify({
       // options
-      type : "",
       message: alert_message 
     },{
       // settings
@@ -144,4 +143,16 @@ function alert_message(alert_message, alert_type){
         }
     }, 3000);
 }
+
+$.ajaxSetup({
+  beforeSend: function(jqXHR, settings) {
+    // Show full page LoadingOverlay
+    $.LoadingOverlay("show");
+    
+    return true;
+  },
+  complete: function(){
+    $.LoadingOverlay("hide");
+  }
+});
 

@@ -26,7 +26,7 @@ class Document extends Model
     	return $this->hasMany('App\Attachment','document_ID');
     }
       public function comments(){
-        return $this->hasMany('App\Comment','document_ID');
+        return $this->hasMany('App\Comment','document_ID')->orderBy('id', 'DESC');
     }
 
     public function scopeApproved($query){
@@ -40,7 +40,11 @@ class Document extends Model
 
         foreach($this->approvers as $approver){
             if($approver->employee_details_id == $id){
-                return true;
+                if($approver->type == 1 && $this->status == 1){
+                    return true;
+                }else if($approver->type == 2 && $this->status == 4){
+                    return true;
+                }
             }
         }
         return false;
@@ -58,6 +62,10 @@ class Document extends Model
         }
         return false;
     }
+    public function scopeIsDisapproved(){
+
+        return $this->approvers->where('status', '=', 2)->count();
+    }
     public  function scopeStatusString($query){
         $str = "";
         switch ($this->status) {
@@ -74,7 +82,7 @@ class Document extends Model
                 $str = "Approved";
                 break;
             case 4:
-            $str = "Reviewed";
+                $str = "Reviewed";
             break;
             default:
                 # code...

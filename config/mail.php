@@ -56,7 +56,7 @@ return [
 
     'from' => [
         'address' => "docpro.system@gmail.com", //env('MAIL_FROM_ADDRESS', 'john.derecho@mopro.com'),
-        'name' => "Document Management System",//env('MAIL_FROM_NAME', 'Docpro'),
+        'name' => "Document Management System of Mopro",//env('MAIL_FROM_NAME', 'Docpro'),
     ],
 
     /*

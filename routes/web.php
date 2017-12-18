@@ -24,9 +24,7 @@ Route::get('/', function () {
 	return view('view')->with('documents', Document::where('status','=', '3')->orderBy('id','DESC')->get());
 });
 Route::get('home','DashboardController@index');
-Route::get('profile', 'DashboardController@profile');
-Route::get('profile/changepass', 'DashboardController@changepass');
-Route::post('profile/changepass', 'EmployeeDetailController@changepassword');
+
 
 Route::get('forgot/password', 'EmployeeDetailController@forgotpassword');
 
@@ -58,3 +56,14 @@ Route::post('document/forapproval', 'DocumentController@approval');
 Route::post('document/status', 'DocumentController@changeStatus');
 Route::delete('document/{id}', 'DocumentController@destroy');
 
+
+Route::get('profile/editprofile', 'EmployeeDetailController@editprofile');
+Route::post('profile/change', 'EmployeeDetailController@changeprofile');
+Route::post('profile/upload', 'EmployeeDetailController@changeProfilePic');
+
+
+Route::get('profile', 'DashboardController@profile');
+Route::get('profile/changepass', 'DashboardController@changepass');
+Route::post('profile/changepass', 'EmployeeDetailController@changepassword');
+
+// Route::post('password/reset', 'Auth\ForgotPasswordController@sendResetLinkEmail');

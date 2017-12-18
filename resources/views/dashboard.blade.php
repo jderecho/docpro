@@ -112,7 +112,7 @@ Dashboard: Doc Pro
                               <div class="pull-right">
                                 <a title="View" data-toggle="modal" data-target="#viewDocumentModal" class="btn_view_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-eye-open grey">&nbsp</span></a>
                               @if($document->employee_details_id == Auth::user()->id || Auth::user()->isSuperAdmin())
-                                <a title="Edit" data-toggle="modal" data-target="#EditDocumentModal" class="btn_edit_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-option-horizontal grey">&nbsp;</span></a>
+                                <a title="Edit" data-toggle="modal" data-target="#EditDocumentModal" class="btn_edit_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-pencil grey">&nbsp;</span></a>
                               @endif
 
                               @if(Auth::user()->isSuperAdmin() || Auth::user()->id == $document->employee_details_id)
@@ -1017,7 +1017,14 @@ Dropzone.options.editDocumentDropzone = {
       }
     };
 
-
+    $(document).keyup(function(e) {
+     if (e.keyCode == 27) { // escape key maps to keycode `27`
+            // <DO YOUR WORK HERE>
+            if($('#createDocumentModal').is(':visible')){
+            console.log('esc');
+          }
+        }
+    });
 
 
 

@@ -6,11 +6,15 @@ use Redirect;
 use Auth;
 
 use App\EmployeeDetails;
+use App\EmployeeDepartment;
+use App\EmployeePosition;
+
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\File;
 
 class EmployeeDetailController extends Controller
 {
@@ -143,10 +147,6 @@ class EmployeeDetailController extends Controller
                     'token' => $token
                 ]);
 
-                
-
-                
-
                 return redirect()->back()->with('status', trans(Password::RESET_LINK_SENT));
             }
         } else{
@@ -155,4 +155,46 @@ class EmployeeDetailController extends Controller
 
         return $request->all();
     }
+    public function changeProfilePic(Request $request){
+        $directory = 'public/img/profile/uploads/' . Auth::user()->id . '/picture';
+
+        if( is_dir($directory) == false){
+            File::makeDirectory($path=base_path($directory), $mode = 0777, $recursive = true, $force = false);
+        }
+
+        $filecount = 0;
+
+        if (glob($directory . "/*") != false)
+        {
+         $filecount = count(glob($directory . "/*"));
+        }
+
+        $filename = preg_replace('/\s+/', '', $_FILES['file']['name']);
+
+        $target = $directory . '/' .  $filename ;
+
+        $save = move_uploaded_file($_FILES['file']['tmp_name'], $target);
+
+        if($save){
+            return array( "success" => true, "profile_url" => asset($target));
+        }else{
+            return  array( "success" => false);
+        }
+
+    }
+    public function editprofile(Request $request){
+
+        return view('changeprofile')->with('positions', EmployeePosition::all())->with('departments', EmployeeDepartment::all());
+    }
+    public function changeprofile(Request $request){
+         $user = Auth::user();
+         $user->emp_firstname = $request->emp_firstname; 
+         $user->emp_middlename = $request->emp_middlename; 
+         $user->emp_lastname = $request->emp_lastname; 
+         $user->emp_dept_ID = $request->department; 
+         $user->emp_position_ID = $request->position; 
+         $user->profile_url = $request->profilepic;
+         return array( "success" => $user->save());
+    }
+
 }

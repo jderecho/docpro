@@ -7,6 +7,7 @@ View Document : DocPro
 @section('css')
 <link href="{{ asset('public/css/chosen.min.css') }}" rel="stylesheet">
 <link href="{{ asset('public/css/dropzone.css') }}" rel="stylesheet">
+<link href="{{ asset('public/css/profile.css') }}" rel="stylesheet">
 
     <style type="text/css">
       h4.title{
@@ -67,15 +68,15 @@ View Document : DocPro
                   </div> -->
                     <div class="card-content">
                        <div class="col-md-12">
-                         <a href="profile/edit" class="btn btn-default pull-right">Edit Profile</a>
+                         <a href="{{ url('profile/editprofile') }}" class="btn btn-default pull-right">Edit Profile</a>
                        </div>
-                        <div class="col-md-4 col-md-offset-4">
+                        <div class="col-md-4 col-md-offset-4 hover-trigger">
                             <center>
                               <br>
                               <br>
                               <img src="{{ Auth::user()->profile_url}}" class="img-responsive img-circle">
-                              <br>
                             </center>
+                           
                         </div>
                         <div class="col-md-12">
                           <center> 
@@ -90,7 +91,8 @@ View Document : DocPro
                             <br>
                             <br>
                             <br>
-                            </center>
+                          </center>
+                         
                         </div>
 
                     </div> 
@@ -108,213 +110,9 @@ View Document : DocPro
 @section('scripts')
 <script src="{{ asset('public/js/chosen.jquery.min.js') }}"></script>
 <script src="{{ asset('public/js/dropzone.js') }}"></script>
+<script src="{{ asset('public/js/profile.js') }}"></script>
 <script type="text/javascript">
 
-  $(document).on("click", "#btn_approve", function(){
-       var id = $(this).attr('data-value');
-
-         $.ajax({url:  '{{ url("document/status") }}' , 
-          method: 'POST', 
-          data: { 
-            "_token" : $("input[name=_token]").val(),     
-            "status" : "approve",     
-            "old_status" : "for-approval",     
-            "document_id" : id,     
-            "employee_details_id" : {!! Auth::user()->id !!} ,     
-          }, 
-          success: function(result){
-            if(result.success){
-              location.reload();
-            }else{
-            console.log(result);
-            }
-        }});
-    });
-    
-    $(document).on("click", "#btn_disapprove", function(){
-       var id = $(this).attr('data-value');
-
-         $.ajax({url:  '{{ url("document/status") }}' , 
-          method: 'POST', 
-          data: { 
-            "_token" : $("input[name=_token]").val(),     
-            "status" : "disapprove",     
-            "old_status" : "for-approval",     
-            "document_id" : id,     
-            "employee_details_id" : {!! Auth::user()->id !!} ,     
-          }, 
-          success: function(result){
-            if(result.success){
-              location.reload();
-            }else{
-            console.log(result);
-            }
-        }});
-    });
-
-    $(document).on("click", "#btn_send_for_approval", function(){
-       var id = $(this).attr('data-value');
-
-         $.ajax({url:  '{{ url("document/status") }}' , 
-          method: 'POST', 
-          data: { 
-            "_token" : $("input[name=_token]").val(),     
-            "status" : "for-approval",     
-            "old_status" : "draft",     
-            "document_id" : id,     
-            "employee_details_id" : {!! Auth::user()->id !!} ,     
-          }, 
-          success: function(result){
-            if(result.success){
-              location.reload();
-            }else{
-              console.log(result);
-            }
-        }});
-    });
-
-    $(document).on("click", "#btn_resend_for_approval", function(){
-       var id = $(this).attr('data-value');
-
-         $.ajax({url:  '{{ url("document/status") }}' , 
-          method: 'POST', 
-          data: { 
-            "_token" : $("input[name=_token]").val(),     
-            "status" : "resend-for-approval",     
-            "old_status" : "for-approval",     
-            "document_id" : id,     
-            "employee_details_id" : {!! Auth::user()->id !!} ,     
-          }, 
-          success: function(result){
-            if(result.success){
-              location.reload();
-            }else{
-              console.log(result);
-            }
-        }});
-    });
-    
-    $('#btn_toggle_commentbox').click(function(){
-          $('#commentbox_container').fadeToggle(500);
-    });
-
-    $(document).on('click','#btn_final_approve', function(){
-      var id = $(this).attr('data-value');
-
-         $.ajax({url:  '{{ url("document/status") }}' , 
-          method: 'POST', 
-          data: { 
-            "_token" : $("input[name=_token]").val(),     
-            "status" : "approve",     
-            "old_status" : "pre-approved",     
-            "document_id" : id,     
-            "employee_details_id" : {!! Auth::user()->id !!} ,     
-          }, 
-          success: function(result){
-            if(result.success){
-              location.reload();
-            }else{
-              console.log(result);
-            }
-        }});
-    });
-
-  $("#btn_attachment").click(function(){
-    $("#attachment_holder").fadeToggle(500);
-  });
-
-  $('#btn_send_comment').click(function(){
-
-    
-    var filenames = [];
-
-     $("input.comment-upload-input").each(function(){
-        filenames.push({filename : $(this).val()});
-    });
-
-    var message = $('#comment_area').val();
-    var document_id = $(this).attr('data-value');
-    var comment_attachment = filenames;
-    var employee_details_id = $('input[name=employee_details_id]').val();
-
-    // $("body").loading();
-   
-
-    $.ajax({url:  '{{ url("document/comment") }}' , 
-        method: 'POST', 
-        data: { 
-          "_token" : $("input[name=_token]").val(),     
-          "_code" : $("input[name=_code]").val(),     
-          "document_id" : document_id,   
-          "comment_attachments" : comment_attachment,  
-          "message" : message,     
-          "employee_details_id" : employee_details_id,     
-        }, 
-        success: function(result){
-          console.log(result);
-          
-          if(result.success){
-
-              var comment = "";
-              comment = '<p class="comment_holder">';
-              comment += '<span>';
-              comment += '<br>';
-              comment += '<img style="width: 30px;" src="' + root_URL + 'public/img/mopro_profile.png">&nbsp;&nbsp;<b>'+ result.comment.commentor.emp_firstname + ' ' + result.comment.commentor.emp_lastname +'</b>';
-              comment += '<span>&nbsp;</span>';
-              comment += '<span>commented at </span>';
-              comment += '<span>'+ result.comment.created +'</span>';
-              comment += '<br>';
-              comment += '<br>';
-              comment += '<span class="comment_text_holder">';
-              // comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
-              comment +=  message;
-              comment += '</span>';
-              comment += '</span>';
-              comment += ' </p>';
-              $('#comment_container').append(comment);
-              $('#comment_area').val("");
-          }else{
-            console.log(result);
-          }
-      },error : function(result){
-          
-      }});
-
-  });
-
-  Dropzone.options.viewDocumentDropzoneComment  = {
-      url: '{{ url("comment/upload") }}',
-      paramName: "file", // The name that will be used to transfer the file
-      maxFilesize: 10, // MB
-      accept: function(file, done) {
-        console.log(file[0]);
-        console.log("add");
-
-        var file_name = file.name;
-        // console.log(file_name);
-
-        $('#comment_attachment_holder').append('<input class="comment-upload-input" type="hidden" name="comment_file_uploads[]" value="' + file_name.replace(/\s/g,'') +'">');
-
-        done(); 
-      },
-      addRemoveLinks: true,
-      removedfile: function(file) {
-          console.log([file, "delete"]);
-           var filenames = [];
-           var found = false;
-            var file_name = file.name;
-
-           $("#createDocumentModal #file_uploads_container input.upload-input").each(function(){
-              if(file_name.replace(/\s/g,'') == $(this).val() && (!found) ){
-                $(this).remove();
-                found = true;
-              }
-          });
-
-          var _ref;
-          return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
-      }
-    };
 </script>
 
 @endsection

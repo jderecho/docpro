@@ -20,7 +20,8 @@
         
           <ul class="nav navbar-nav navbar-right white">
               <li style="height: 50px; border-right: 1px solid #6145B6;margin-right: 20px;"><h4 class="mopro-time" style="margin-top: 15px;"><span class="glyphicon glyphicon-time violet">&nbsp;</span><div id="time"></div></h4></li>
-              <li><img src="{{ Auth::user()->profile_url}}" height="50" class="img-circle"></li> 
+              <li><img src="{{ Auth::user()->profile_url}}" style="    width: 50px;
+    height: 50px;" class="img-circle"></li> 
               <li>
                 <div class="dropdown" id="current_user">
                   <button style="margin-top: 7px;" class="btn dropdown-toggle btn-user" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">

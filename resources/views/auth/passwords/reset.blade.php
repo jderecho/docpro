@@ -7,8 +7,8 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Reset Password</div>
 
-                <div class="panel-body">
-                    <form class="form-horizontal" method="POST" action="{{ route('password.request') }}">
+                <div class="panel-body">awd
+                    <form class="form-horizontal" method="POST" action="{{ route('password/reset') }}">
                         {{ csrf_field() }}
 
                         <input type="hidden" name="token" value="{{ $token }}">

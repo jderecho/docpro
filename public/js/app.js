@@ -156,3 +156,20 @@ $.ajaxSetup({
   }
 });
 
+
+function validateDocument(field, type, required){
+    var usernameRegex = new RegExp('/^[a-z0-9_-]{3,16}$/'); 
+
+    if(required){
+        if(field.val() == null){
+            return {"success" : false, "message" : "Field is required"};
+        }
+    }
+    switch(type){
+        case 'document_name':
+            return usernameRegex.test(field.val());
+        break;
+    }
+    return true;
+}
+

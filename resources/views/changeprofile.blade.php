@@ -68,7 +68,7 @@ View Document : DocPro
                   </div> -->
                     <div class="card-content">
                        <div class="col-md-12">
-                         <a href="{{ url()->previous() }}" class="btn btn-default pull-left">Back</a>
+                         <a href="{{ url('profile') }}" class="btn btn-default pull-left">Back</a>
                        </div>
                         <div class="col-md-4 col-md-offset-4 hover-trigger">
                             <center>
@@ -93,14 +93,14 @@ View Document : DocPro
                             <input type="text" name="emp_lastname" placeholder="Last Name" class="form-control" value="{{ Auth::user()->emp_lastname }}">
                             <br>
                             <label>Department</label>
-                            <select class="form-control department-list" id="department-list">
+                            <select class="form-control department-list" name="department" id="department-list">
                               @foreach($departments as $department)
                               <option value="{{ $department->dept_ID }}" @if(Auth::user()->emp_dept_ID == $department->dept_ID) {{ 'selected' }} @endif >{{ $department->dept_description }}</option>
                               @endforeach
                             </select>
                             <br>
                             <label>Position</label>
-                            <select class="form-control position-list" id="position-list">
+                            <select class="form-control position-list" name="position" id="position-list">
                               @foreach($positions as $position)
                               <option value="{{ $position->position_ID }}" @if(Auth::user()->emp_position_ID == $position->position_ID) {{ 'selected' }} @endif >{{ $position->position_description }}</option>
                               @endforeach
@@ -154,6 +154,7 @@ View Document : DocPro
           // }, 
           data: $('#form-profile').serialize(),
           success: function(result){
+            console.log(result);
             if(result.success){
               alert_message('Successfully changed profile', true);
             }else{

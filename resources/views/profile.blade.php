@@ -81,7 +81,7 @@ View Document : DocPro
                         <div class="col-md-12">
                           <center> 
                             <h3 style="color: #656B6E;">{{Auth::user()->emp_firstname . ' ' . Auth::user()->emp_lastname}}</h3>
-                            <h5 style="color: #B9BDBE">{{Auth::user()->position->position_description}}</h5>
+                            <h5 style="color: #B9BDBE">@if(Auth::user()->position) {{ Auth::user()->position->position_description  }} @endif</h5>
                             <h5 style="color: #B9BDBE">{{Auth::user()->emp_email }}</h5>
                             <h5 style="color: #B9BDBE">{{Auth::user()->gender() }}</h5>
                             <hr>

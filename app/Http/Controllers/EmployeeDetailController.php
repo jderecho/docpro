@@ -186,14 +186,18 @@ class EmployeeDetailController extends Controller
 
         return view('changeprofile')->with('positions', EmployeePosition::all())->with('departments', EmployeeDepartment::all());
     }
+    
     public function changeprofile(Request $request){
          $user = Auth::user();
          $user->emp_firstname = $request->emp_firstname; 
          $user->emp_middlename = $request->emp_middlename; 
          $user->emp_lastname = $request->emp_lastname; 
+
          $user->emp_dept_ID = $request->department; 
          $user->emp_position_ID = $request->position; 
-         $user->profile_url = $request->profilepic;
+         if($request->profilepic){
+            $user->profile_url = $request->profilepic;
+         }
          return array( "success" => $user->save());
     }
 

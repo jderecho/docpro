@@ -68,14 +68,14 @@ Dashboard: Doc Pro
                   <table class="table" id="document-table">
                     <thead>
                       <tr>
-                        <td></td>
+                        <td class="no-sort"></td>
                         <td class="text-left">Date Created</td>
                         <td>Document Name</td>
                         <td><center>Revision Number</center></td>
                         <td><center>Department</center></td>
                         <td>Status</td>
                         <td><center>Originator</center></td>
-                        <td class="text-right">OPTIONS</td>
+                        <td class="text-right no-sort">OPTIONS</td>
                       </tr>
                     </thead>
                     <tbody>
@@ -108,7 +108,7 @@ Dashboard: Doc Pro
                             </td>
                             <td><span class="circle {{ $document->statusClass() }}">•</span><span class="status-label">{{ $document->statusString() }}</span></td>
                             <td><center>{{ $document->creator->emp_firstname . ' ' . $document->creator->emp_lastname }}</center></td>
-                            <td >
+                            <td>
                               <div class="pull-right">
                                 <a title="View" data-toggle="modal" data-target="#viewDocumentModal" class="btn_view_document" data-value="{{ $document->id }}"><span class="glyphicon glyphicon-eye-open grey">&nbsp</span></a>
                               @if($document->employee_details_id == Auth::user()->id || Auth::user()->isSuperAdmin())
@@ -451,7 +451,6 @@ Dashboard: Doc Pro
         no_results_text: "No Result(s) Found!",
         width: "100%"
     });
-
     Dropzone.options.createDocumentDropzone = {
       url: '{{url("document/upload")}}',
       paramName: "file", // The name that will be used to transfer the file
@@ -484,10 +483,12 @@ Dashboard: Doc Pro
 
           var _ref;
           return (_ref = file.previewElement) != null ? _ref.parentNode.removeChild(file.previewElement) : void 0;
+      },
+      init : function(){
+
       }
     };
 
-  
 
     $(document).ready(function(){
     });
@@ -529,24 +530,36 @@ Dashboard: Doc Pro
 
     $("#btn_save").click(function(){
 
+      var _token = $("input[name=_token]").val();
+      var _code = $("input[name=_code]").val();
+      var document_name = $("#createDocumentModal input[name=document_name]").val();
+      var revision_number = $('#createDocumentModal input[name=revision_number]').val();
+      var reviewers = $("#createDocumentModal #select_reviewers").val();
+      var approvers = $("#createDocumentModal #select_approvers").val();
+      var department_id = $('#createDocumentModal #select_departments').val();
+      var creator = $("input[name=employee_details_id]").val();
       var filenames = [];
+
        $("input.upload-input").each(function(){
           filenames.push({filename : $(this).val()});
       });
+      // var regex_document = new RegExp('^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$');
+      return console.log(validateDocument($("#createDocumentModal input[name=document_name]"), "document_name", true));
+ 
+
 
       $.ajax({url: "document/save", 
         method: 'POST', 
         data: { 
-          "_token" : $("input[name=_token]").val(),
-          "_code" : $("input[name=_code]").val(),
-          "document_name" : $("#createDocumentModal input[name=document_name]").val(),
-          "revision_number" : $('#createDocumentModal input[name=revision_number]').val(),
+          "_token" : _token,
+          "_code" : _code,
+          "document_name" : document_name,
+          "revision_number" : revision_number,
           "file_uploads" : filenames,
-          "reviewers" :  $("#createDocumentModal #select_reviewers").val(),
-          "approvers" :  $("#createDocumentModal #select_approvers").val(),
-          "department_id" : $('#createDocumentModal #select_departments').val(),
-          "" :  $("#createDocumentModal #select_approvers").val(),
-          "creator" : $("input[name=employee_details_id]").val()       
+          "reviewers" :  reviewers,
+          "approvers" :  approvers,
+          "department_id" : department_id,
+          "creator" : creator       
         }, 
         success: function(result){
           console.log(result);
@@ -555,6 +568,14 @@ Dashboard: Doc Pro
           }else{
             alert_message("Error in saving the document", result.success);
           }
+        },
+         beforeSend : function(xhr, opts){
+            // if(1 == 1) //just an example
+            // {
+            //     xhr.abort();
+            // }
+            alert('test');
+            xhr.abort();
         },
         error: function($result){
           showMessage('error','Error');
@@ -1020,13 +1041,24 @@ Dropzone.options.editDocumentDropzone = {
     $(document).keyup(function(e) {
      if (e.keyCode == 27) { // escape key maps to keycode `27`
             // <DO YOUR WORK HERE>
-            if($('#createDocumentModal').is(':visible')){
-            console.log('esc');
+          if($('#createDocumentModal').is(':visible')){
+            $('input[name=document_name]').val('');
+            $('input[name=revision_number]').val('');
+            $('#select_reviewers').val('').trigger('chosen:updated');
+            $('#select_approvers').val('').trigger('chosen:updated');
+            $('#select_departments_chosen').val('').trigger('chosen:updated');
           }
         }
     });
 
+$('#document-table').dataTable( {
+  "columnDefs": [ {
+      "targets": [ 0, 7 ],
+      "orderable": false,
+      "iDisplayLength": "All",
+"aLengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]]
+    } ],
 
-
+} );
   </script>
   @endsection

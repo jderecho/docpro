@@ -15,7 +15,7 @@ Login: Document Controller
           <div class="row">
             <div class="col-sm-offset-3 col-sm-6">
               <div class="login-form-cont">
-                    @if ($errors->has('email'))
+                    @if ($errors->count())
                     <span class="help-block">
                         <strong style="color: red">{{ $errors->first() }}</strong>
                     </span>

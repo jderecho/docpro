@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -14,12 +14,16 @@
     <link href="{{ asset('public/css/jquery.dataTables.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/jquery.loading.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/animate.css') }}" rel="stylesheet">
-    <!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <style>
-    a,p,h1,h2,h3,h4,h5, input::placeholder, label{
-        font-family: 'Open Sans', sans-serif !important;
-    }
-    </style> -->
+
+        table.dataTable thead .sorting { background: url('public/images/sort_both.png') no-repeat center right !important; }
+        table.dataTable thead .sorting_asc { background: url('public/images/sort_asc.png') no-repeat center right !important; }
+        table.dataTable thead .sorting_desc { background: url('public/images/sort_desc.png') no-repeat center right !important; }
+
+        table.dataTable thead .sorting_asc_disabled { background: url('public/images/sort_asc_disabled.png') no-repeat center right !important; }
+        table.dataTable thead .sorting_desc_disabled { background: url('public/images/sort_desc_disabled.png') no-repeat center right !important; }
+
+    </style>
     @yield('css')
   </head>
   <body>

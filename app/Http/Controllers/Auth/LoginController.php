@@ -74,7 +74,8 @@ class LoginController extends Controller
 
                 return redirect()->intended('home');
             }else{
-               return Redirect::to('/login')->withErrors(['email', 'The Message']);;
+
+               return Redirect::to('/login')->withErrors(['Invalid username or password']);;
             }
         }
 

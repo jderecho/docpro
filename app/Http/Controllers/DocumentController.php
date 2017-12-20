@@ -211,6 +211,11 @@ class DocumentController extends Controller
     }
 
     public function save(Request $request){
+        // Document::where('document_name')
+        // if($request->document_name){
+
+        // }
+
         $document = new Document;
 
         $document->employee_details_id = $request->creator;

@@ -33,17 +33,13 @@
     @yield('modals')
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-     <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script> -->
-
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="{{ asset('public/js/jquery.min.js') }}"></script>
     <script src="{{ asset('public/js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('public/js/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('public/js/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('public/js/bootstrap-notify.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/src/loadingoverlay.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@1.5.4/extras/loadingoverlay_progress/loadingoverlay_progress.min.js"></script>
+    <script src="{{ asset('public/js/loadingoverlay.min.js ') }}"></script>
+    <script src="{{ asset('public/js/loadingoverlay_progress.min.js') }}"></script>
     @yield('scripts')
     <script src="{{ asset('public/js/app.js') }}"></script>
     <input type="hidden" name="root_url" value="{{asset('/')}}">

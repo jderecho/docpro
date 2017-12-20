@@ -145,14 +145,14 @@ Dashboard: Doc Pro
           <div class="modal-body">
             <div class="container-fluid">
                 <div class="col-md-12">
-                  <label>FileName</label>
+                  <label>Document Name</label><span class="label-small">&nbsp;&nbsp;&nbsp;(e.g. Process Update 1)</span>
                   <input type="text" name="document_name" placeholder="Document Name" class="form-control">
                 </div>
                 <br>
                 <br>
                 <br>
                 <br> <div class="col-md-12">
-                  <label>Revision Number</label>
+                  <label>Revision Number</label><span class="label-small">&nbsp;&nbsp;&nbsp;(e.g. 0001)</span>
                   <input type="text" name="revision_number" placeholder="Revision Number" class="form-control">
                 </div>
                 <br>
@@ -160,7 +160,7 @@ Dashboard: Doc Pro
                 <br>
                 <br>
                 <div class="col-lg-12 col-md-12">
-                  <label>Reviewers</label>
+                  <label>Reviewers</label><span class="label-small">&nbsp;&nbsp;&nbsp;(Please select atleast one reviewer)</span>
                   <select data-placeholder="Add Reviewer" class="chosen-select form-control" id="select_reviewers" multiple="" tabindex="-1">
                       <option value=""></option>
                       @foreach($approvers as $employee)
@@ -169,7 +169,7 @@ Dashboard: Doc Pro
                   </select>
                   <br>
                   <br>
-                  <label>Approvers</label>
+                  <label>Approvers</label><span class="label-small">&nbsp;&nbsp;&nbsp;(Please select atleast one approver)</span>
                   <select data-placeholder="Add Reviewer" class="chosen-select form-control" id="select_approvers" multiple="" tabindex="-1">
                       <option value=""></option>
                       @foreach($approvers as $employee)
@@ -178,7 +178,7 @@ Dashboard: Doc Pro
                   </select>
                   <br>
                   <br>
-                  <label>Department</label>
+                  <label>Department</label><span class="label-small">&nbsp;&nbsp;&nbsp;(Please select atleast one department)</span>
                   <select data-placeholder="Select Department" class="chosen-select form-control" id="select_departments" multiple="" tabindex="-1">
                       <option value=""></option>
                       @foreach($departments as $department)
@@ -206,7 +206,7 @@ Dashboard: Doc Pro
           <div class="modal-footer">
             <div class="container-fluid">
               <div class="col-md-12">
-                <button type="button"  id="btn_save" class="btn btn-success" data-dismiss="modal"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Save</button>
+                <button type="button"  id="btn_save" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Save</button>
                 <button type="button"  id="btn_for_approve" class="btn btn-success" data-dismiss="modal"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>For Approval</button>
               </div>
             </div>
@@ -490,8 +490,6 @@ Dashboard: Doc Pro
     };
 
 
-    $(document).ready(function(){
-    });
 
     $("#btn_for_approve").click(function(){
 
@@ -528,8 +526,23 @@ Dashboard: Doc Pro
       });
     });
 
-    $("#btn_save").click(function(){
+    $(document).ready(function(){
+      // Register validation in 
+      registerValidation($("#createDocumentModal input[name=document_name]"));
+      registerValidation($("#createDocumentModal input[name=revision_number]"));
+      registerValidation($("#createDocumentModal #select_reviewers"));
+      registerValidation($("#createDocumentModal #select_approvers"));
+      registerValidation($("#createDocumentModal #select_departments"));
+      
+    });
+    $("#createDocumentModal input[name=revision_number]").keyup(function(){
+      if($(this).val().length === 0){
+        $(this).val("0000");
+      }
 
+    });
+    $("#btn_save").click(function(){
+      $('p.warning').remove();
       var _token = $("input[name=_token]").val();
       var _code = $("input[name=_code]").val();
       var document_name = $("#createDocumentModal input[name=document_name]").val();
@@ -540,14 +553,25 @@ Dashboard: Doc Pro
       var creator = $("input[name=employee_details_id]").val();
       var filenames = [];
 
+      var document_status = validate($("#createDocumentModal input[name=document_name]"), "document_name", true);
+      var revision_status = validate($("#createDocumentModal input[name=revision_number]"), "revision_number", true);
+      var reviewer_status = validate($("#createDocumentModal #select_reviewers"), "reviewers", true);
+      var approver_status = validate($("#createDocumentModal #select_approvers"), "approvers", true);
+      var department_status = validate($("#createDocumentModal #select_departments"), "department", true);
+
+      if(!document_status
+        || !revision_status
+        || !reviewer_status
+        || !approver_status
+        || !department_status){
+
+         return;
+      }
+
        $("input.upload-input").each(function(){
           filenames.push({filename : $(this).val()});
       });
-      // var regex_document = new RegExp('^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$');
-      return console.log(validateDocument($("#createDocumentModal input[name=document_name]"), "document_name", true));
  
-
-
       $.ajax({url: "document/save", 
         method: 'POST', 
         data: { 
@@ -564,18 +588,11 @@ Dashboard: Doc Pro
         success: function(result){
           console.log(result);
           if(result.success){
+            $('#createDocumentModal').modal('hide');
             alert_message("Successfully created the document!", result.success);
           }else{
             alert_message("Error in saving the document", result.success);
           }
-        },
-         beforeSend : function(xhr, opts){
-            // if(1 == 1) //just an example
-            // {
-            //     xhr.abort();
-            // }
-            alert('test');
-            xhr.abort();
         },
         error: function($result){
           showMessage('error','Error');

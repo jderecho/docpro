@@ -157,19 +157,61 @@ $.ajaxSetup({
 });
 
 
-function validateDocument(field, type, required){
-    var usernameRegex = new RegExp('/^[a-z0-9_-]{3,16}$/'); 
+function validate(field, type, required){
+    var documentRegex = new RegExp('^[a-zA-Z -1234567890]*$'); 
+    var revisionRegex = new RegExp('^[0-9]*$');
 
     if(required){
-        if(field.val() == null){
-            return {"success" : false, "message" : "Field is required"};
+        if(field.val() == null || field.val() == "" || field.val().length === 0){
+            if(field.is('select')){
+                field.next('div').after("<p class='warning'>Field is required</p>");
+                field.focus();
+            }else{
+                field.after("<p class='warning'>Field is required</p>");
+                field.focus();
+            }
+            return false;
         }
     }
+
     switch(type){
         case 'document_name':
-            return usernameRegex.test(field.val());
+            $message = "";
+            $success = false;
+            if(documentRegex.test(field.val())){
+
+            }else{
+                field.after("<p class='warning'>Document Name can only contain text, number and dash</p>");
+                field.focus();
+                return false;
+            }
+            return true;
+
+        break;
+        case 'revision_number':
+            if(revisionRegex.test(field.val())){
+
+            }else{
+                field.after("<p class='warning'>Revision Number only accepts numbers</p>");
+                field.focus();
+                return false;
+            }
         break;
     }
-    return true;
+    return "aw";
 }
+
+function registerValidation(field){
+    if(field.is('select')){
+         field.on('change', function(e) {
+            // triggers when whole value changed
+            $('p.warning').remove();
+          });
+    }else{
+        field.click(function(){
+            $('p.warning').remove();
+        });
+    }
+}
+
 

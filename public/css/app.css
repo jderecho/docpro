@@ -606,3 +606,10 @@ form button {
 form .error {
   color: #ff0000;
 }*/
+p.warning{
+    color: red;
+}
+span.label-small{
+    font-size: 11px;
+    color: grey;
+}

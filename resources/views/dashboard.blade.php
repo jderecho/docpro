@@ -140,7 +140,7 @@ Dashboard: Doc Pro
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('public/img/fav-white.png')}}">Create Attachment</h4>
+            <h4 class="modal-title" id="myModalLabel"><img style="height: 20px; margin: 5px;" src="{{ asset('public/img/fav-white.png')}}">Create Document</h4>
           </div>
           <div class="modal-body">
             <div class="container-fluid">
@@ -196,6 +196,10 @@ Dashboard: Doc Pro
                       <input type="hidden" name="emp_ID" value="{{ Auth::user()->emp_ID}}">
                       <input type="hidden" name="employee_details_id" value="{{ Auth::user()->id}}">
                   </form>
+                  <br>
+                  <br>
+                  <!-- <label>Attachment Link</label> -->
+                  <!-- <input type="text" name="link" class="form-control"> -->
                   <div id="file_uploads_container" class="hidden">
                     
                   </div>
@@ -207,7 +211,7 @@ Dashboard: Doc Pro
             <div class="container-fluid">
               <div class="col-md-12">
                 <button type="button"  id="btn_save" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>Save</button>
-                <button type="button"  id="btn_for_approve" class="btn btn-success" data-dismiss="modal"><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>For Approval</button>
+                <button type="button"  id="btn_for_approve" class="btn btn-success" ><span class="glyphicon glyphicon-plus-sign">&nbsp;</span>For Approval</button>
               </div>
             </div>
           </div>
@@ -245,12 +249,21 @@ Dashboard: Doc Pro
   
                   <label>Add Reviewer</label>
                   <select data-placeholder="Add Reviewer" class="chosen-select form-control" id="select_reviewers" multiple="" tabindex="-1">
-                      <option value=""></option>
-                      @foreach($approvers as $employee)
-                      <option value="{{ $employee->id }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
-                      @endforeach
-              
-                    </select>
+                    <option value=""></option>
+                    @foreach($approvers as $employee)
+                    <option value="{{ $employee->id }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
+                    @endforeach
+            
+                  </select>
+                    <br>
+                    <br>
+                    <label>Add Approvers</label>
+                  <select data-placeholder="Add Approvers" class="chosen-select form-control" id="select_approvers" multiple="" tabindex="-1">
+                    <option value=""></option>
+                    @foreach($approvers as $employee)
+                    <option value="{{ $employee->id }}">{{ $employee->emp_firstname . ' ' . $employee->emp_lastname }}</option>
+                    @endforeach
+                  </select>
                     <br>
                     <br>
                   <label>Department</label>
@@ -295,24 +308,26 @@ Dashboard: Doc Pro
           </div>
           <div class="modal-body">
             <div class="container-fluid">
-                <div class="col-md-12">
+                <div class="col-md-9" id="document_header_holder">
                   <label>File Name </label>
-                  <input type="text" name="document_name" placeholder="Document Name" disabled class="form-control">
+                  <p id="document_name_view"></p>
                       {{ csrf_field() }}
-                </div>
-                <br>
-                <br>
-                <br>
-                <br>
-                <div class="col-lg-9">
-                  <div class="col-md-12" id="final_document_holder" style="width: 100%;">
+                  <br>
+                  <label>Revision Number</label>
+                  <p id="revision_number_view"></p>
+                <hr>
+
+                  <div id="final_document_holder" class="col-md-12">
                     <label>Latest Document</label>
                     <br>
+                    <br>
                   </div>
+
                   <label>Attachment</label>
+                  
                   <div class="file_holder col-md-12" style="width: 100%;">
                   <div style="float: left;">
-                     <div class="card" style="width:100px">
+                     <div class="card file" style="width:100px">
                       <img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
                       <div class="card-body">
                       <center>
@@ -323,10 +338,11 @@ Dashboard: Doc Pro
                   </div>
                   </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3" id="document_sidebar_holder">
+                <br>
                   <label>Created By:</label>
                   <div id="attachment-list-container">
-                     <input type="text" name="created_by" placeholder="Originator" class="form-control disabled" disabled>
+                    <p id="created_by_view"></p>
                   </div>
                   <br>
                   <label>Department:</label>
@@ -489,35 +505,60 @@ Dashboard: Doc Pro
       }
     };
 
-
-
     $("#btn_for_approve").click(function(){
+      $('span.warning').remove();
+      var _token = $("input[name=_token]").val();
+      var _code = $("input[name=_code]").val();
+      var document_name = $("#createDocumentModal input[name=document_name]").val();
+      var revision_number = $('#createDocumentModal input[name=revision_number]').val();
+      var reviewers = $("#createDocumentModal #select_reviewers").val();
+      var approvers = $("#createDocumentModal #select_approvers").val();
+      var department_id = $('#createDocumentModal #select_departments').val();
+      var creator = $("input[name=employee_details_id]").val();
+      var filenames = [];
 
       var filenames = [];
        $("#createDocumentModal input.upload-input").each(function(){
           filenames.push({filename : $(this).val()});
       });
 
+      var document_status = validate($("#createDocumentModal input[name=document_name]"), "document_name", true);
+      var revision_status = validate($("#createDocumentModal input[name=revision_number]"), "revision_number", true);
+      var reviewer_status = validate($("#createDocumentModal #select_reviewers"), "reviewers", true);
+      var approver_status = validate($("#createDocumentModal #select_approvers"), "approvers", true);
+      var department_status = validate($("#createDocumentModal #select_departments"), "department", true);
+
+      if(!document_status
+        || !revision_status
+        || !reviewer_status
+        || !approver_status
+        || !department_status){
+
+         return;
+      }
+
+
       $.ajax({url: "document/forapproval", 
         method: 'POST', 
         data: { 
-          "_token" : $("#createDocumentModal input[name=_token]").val(),
-          "_code" : $("#createDocumentModal input[name=_code]").val(),
+          "_token" : _token,
+          "_code" : _code,
           "status" : 1,
-          "document_name" : $("#createDocumentModal input[name=document_name]").val(),
-          "revision_number" : $('#createDocumentModal input[name=revision_number]').val(),
-          "department_id" : $('#createDocumentModal #select_departments').val(),
+          "document_name" : document_name,
+          "revision_number" : revision_number,
+          "department_id" : department_id,
           "file_uploads" : filenames,
-          "reviewers" :  $("#createDocumentModal #select_reviewers").val(),
-          "approvers" :  $("#createDocumentModal #select_approvers").val(),
-          "creator" : $("#createDocumentModal input[name=employee_details_id]").val()       
+          "reviewers" :  reviewers,
+          "approvers" :  approvers,
+          "creator" : creator       
         }, 
         success: function(result){
           console.log(result);
           if(result.success){
-            location.reload();
+            $('#createDocumentModal').modal('hide');
+            alert_message("Successfully created the document and sending for approval!", result.success);
           }else{
-            alert("error");
+            alert_message("Error in sending the document for approval", result.success);
           }
         },
         error :function(){
@@ -533,6 +574,12 @@ Dashboard: Doc Pro
       registerValidation($("#createDocumentModal #select_reviewers"));
       registerValidation($("#createDocumentModal #select_approvers"));
       registerValidation($("#createDocumentModal #select_departments"));
+
+       registerValidation($("#EditDocumentModal input[name=document_name]"));
+      registerValidation($("#EditDocumentModal input[name=revision_number]"));
+      registerValidation($("#EditDocumentModal #select_reviewers"));
+      registerValidation($("#EditDocumentModal #select_approvers"));
+      registerValidation($("#EditDocumentModal #select_departments"));
       
     });
     $("#createDocumentModal input[name=revision_number]").keyup(function(){
@@ -542,7 +589,7 @@ Dashboard: Doc Pro
 
     });
     $("#btn_save").click(function(){
-      $('p.warning').remove();
+      $('span.warning').remove();
       var _token = $("input[name=_token]").val();
       var _code = $("input[name=_code]").val();
       var document_name = $("#createDocumentModal input[name=document_name]").val();
@@ -591,13 +638,93 @@ Dashboard: Doc Pro
             $('#createDocumentModal').modal('hide');
             alert_message("Successfully created the document!", result.success);
           }else{
-            alert_message("Error in saving the document", result.success);
+            alert_message( result.message , result.success);
           }
         },
         error: function($result){
           showMessage('error','Error');
         }
       });
+    });
+
+
+    $(".btn_edit_document").click(function(){
+      $("#EditDocumentModal select").val('').trigger('chosen:updated');
+      $("#btn_update").attr("data-value",$(this).attr('data-value'));
+      // GET Document
+       $.ajax({url:  "document/" + $(this).attr('data-value'), 
+        method: 'GET', 
+        success: function(result){
+          $("#EditDocumentModal input[name=document_name]").val(result.document_name);
+          $("#EditDocumentModal input[name=revision_number]").val(result.revision_number);
+          console.log(result);
+
+          var list_approvers = [];
+          var list_reviewers = [];
+          var list_departments = [];
+
+          result.approvers.forEach(function(approver, index){
+            if(approver.type == 1){
+                list_reviewers.push(approver.employee_details.id);
+            }else{
+                list_approvers.push(approver.employee_details.id);
+            }
+          });
+
+          result.departments.forEach(function(department, index){
+            list_departments.push(department.employee_dept.dept_ID);
+          });
+
+          $("#EditDocumentModal #select_reviewers").val(list_reviewers).trigger('chosen:updated');
+          $("#EditDocumentModal #select_approvers").val(list_approvers).trigger('chosen:updated');
+          $("#EditDocumentModal #select_departments").val(list_departments).trigger('chosen:updated');
+        
+          console.log(result);
+
+        }});
+    });
+
+      
+    $("#btn_update").click(function(){
+        $('span.warning').remove();
+
+      var document_status = validate($("#EditDocumentModal input[name=document_name]"), "document_name", true);
+      var revision_status = validate($("#EditDocumentModal input[name=revision_number]"), "revision_number", true);
+      var reviewer_status = validate($("#EditDocumentModal #select_reviewers"), "reviewers", true);
+      var approver_status = validate($("#EditDocumentModal #select_approvers"), "approvers", true);
+      var department_status = validate($("#EditDocumentModal #select_departments"), "department", true);
+       
+      if(!document_status
+        || !revision_status
+        || !reviewer_status
+        || !approver_status
+        || !department_status){
+
+         return;
+      }
+
+
+        $.ajax({url:  "document/" + $(this).attr('data-value'), 
+        method: 'PUT', 
+        data:{
+          "_token" : $("#EditDocumentModal input[name=_token]").val(),
+          "document_name" : $("#EditDocumentModal input[name=document_name]").val(),
+          "revision_number" : $('#EditDocumentModal input[name=revision_number]').val(),
+          "reviewers" :  $("#EditDocumentModal #select_reviewers").val(),
+          "approvers" :  $("#EditDocumentModal #select_approvers").val(),
+          "department_id" : $('#EditDocumentModal #select_departments').val(),
+          "creator" : $("#EditDocumentModal input[name=employee_details_id]").val()  
+        },
+        success: function(result){
+          console.log(result);
+          if(result.success){
+            $('#EditDocumentModal').modal('hide');
+            alert_message("Successfully created the document!", result.success);
+          }else{
+            alert_message(result.message , result.success);
+          }
+        }});
+
     });
     // VIEW MODAL
     $(".btn_view_document").click(function(){
@@ -614,14 +741,18 @@ Dashboard: Doc Pro
         $('.file_holder').html('');
         $('#reviewer-list-container').html('');
         $('#approver-list-container').html('');
+        $("#viewDocumentModal #document_name").html('');
+        $("#viewDocumentModal #revision_number").html('');
+        $("#viewDocumentModal #created_by_view").html('');
 
       // GET Document
        $.ajax({url:  "document/" + $(this).attr('data-value'), 
         method: 'GET', 
         success: function(result){
           console.log(result);
-          $("#viewDocumentModal input[name=document_name]").val(result.document_name);
-          $("#viewDocumentModal input[name=created_by]").val(result.creator.emp_firstname + " " + result.creator.emp_lastname);
+          $("#viewDocumentModal #document_name_view").html(result.document_name);
+          $("#viewDocumentModal #revision_number_view").html(result.revision_number);
+          $("#viewDocumentModal #created_by_view").html(result.creator.emp_firstname + " " + result.creator.emp_lastname);
 
           $("#viewDocumentModal input[name=document_id]").val(result.id);
 
@@ -680,7 +811,7 @@ Dashboard: Doc Pro
                var attachment_view = "<label>Final Document</label><br>";
                   attachment_view += '<a target="_blank" href=" {{asset('/')}}' +  latest_file.file_location+'">';
                   attachment_view += '<div style="float: left; margin-left: 10px;">';
-                  attachment_view += '<div class="card" style="width:100px">';
+                  attachment_view += '<div class="card file">';
                   attachment_view += '<img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">';
                   attachment_view += '<div class="card-body">';
                   attachment_view += '<center>';
@@ -703,7 +834,7 @@ Dashboard: Doc Pro
 
                   attachment_view = '<a target="_blank" href=" {{asset('/')}}' +  file.file_location+'">';
                   attachment_view += '<div style="float: left; margin-left: 10px;">';
-                  attachment_view += '<div class="card" style="width:100px">';
+                  attachment_view += '<div class="card file" >';
                   attachment_view += '<img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">';
                   attachment_view += '<div class="card-body">';
                   attachment_view += '<center>';
@@ -970,56 +1101,7 @@ Dashboard: Doc Pro
     $("#btn_attachment").click(function(){
       $("#viewDocumentModal #attachment_holder").fadeToggle(500);
     });
-  
 
-    $(".btn_edit_document").click(function(){
-      $("#EditDocumentModal select").val('').trigger('chosen:updated');
-      $("#btn_update").attr("data-value",$(this).attr('data-value'));
-      // GET Document
-       $.ajax({url:  "document/" + $(this).attr('data-value'), 
-        method: 'GET', 
-        success: function(result){
-          $("#EditDocumentModal input[name=document_name]").val(result.document_name);
-          $("#EditDocumentModal input[name=revision_number]").val(result.revision_number);
-          console.log(result);
-          var list_approvers = [];
-          var list_departments = [];
-          result.approvers.forEach(function(approver, index){
-            list_approvers.push(approver.employee_details.id);
-          });
-
-          result.departments.forEach(function(department, index){
-            list_departments.push(department.employee_dept.dept_ID);
-          });
-
-          $("#EditDocumentModal #select_reviewers").val(list_approvers).trigger('chosen:updated');
-          $("#EditDocumentModal #select_departments").val(list_departments).trigger('chosen:updated');
-        
-          console.log(result);
-
-        }});
-    });
-
-    $("#btn_update").click(function(){
-
-        $.ajax({url:  "document/" + $(this).attr('data-value'), 
-        method: 'PUT', 
-        data:{
-          "_token" : $("#EditDocumentModal input[name=_token]").val(),
-          "document_name" : $("#EditDocumentModal input[name=document_name]").val(),
-          "revision_number" : $('#EditDocumentModal input[name=revision_number]').val(),
-          "reviewers" :  $("#EditDocumentModal #select_reviewers").val(),
-          "department_id" : $('#EditDocumentModal #select_departments').val(),
-          "creator" : $("#EditDocumentModal input[name=employee_details_id]").val()  
-        },
-        success: function(result){
-          console.log(result);
-          if(result.success){
-            location.reload();
-          }
-        }});
-
-    });
 
 Dropzone.options.editDocumentDropzone = {
       url: "document/upload",

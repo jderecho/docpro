@@ -2,6 +2,18 @@ var root_URL = "";
 var base_URL = "localhost/docpro/";
 
 
+
+            
+
+$('textarea').click(function(){
+    $('textarea').trumbowyg();
+
+});
+
+// $(document).on('focusout','.trumbowyg-editor',function(){
+//     $('textarea').trumbowyg('destroy');
+// });
+
 $(document).ready(function(){
 
 	root_URL = $('input[name=root_url]').val();
@@ -123,7 +135,8 @@ function alert_message(alert_message, alert_type){
         animate:{
             enter: "animated fadeInDown",
             exit: "animated fadeOutUp"
-        }
+        },
+        zIndex: 9999
     });
 
     $.notify({
@@ -164,10 +177,10 @@ function validate(field, type, required){
     if(required){
         if(field.val() == null || field.val() == "" || field.val().length === 0){
             if(field.is('select')){
-                field.next('div').after("<p class='warning'>Field is required</p>");
+                field.next('div').after("<span class='warning'>Field is required</span>");
                 field.focus();
             }else{
-                field.after("<p class='warning'>Field is required</p>");
+                field.after("<span class='warning'>Field is required</span>");
                 field.focus();
             }
             return false;
@@ -181,7 +194,7 @@ function validate(field, type, required){
             if(documentRegex.test(field.val())){
 
             }else{
-                field.after("<p class='warning'>Document Name can only contain text, number and dash</p>");
+                field.after("<span class='warning'>Document Name can only contain text, number and dash</span>");
                 field.focus();
                 return false;
             }
@@ -192,7 +205,7 @@ function validate(field, type, required){
             if(revisionRegex.test(field.val())){
 
             }else{
-                field.after("<p class='warning'>Revision Number only accepts numbers</p>");
+                field.after("<span class='warning'>Revision Number only accepts numbers</span>");
                 field.focus();
                 return false;
             }
@@ -205,11 +218,11 @@ function registerValidation(field){
     if(field.is('select')){
          field.on('change', function(e) {
             // triggers when whole value changed
-            $('p.warning').remove();
+            $('span.warning').remove();
           });
     }else{
         field.click(function(){
-            $('p.warning').remove();
+            $('span.warning').remove();
         });
     }
 }

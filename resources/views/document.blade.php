@@ -118,17 +118,13 @@ View Document : DocPro
                         @endif
                   </div>
                     <div class="card-content">
-                        <div class="container-fluid table-container">
-                           <div class="col-md-12">
+                        <div class="container-fluid" >
+                           <div class="col-md-9" id="document_header_holder">
                            	<label>Document Name</label>
-                           	<input text="text" disabled="" value="{{ $document->document_name}}" class="form-control" >
-                           </div>
-                           <div class="col-md-12">
+                           <p id="document_name_view">{{ $document->document_name}}</p>
                            	<br>
                            	<label>Revision Number</label>
-                           	<input text="text" disabled="" value="{{ $document->revision_number}}" class="form-control" >
-                           </div>
-                           <div class="col-md-9">
+                           	<p id="revision_number_view">{{ $document->revision_number}}</p>
                                     <br>
                               <?php $counter = 0;?>
                             @if($document->status == 3)
@@ -152,17 +148,43 @@ View Document : DocPro
                                 </div>
                                   @endif
                                 @endforeach
-                                @endif
+                              @endif
                            	<br>
                             @if($document->status < 3 || $document->status == 4)
-                           	 <label>Attachment</label>
+                                @foreach($document->attachments as $attachment)
+                                  <?php $counter++; ?>
+                                  @if($document->attachments->count() == $counter)
+                                  <label>Latest Attachment</label>
+                                    <div class="col-md-12" id="final_document_holder">
+                                    <a target="_blank" href="{{url($attachment->file_location)}}">
+                                      <div style="float: left; margin-left: 10px;">
+                                       <div class="card" style="width:100px">
+                                         <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                        <div class="card-body">
+                                          <center>
+                                           <span class="card-text">{{ basename($attachment->file_location)}}</span>
+                                          </center>
+                                        </div>
+                                        </div>
+                                      </div>
+                                    </a>
+                                </div>
+                                  @endif
+                                @endforeach
+                              @endif
+                            <br>
+                            @if($document->status < 3 || $document->status == 4)
+                           	 <label> Attachment </label>
                              @endif
                            	<div>
+                              <?php $count = 0;?>
                               @if($document->status < 3 || $document->status == 4)
                                 @foreach($document->attachments as $attachment)
+                                <?php $count++; ?>
+                                  @if($count != $document->attachments->count())
                                   <a target="_blank" href="{{url($attachment->file_location)}}">
                                     <div style="float: left; margin-left: 10px;">
-                                     <div class="card" style="width:100px">
+                                     <div class="card file" style="width:100px">
                                        <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
                                       <div class="card-body">
                                         <center>
@@ -172,15 +194,16 @@ View Document : DocPro
                                       </div>
                                     </div>
                                   </a>
+                                  @endif
                                 @endforeach
                               @endif
                            	</div>
                            </div>
-                           <div class="col-md-3">
+                           <div class="col-md-3" id="document_sidebar_holder">
                            	<br>
                            	 <label>Created By:</label>
 			                  <div id="attachment-list-container">
-			                     <input type="text" name="created_by" value="{{$document->creator->emp_firstname . ' ' . $document->creator->emp_lastname}}" placeholder="Creator" class="form-control disabled" disabled>
+			                     <p>{{$document->creator->emp_firstname . ' ' . $document->creator->emp_lastname}}</p>
 			                  </div>
 			                  <br>
 			                  <label>Department:</label>
@@ -255,7 +278,7 @@ View Document : DocPro
                 </span></td>
                     <td style='width: 80%'>
                       <input type="hidden" name="document_id">
-                      <textarea id="comment_area" style="width: 97%"></textarea>
+                      <textarea id="comment_area" style="width: 97%; padding: 5px;" placeholder="Leave a comment.."></textarea>
                       <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
                     </td>
                     <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px" data-value="{{$document->id}}">Send</button></td>
@@ -267,11 +290,11 @@ View Document : DocPro
               <br>
                </div>
                <span class="label label-success">{{count( $document->comments) }} Comments</span>
-                  <div class="col-md-12" id="comment_container">
+                  <p class="col-md-12" id="comment_container">
     		                <!-- <hr style="height: 2px; border-color: #dadada;"> -->
     		               <!-- <span class="label label-success">{{count( $document->comments) }} Comments</span> -->
     		               		@foreach( $document->comments as $comment)
-    		                	<p class="comment_holder">
+    		                	<div class="comment_holder">
     			                <span>
     			                <br>
     			                <img style="width: 30px;" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>{{ $comment->commentor->emp_firstname . ' ' . $comment->commentor->emp_lastname}}</b>
@@ -281,13 +304,13 @@ View Document : DocPro
     			               <span></span>
     			                <br>
     			                <br>
-    			                <span class="comment_text_holder">
-    			                	{{$comment->message}}
+    			                <p class="comment_text_holder">
+    			                	<?php echo $comment->message; ?>
+    			                </p>
     			                </span>
-    			                </span>
-    			                 </p>
+    			                 </div>
     			                 @endforeach()
-    		               </div>
+    		               </p>
                   </div>
               </div>
           </div>

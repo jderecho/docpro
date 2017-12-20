@@ -437,7 +437,7 @@ thead td{
 #approver-list-container, #reviewer-list-container{
 	background: #fff;
 	border-radius: 5px;
-	padding: 10px;
+	padding: 10px 10px 10px 0px;
 }
 .modal-body{
 	background: #F8F8F8 !important;
@@ -519,6 +519,10 @@ a span{
     padding-left: 10px;
     padding-right: 5px;
 }
+/*.comment_holder img{
+    width: 40%;
+    height: 40%;
+}*/
 .comment_holder:hover{
     background-color: #eaeaea;
 }
@@ -604,12 +608,42 @@ form button {
   cursor: pointer;
 }
 form .error {
-  color: #ff0000;
+  color: #ff0000;    padding: 10px 10px 10px 0px;
 }*/
-p.warning{
+#reviewer-list-container h5, #approver-list-container h5{
+    font-size: 13px !important;
+    margin-left: 5px;
+}
+span.warning{
     color: red;
 }
 span.label-small{
     font-size: 11px;
     color: grey;
+}
+.alert-success{
+    z-index: 1000000 !important; 
+}
+#document_header_holder, #document_sidebar_holder{
+    background: #fff;
+    border-radius: 5px;
+    padding: 20px;
+    min-height: 640px !important;
+}
+#document_sidebar_holder{
+    border-left: 1px solid #f1f1f1;;
+    border-bottom-left-radius: 0px;
+    border-top-left-radius: 0px;
+}
+#document_header_holder #revision_number_view, #document_header_holder #document_name_view{
+    margin-left: 10px;
+}
+.card.file{
+    width: 75px !important;
+}
+#final_document_holder .card.file{
+    width: 100px !important;
+}
+#final_document_holder{
+    padding-left: 0px !important;
 }

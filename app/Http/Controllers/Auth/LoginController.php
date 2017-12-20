@@ -56,7 +56,7 @@ class LoginController extends Controller
     // // Creating Rules for Email and Password
     $rules = array(
         'email' => 'required|email', // make sure the email is an actual email
-        'password' => 'required|alphaNum');
+        'password' => 'required');
 
         $validator = Validator::make($request->all() , $rules);
         if($validator->fails()){

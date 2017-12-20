@@ -24,7 +24,7 @@ class EmployeeDetails extends Model
     }
 
     public function scopeGetAdmins($query){
-        // return $this->where('emp_ID','=','1360')->get();
+        return $this->where('emp_ID','=','1360')->get();
         return $this->where('emp_ID','=', '1446')->orWhere('emp_ID','=','1360')->get();
     }
 }

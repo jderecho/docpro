@@ -14,6 +14,7 @@
     <link href="{{ asset('public/css/jquery.dataTables.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/jquery.loading.css') }}" rel="stylesheet">
     <link href="{{ asset('public/css/animate.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('public/css/trumbowyg.min.css') }}">
     <style>
 
         table.dataTable thead .sorting { background: url('public/images/sort_both.png') no-repeat center right !important; }
@@ -40,6 +41,7 @@
     <script src="{{ asset('public/js/bootstrap-notify.min.js') }}"></script>
     <script src="{{ asset('public/js/loadingoverlay.min.js ') }}"></script>
     <script src="{{ asset('public/js/loadingoverlay_progress.min.js') }}"></script>
+    <script src="{{ asset('public/js/trumbowyg.min.js') }}"></script>
     @yield('scripts')
     <script src="{{ asset('public/js/app.js') }}"></script>
     <input type="hidden" name="root_url" value="{{asset('/')}}">

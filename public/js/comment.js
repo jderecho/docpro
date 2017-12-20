@@ -56,7 +56,7 @@
             console.log(result);
             if(result.success){
                 var comment = "";
-                comment = '<p class="comment_holder">';
+                comment = '<div class="comment_holder">';
                 comment += '<span>';
                 comment += '<br>';
                 comment += '<img height="30" src="' + root_URL + 'public/img/mopro_profile.png">&nbsp;&nbsp;<b>'+ result.comment.commentor.emp_firstname + ' ' + result.comment.commentor.emp_lastname +'</b>';
@@ -65,14 +65,15 @@
                 comment += '<span>'+ result.comment.created +'</span>';
                 comment += '<br>';
                 comment += '<br>';
-                comment += '<span class="comment_text_holder">';
+                comment += '<pre class="comment_text_holder">';
                 // comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
                 comment +=  message;
+                comment += '</pre>';
                 comment += '</span>';
-                comment += '</span>';
-                comment += ' </p>';
+                comment += ' </div>';
                 $('#comment_container').prepend(comment);
                 $('#comment_area').val("");
+                $('#comment_area').css('height','50px');
             }else{
               console.log(result);
             }

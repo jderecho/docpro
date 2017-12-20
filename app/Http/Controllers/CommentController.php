@@ -107,6 +107,24 @@ class CommentController extends Controller
 		            }
 		        }
 
+
+
+            preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $request->message, $match);
+
+            $acceptedFileFormats = ["docx", "pdf", "doc"];
+
+            foreach($match[0] as $links){
+                $ext = explode(".", $links);
+                if(in_array(end($ext), $acceptedFileFormats)) {
+                     $attachment = new Attachment;
+                    $attachment->file_location = $links;
+                    $attachment->document_ID = $document->id;
+                    $attachment->comment_id = $comment->id;
+                    $attachment->type = 2;
+                    $attachment->save();     
+                 }
+                } 
+
             return array("success" => true, "comment" => $comment);
         }else{
             return array("success" => false);

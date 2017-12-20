@@ -109,6 +109,7 @@ class DocumentController extends Controller
      */
     public function update(Request $request, $id)
     {
+            // return $request->all();
         #-------------------------------------------------------------------------
         # Load document by id
         $document = Document::find($id);
@@ -120,49 +121,80 @@ class DocumentController extends Controller
         #-------------------------------------------------------------------------
         ## Update Approvers / Reviewers
         foreach($request->reviewers as $reviewer){
-            $array = $document->approvers->where('employee_details_id', $reviewer);
+            $array = $document->approvers->where('type','=',1)->where('employee_details_id', $reviewer);
             if($array->count() > 0){
                
             }else{
                 $approver = new Approver;
+                $approver->type = 1;
                 $approver->employee_details_id = $reviewer;
                 $approver->document_ID = $id;
                 $approver->save(); 
             }
         }
+        #---------------
+        # save approver
+        #---------------
+
+         foreach($request->approvers as $approver){
+            $array = $document->approvers->where('type','=',2)->where('employee_details_id', $approver);
+
+            if($array->count() > 0){
+               
+            }else{
+                $newapprover = new Approver;
+                $newapprover->type = 2;
+                $newapprover->employee_details_id = $approver;
+                $newapprover->document_ID = $id;
+                $newapprover->save(); 
+            }
+        }
 
         foreach($document->approvers as $approver){
-            if($request->reviewers){
-                if(in_array($approver->employee_details_id, $request->reviewers)){
-                    
+            if($approver->type == 1){
+                if($request->reviewers){
+                    if(in_array($approver->employee_details_id, $request->reviewers)){
+                        
+                    }else{
+                        $approver->delete();
+                    }
                 }else{
                     $approver->delete();
                 }
-            }else{
-                $approver->delete();
+            }else if($approver->type == 2){
+                 if($request->approvers){
+                    if(in_array($approver->employee_details_id, $request->approvers)){
+                        
+                    }else{
+                        $approver->delete();
+                    }
+                }else{
+                    $approver->delete();
+                }
             }
+           
         }
         #--------------------------------------------------------------------------
         ## Update departments 
         foreach($request->department_id as $department){
             $array = $document->departments->where("dept_id", $department);
-            if(empty($array)){
+            if($array->count() == 0){
                 $d = new DocumentDepartment;
                 $d->dept_id = $department; 
                 $d->document_id = $id; 
                 $d->save();
             }
         }
-
         foreach($document->departments as $department){
             if($request->department_id){
-                if(in_array($department->dept_id, $request->department_id)){
 
+                if(in_array($department->dept_id, $request->department_id)){
+                
                 }else{
-                    $department->delete;
+                    $department->delete();
                 }
             }else{
-                $department->delete;
+                $department->delete();
             }
         }
         return array("success" => $document->save());
@@ -211,10 +243,14 @@ class DocumentController extends Controller
     }
 
     public function save(Request $request){
-        // Document::where('document_name')
-        // if($request->document_name){
+        
+        $document = Document::where('document_name','=',$request->document_name)
+                            ->where('revision_number', '=', $request->revision_number)
+                            ->get();
 
-        // }
+        if($document->count() > 0){
+            return array("success" => false, "message" => "Document Name and Revision Number already existed!");
+        }
 
         $document = new Document;
 
@@ -781,10 +817,27 @@ class DocumentController extends Controller
      }
 
      public function downloadFile(Request $request){
-          phpinfo();
+          // phpinfo();
         // header("Content-Disposition: attachment; filename=\"" . basename($request->file_url) . "\"");
         // header("Content-Type: application/force-download");
         // header("Content-Length: " . filesize($request->file_url));
         // header("Connection: close");
+
+        $string = '<img src="http://localhost/docpro/public/img/profile/uploads/62/picture/download.png" alt="123">';
+
+    preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $string, $match);
+
+    echo "<pre>";
+    print_r($match[0]); 
+    echo "</pre>";
+
+    $acceptedFileFormats = ["docx", "pdf", "doc", "png"];
+
+            foreach($match[0] as $links){
+                $ext = explode(".", $links);
+                if(in_array(end($ext), $acceptedFileFormats)) {
+                    echo $links;
+                 }
+                }   
      }
 }

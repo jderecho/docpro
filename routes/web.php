@@ -32,7 +32,7 @@ Auth::routes();
 
 Route::post('password/email', 'EmployeeDetailController@passwordemail')->name('password.email');
 
-Route::get('test', 'DocumentController@downloadFile');
+Route::get('test', 'DocumentController@test');
 
 // hack for logout
 Route::get('logout', 'Auth\LoginController@logout');

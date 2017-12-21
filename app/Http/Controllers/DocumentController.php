@@ -75,7 +75,6 @@ class DocumentController extends Controller
     }
 
     public function display($id){
-
         $document = Document::with('creator')->with('approvers.employee_details')->with('attachments')->with('comments')->with('departments')->find($id);
         $document->comments->load('commentor');
         $document->departments->load('employee_dept');
@@ -83,6 +82,7 @@ class DocumentController extends Controller
         if(Auth::check()){
             $document->isContributor = $document->isContributor(Auth::user()->id);
             $document->contributorStatus = $document->isContributorStatus(Auth::user()->id);
+
         }else{
             return redirect()->route('login')->with('ref', 'document/'. $id. '/display');
         }
@@ -807,13 +807,14 @@ class DocumentController extends Controller
         return array("success" => $success, "message" => $message);
      }
      public function test(Request $request){
-        return phpinfo();
         $sendNotification = new SendNotification;
         $sendNotification->content = "TEST" ;
         $sendNotification->action = "";
         $sendNotification->link = url('');
         $sendNotification->fullName = "";
         Mail::to("john.derecho@mopro.com")->queue($sendNotification);
+        return phpinfo();
+
      }
 
      public function downloadFile(Request $request){

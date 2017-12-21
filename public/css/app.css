@@ -647,3 +647,7 @@ span.label-small{
 #final_document_holder{
     padding-left: 0px !important;
 }
+
+.card-text{
+    font-size: 12px !important;
+}

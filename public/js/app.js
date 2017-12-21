@@ -2,14 +2,17 @@ var root_URL = "";
 var base_URL = "localhost/docpro/";
 
 
-
-            
+         
 
 $('textarea').click(function(){
     $('textarea').trumbowyg();
-
+    $('.glyphicon-paperclip').after(' Attachment');
+    $('.glyphicon-paperclip').css('margin-top','10px');
 });
 
+$('.card-text').bind('DOMSubtreeModified', function(){
+   console.log('awdawdawd');
+});
 // $(document).on('focusout','.trumbowyg-editor',function(){
 //     $('textarea').trumbowyg('destroy');
 // });
@@ -47,6 +50,17 @@ $(document).ready(function(){
 
 function getExtension(filename){
 	return filename.split('.').pop();
+}
+function getIconFile(filename){
+
+    var ext = getExtension(filename)
+    if(ext == "doc" || ext == "docx"){
+        return "http://localhost/docpro/public/img/doctype/word.jpg";
+    }else if(ext == "png" || ext == "jpg"){
+        return "http://localhost/docpro/public/img/doctype/image.png";
+    }else{
+        return "http://localhost/docpro/public/img/doctype/pdf.png";
+    }
 }
 
 function getFileName(fullPath){
@@ -154,7 +168,7 @@ function alert_message(alert_message, alert_type){
         if(alert_type){
             location.reload();
         }
-    }, 3000);
+    }, 2000);
 }
 
 $.ajaxSetup({
@@ -226,5 +240,43 @@ function registerValidation(field){
         });
     }
 }
+
+function truncateText(elements){
+    $(elements).each(function(index){
+       $(this).attr('title', $(this).text());
+       if($(this).text().length > 10){
+        $(this).html($(this).text().substring( 0, 10) + "...");
+       }
+    })
+}
+
+function displayComment(obj, index){
+    var comment = '<p class="comment_holder">';
+    comment += '<span>';
+    comment += '<br>';
+    comment += '<img height="30"  class="img-circle" src="'+obj.commentor.profile_url+'">&nbsp;&nbsp;<b>'+ obj.commentor.emp_firstname + ' ' + obj.commentor.emp_lastname +'</b>';
+    comment += '<span>&nbsp;</span>';
+    comment += '<span> commented at </span>';
+    comment += '<span>  </span>';
+    comment += '<span> ' + obj.created_at + '</span>';
+    comment += '<br>';
+    comment += '<br>';
+    comment += '<span class="comment_text_holder">';
+    // comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
+    comment +=  obj.message;
+    comment += '</span>';
+    comment += '<span class="comment_attachments_holder">';
+    comment += '<br>';
+    if(obj.attachments.length > 0){
+      comment += "<span class='label label-success comment_text_holder'>"+ obj.attachments.length+" attachments</span>";
+    }
+    comment += '</span>';
+    comment += ' </p>';
+
+    return comment;
+}
+
+
+
 
 

@@ -126,7 +126,9 @@ View Document : DocPro
                            	<label>Revision Number</label>
                            	<p id="revision_number_view">{{ $document->revision_number}}</p>
                                     <br>
+
                               <?php $counter = 0;?>
+                              <!-- ####################################### ATTACHMENT ############################# -->
                             @if($document->status == 3)
                                 @foreach($document->attachments as $attachment)
                                   <?php $counter++; ?>
@@ -136,7 +138,17 @@ View Document : DocPro
                                     <a target="_blank" href="{{url($attachment->file_location)}}">
                                       <div style="float: left; margin-left: 10px;">
                                        <div class="card" style="width:100px">
-                                         <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                         <?php
+                                            $ext = explode(".", $attachment->file_location);
+                                          ?>
+                                          @if(end($ext) == "doc" || end($ext) == "docx")
+                                             <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                          @elseif(end($ext) == "pdf")
+                                           <img class="card-img-top" src="{{url('public/img/doctype/pdf.png')}}" alt="Card image" style="width:100%">
+                                          @else
+                                          <img class="card-img-top" src="{{url('public/img/doctype/image.png')}}" alt="Card image" style="width:100%">
+                                          @endif
+
                                         <div class="card-body">
                                           <center>
                                            <span class="card-text">{{ basename($attachment->file_location)}}</span>
@@ -150,6 +162,7 @@ View Document : DocPro
                                 @endforeach
                               @endif
                            	<br>
+                            <!-- ######################################## END ATTACHMENT ########################### -->
                             @if($document->status < 3 || $document->status == 4)
                                 @foreach($document->attachments as $attachment)
                                   <?php $counter++; ?>
@@ -159,7 +172,16 @@ View Document : DocPro
                                     <a target="_blank" href="{{url($attachment->file_location)}}">
                                       <div style="float: left; margin-left: 10px;">
                                        <div class="card" style="width:100px">
-                                         <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                         <?php
+                                            $ext = explode(".", $attachment->file_location);
+                                          ?>
+                                          @if(end($ext) == "doc" || end($ext) == "docx")
+                                             <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                          @elseif(end($ext) == "pdf")
+                                           <img class="card-img-top" src="{{url('public/img/doctype/pdf.png')}}" alt="Card image" style="width:100%">
+                                          @else
+                                          <img class="card-img-top" src="{{url('public/img/doctype/image.png')}}" alt="Card image" style="width:100%">
+                                          @endif
                                         <div class="card-body">
                                           <center>
                                            <span class="card-text">{{ basename($attachment->file_location)}}</span>
@@ -185,7 +207,17 @@ View Document : DocPro
                                   <a target="_blank" href="{{url($attachment->file_location)}}">
                                     <div style="float: left; margin-left: 10px;">
                                      <div class="card file" style="width:100px">
-                                       <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                         <?php
+                                            $ext = explode(".", $attachment->file_location);
+                                          ?>
+                                          @if(end($ext) == "doc" || end($ext) == "docx")
+                                             <img class="card-img-top" src="{{url('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">
+                                          @elseif(end($ext) == "pdf")
+                                           <img class="card-img-top" src="{{url('public/img/doctype/pdf.png')}}" alt="Card image" style="width:100%">
+                                          @else
+                                          <img class="card-img-top" src="{{url('public/img/doctype/image.png')}}" alt="Card image" style="width:100%">
+                                          @endif
+                                        
                                       <div class="card-body">
                                         <center>
                                          <span class="card-text">{{ basename($attachment->file_location)}}</span>
@@ -278,8 +310,8 @@ View Document : DocPro
                 </span></td>
                     <td style='width: 80%'>
                       <input type="hidden" name="document_id">
-                      <textarea id="comment_area" style="width: 97%; padding: 5px;" placeholder="Leave a comment.."></textarea>
                       <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
+                      <textarea id="comment_area" style="width: 97%; padding: 5px;" placeholder="Leave a comment.."></textarea>
                     </td>
                     <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px" data-value="{{$document->id}}">Send</button></td>
                   </tr>
@@ -442,8 +474,6 @@ View Document : DocPro
   });
 
   $('#btn_send_comment').click(function(){
-    alert("awd");
-    
     var filenames = [];
 
      $("input.comment-upload-input").each(function(){

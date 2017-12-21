@@ -15,6 +15,7 @@ class SendNotification extends Mailable implements ShouldQueue
     public $content;
     public $action;
     public $link;
+    public $subject;
 
     
     /**
@@ -23,7 +24,7 @@ class SendNotification extends Mailable implements ShouldQueue
      * @return void
      */
     public function __construct(){
-
+        $this->subject = "Document Update";
     }
 
     /**
@@ -33,6 +34,6 @@ class SendNotification extends Mailable implements ShouldQueue
      */
     public function build()
     {
-        return $this->view('mail.notification');
+        return $this->subject($this->subject)->view('mail.notification');
     }
 }

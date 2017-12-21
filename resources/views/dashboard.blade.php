@@ -383,9 +383,10 @@ Dashboard: Doc Pro
                 </span></td>
                     <td style='width: 80%'>
                       <input type="hidden" name="document_id">
+                      <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
                       <textarea id="comment_area" style="    padding-top: 10px;
     padding-left: 10px;width: 97% ;" placeholder="Leave a comment.."></textarea>
-                      <a id="btn_attachment"  ><span class="glyphicon glyphicon-paperclip"></span></a>
+                      
                     </td>
                     <td style='width: 10%'><button id="btn_send_comment" class="btn btn-success" style="margin-left: 10px">Send</button></td>
                   </tr>
@@ -812,7 +813,7 @@ Dashboard: Doc Pro
                   attachment_view += '<a target="_blank" href=" {{asset('/')}}' +  latest_file.file_location+'">';
                   attachment_view += '<div style="float: left; margin-left: 10px;">';
                   attachment_view += '<div class="card file">';
-                  attachment_view += '<img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">';
+                  attachment_view += '<img class="card-img-top" src="'+ getIconFile(latest_file.file_location) +'" alt="Card image" style="width:100%">';
                   attachment_view += '<div class="card-body">';
                   attachment_view += '<center>';
                   attachment_view += '<span class="card-text">'+ getFileName(latest_file.file_location) +'</span>';
@@ -831,11 +832,15 @@ Dashboard: Doc Pro
 
             result.attachments.forEach(function(file, index){
               console.log('nisud');
-
-                  attachment_view = '<a target="_blank" href=" {{asset('/')}}' +  file.file_location+'">';
+                  if(file.type == 1){
+                    attachment_view = '<a target="_blank" href=" {{asset('/')}}' +  file.file_location+'">';
+                  }else{
+                    attachment_view = '<a target="_blank" href="' + file.file_location+'">';
+                  }
+                  
                   attachment_view += '<div style="float: left; margin-left: 10px;">';
                   attachment_view += '<div class="card file" >';
-                  attachment_view += '<img class="card-img-top" src="{{asset('public/img/doctype/word.jpg')}}" alt="Card image" style="width:100%">';
+                  attachment_view += '<img class="card-img-top" src="'+ getIconFile(file.file_location) +'" alt="Card image" style="width:100%">';
                   attachment_view += '<div class="card-body">';
                   attachment_view += '<center>';
                   attachment_view += '<span class="card-text">'+ getFileName(file.file_location) +'</span>';
@@ -924,45 +929,16 @@ Dashboard: Doc Pro
           // Comment 
           if(result.comments != null){
             result.comments.forEach(function(obj, index){
-                comment = '<p class="comment_holder">';
-                comment += '<span>';
-                comment += '<br>';
-                comment += '<img height="30" src="{{asset('public/img/mopro_profile.png')}}">&nbsp;&nbsp;<b>'+ obj.commentor.emp_firstname + ' ' + obj.commentor.emp_lastname +'</b>';
-                comment += '<span>&nbsp;</span>';
-                comment += '<span> commented at </span>';
-                comment += '<span>  </span>';
-                comment += '<span> ' + obj.created_at + '</span>';
-                comment += '<br>';
-                comment += '<br>';
-                comment += '<span class="comment_text_holder">';
-                // comment += '<img src="{{asset('/public/img/status/check.png')}}">&nbsp;';
-                comment +=  obj.message;
-                comment += '</span>';
-                comment += '<span class="comment_attachments_holder">';
-                comment += '<br>';
-                if(obj.attachments.length > 0){
-                  comment += "<span class='label label-success comment_text_holder'>"+ obj.attachments.length+" attachments</span>";
-                }
-                // obj.attachments.forEach(function(file, index){
-
-                //   comment += '<div class="card" style="width:100px"><img class="card-img-top" src="' + file.file_location +'" alt="Card image" style="width:100%"><div class="card-body">';
-                //   comment += '<center><span class="card-text">'+getFileName(file.file_location)+'</span></center></div></div>';
-                //   comment += '</span>';
-                // });
-                
-                comment += '</span>';
-                comment += ' </p>';
-
-                $('#comment_container').append(comment);
+                $('#comment_container').append(displayComment(obj, index));
             });
           console.log(result);
             }
+            truncateText(".card-text");
         }});
     });
 
     $(".btn_delete_document").click(function(){
         var id = $(this).attr('data-value');
-
         $("#deleteDocumentModal input[name=document_id]").val(id);
     });
     $('#btn_delete_document').click(function(){

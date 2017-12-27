@@ -28,13 +28,13 @@ Route::get('home','DashboardController@index');
 
 Route::get('forgot/password', 'EmployeeDetailController@forgotpassword');
 
-Auth::routes();
-
 Route::post('password/email', 'EmployeeDetailController@passwordemail')->name('password.email');
 
 Route::get('test', 'DocumentController@test');
 
 // hack for logout
+Route::get('login', 'Auth\LoginController@show');
+Route::post('login', 'Auth\LoginController@login');
 Route::get('logout', 'Auth\LoginController@logout');
 
 // document routes
@@ -66,4 +66,5 @@ Route::get('profile', 'DashboardController@profile');
 Route::get('profile/changepass', 'DashboardController@changepass');
 Route::post('profile/changepass', 'EmployeeDetailController@changepassword');
 
-// Route::post('password/reset', 'Auth\ForgotPasswordController@sendResetLinkEmail');
+Route::post('password/reset', 'EmployeeDetailController@passwordemail');
+Route::get('password/reset/{token}', 'EmployeeDetailController@resetLink');

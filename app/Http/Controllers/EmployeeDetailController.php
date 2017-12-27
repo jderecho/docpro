@@ -8,6 +8,8 @@ use Auth;
 use App\EmployeeDetails;
 use App\EmployeeDepartment;
 use App\EmployeePosition;
+use App\ResetToken;
+use App\Mail\SendNotification;
 
 use App\User;
 use Illuminate\Http\Request;
@@ -15,6 +17,7 @@ use App\Http\Controllers\Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Mail;
 
 class EmployeeDetailController extends Controller
 {
@@ -138,22 +141,47 @@ class EmployeeDetailController extends Controller
 
         if( ! $validator->fails() )
         {
-            if( $user = User::where('emp_email', $request->input('email') )->first())
+            $user = User::where('emp_email', $request->input('email') )->first();
+            if( $user )
             {
+
                 $token = str_random(64);
 
-                DB::table(config('auth.passwords.users.table'))->insert([
-                    'email' => $user->email, 
-                    'token' => $token
-                ]);
+                $resetToken = ResetToken::where('user_id','=', $user->id)->first();
+                
+                if($resetToken){
 
-                return redirect()->back()->with('status', trans(Password::RESET_LINK_SENT));
+                }else{
+                    $resetToken = new ResetToken();
+                    $resetToken->user_id = $user->id;
+                    $resetToken->token = $token;
+                    $resetToken->save();
+                }
+
+                // Email token
+                $sendNotification = new SendNotification;
+
+                $sendNotification->content = "Reset your password, and we'll get you on your way.";
+                $sendNotification->action = "To change your password, click the link below.";
+
+                $sendNotification->link = url('password/reset') . '/' . $resetToken->token;
+                $sendNotification->fullname = $user->emp_firstname;
+                $sendNotification->subject = "Reset Password";
+                Mail::to($user->emp_email)->queue($sendNotification);
+
             }
         } else{
-
+             return array("success" => false);
         }
 
-        return $request->all();
+        return array("success" => true);
+    }
+    public function resetLink($token){
+        if($resetToken = ResetToken::where('token','=', $token)->first()){
+            return view('auth.passwords.reset');
+        }else{
+            return "token expired";
+        }
     }
     public function changeProfilePic(Request $request){
         $directory = 'public/img/profile/uploads/' . Auth::user()->id . '/picture';

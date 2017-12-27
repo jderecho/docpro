@@ -12,6 +12,7 @@ use App\Http\Controllers\Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 
+
 class LoginController extends Controller
 {
     /*
@@ -46,8 +47,6 @@ class LoginController extends Controller
 
     public function show(LoginController $login)
     {
-        dd("test");
-
          return view('auth.login');
     }
 

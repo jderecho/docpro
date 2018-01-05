@@ -807,14 +807,21 @@ class DocumentController extends Controller
         return array("success" => $success, "message" => $message);
      }
      public function test(Request $request){
-        $sendNotification = new SendNotification;
-        $sendNotification->content = "TEST" ;
-        $sendNotification->action = "";
-        $sendNotification->link = url('');
-        $sendNotification->fullName = "";
-        Mail::to("john.derecho@mopro.com")->queue($sendNotification);
-        return phpinfo();
+        // $sendNotification = new SendNotification;
+        // $sendNotification->content = "TEST" ;
+        // $sendNotification->action = "";
+        // $sendNotification->link = url('');
+        // $sendNotification->fullName = "";
+        // Mail::to("john.derecho@mopro.com")->queue($sendNotification);
+        // return phpinfo();
+        return "aw";
+        if( $request->hasFile('image') ) {
+            $file = $request->file('image');
+            // Now you have your file in a variable that you can do things with
 
+            $file->move(asset() . '/images/', $filename);
+
+        }
      }
 
      public function downloadFile(Request $request){

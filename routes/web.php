@@ -30,7 +30,7 @@ Route::get('forgot/password', 'EmployeeDetailController@forgotpassword');
 
 Route::post('password/email', 'EmployeeDetailController@passwordemail')->name('password.email');
 
-Route::get('test', 'DocumentController@test');
+Route::post('test', 'Auth\LoginController@test');
 
 // hack for logout
 Route::get('login', 'Auth\LoginController@show');
@@ -68,3 +68,4 @@ Route::post('profile/changepass', 'EmployeeDetailController@changepassword');
 
 Route::post('password/reset', 'EmployeeDetailController@passwordemail');
 Route::get('password/reset/{token}', 'EmployeeDetailController@resetLink');
+

@@ -884,16 +884,17 @@ Dashboard: Doc Pro
           else if(result.status == 1){
             if(result.creator.id == {!! Auth::user()->id !!}){
 
-               result.approvers.forEach(function(approver, index){
+               result.approvers.some(function(approver, index){
                 // check if any approver disapprove the doc
                 console.log('aw');
                 if(approver.status == 2){
                    $("#viewDocumentModal .button-container").prepend('<button id="btn_resend_for_approval" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-send">&nbsp;</span>Resend for Approval</button>');
-                   return;
+                   return true;
                 }else if(approver.status == 0 && approver.employee_details_id ==  {!! Auth::user()->id !!}){
                    $("#viewDocumentModal .button-container").prepend('<button id="btn_disapprove" type="button" class="btn btn-danger" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-down">&nbsp;</span>Disapprove</button>');
 
                 $("#viewDocumentModal .button-container").prepend('<button id="btn_approve" type="button" class="btn btn-success" data-value="'+ result.id+'" data-dismiss="modal"><span class="glyphicon glyphicon-thumbs-up">&nbsp;</span>Approve</button>');
+                  return true;
                 }
               });
             }

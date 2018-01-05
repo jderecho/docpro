@@ -144,7 +144,6 @@ class EmployeeDetailController extends Controller
             $user = User::where('emp_email', $request->input('email') )->first();
             if( $user )
             {
-
                 $token = str_random(64);
 
                 $resetToken = ResetToken::where('user_id','=', $user->id)->first();
@@ -178,7 +177,8 @@ class EmployeeDetailController extends Controller
     }
     public function resetLink($token){
         if($resetToken = ResetToken::where('token','=', $token)->first()){
-            return view('auth.passwords.reset');
+            // return view('changepass');
+            return "view is not yet created";
         }else{
             return "token expired";
         }

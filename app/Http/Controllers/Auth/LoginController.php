@@ -84,4 +84,14 @@ class LoginController extends Controller
         Auth::logout();
         return Redirect::to('/');
     }
+    public function test(Request $request){
+        if( $request->hasFile('image') ) {
+            $file = $request->file('image');
+            // Now you have your file in a variable that you can do things with
+
+            $file->move(asset() . '/images/', $filename);
+
+        }
+        return 'aw';
+    }
 }
